@@ -283,8 +283,13 @@ struct p_uuids110 {
 				    The remaining slots carry history uuids */
 } __packed;
 
+struct p_current_uuid {
+	uint64_t uuid;
+	uint64_t weak_nodes;
+} __packed;
+
 struct p_uuid {
-	uint64_t	    uuid;
+	uint64_t uuid;
 } __packed;
 
 struct p_sizes {
