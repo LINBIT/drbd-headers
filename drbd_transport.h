@@ -11,7 +11,7 @@
    So that transport compiled against an older version of this
    header will no longer load in a module that assumes a newer
    version. */
-#define DRBD_TRANSPORT_API_VERSION 6
+#define DRBD_TRANSPORT_API_VERSION 7
 
 /* MSG_MSG_DONTROUTE and MSG_PROBE are not used by DRBD. I.e.
    we can reuse these flags for our purposes */
@@ -29,7 +29,9 @@
 
 #define tr_printk(level, transport, fmt, args...)  ({		\
 	rcu_read_lock();					\
-	printk(level "tr %s: " fmt,				\
+	printk(level "drbd %s %s:%s: " fmt,			\
+	       (transport)->log_prefix,				\
+	       (transport)->class->name,			\
 	       rcu_dereference((transport)->net_conf)->name,	\
 	       ## args);					\
 	rcu_read_unlock();					\
@@ -87,6 +89,7 @@ struct drbd_transport {
 	int my_addr_len;
 	int peer_addr_len;
 
+	const char *log_prefix;		/* resource name */
 	struct net_conf *net_conf;	/* content protected by rcu */
 
 	/* These members are intended to be updated by the transport: */
