@@ -95,6 +95,7 @@ GENL_struct(DRBD_NLA_CFG_REPLY, 1, drbd_cfg_reply,
  * and/or the replication group (aka resource) name,
  * and the volume id within the resource. */
 GENL_struct(DRBD_NLA_CFG_CONTEXT, 2, drbd_cfg_context,
+	__u32_field(6, DRBD_GENLA_F_MANDATORY,	ctx_peer_node_id)
 	__u32_field(1, DRBD_GENLA_F_MANDATORY,	ctx_volume)
 	__str_field(2, DRBD_GENLA_F_MANDATORY,	ctx_resource_name, 128)
 	__bin_field(3, DRBD_GENLA_F_MANDATORY,	ctx_my_addr, 128)
@@ -170,7 +171,7 @@ GENL_struct(DRBD_NLA_NET_CONF, 5, net_conf,
 	__flg_field_def(29,	DRBD_GENLA_F_MANDATORY,	use_rle, DRBD_USE_RLE_DEF)
 	__u32_field_def(30,	DRBD_GENLA_F_MANDATORY,	fencing_policy, DRBD_FENCING_DEF)
 	__str_field_def(31,	DRBD_GENLA_F_MANDATORY, name, SHARED_SECRET_MAX)
-	__u32_field(32,		DRBD_F_REQUIRED | DRBD_F_INVARIANT,	peer_node_id)
+	/* moved into ctx_peer_node_id: __u32_field(32,		DRBD_F_REQUIRED | DRBD_F_INVARIANT,	peer_node_id) */
 	__flg_field_def(33, 0 /* OPTIONAL */,	csums_after_crash_only, DRBD_CSUMS_AFTER_CRASH_ONLY_DEF)
 	__u32_field_def(34, 0 /* OPTIONAL */, sock_check_timeo, DRBD_SOCKET_CHECK_TIMEO_DEF)
 	__str_field_def(35, DRBD_F_INVARIANT, transport_name, SHARED_SECRET_MAX)
