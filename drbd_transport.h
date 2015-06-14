@@ -11,7 +11,7 @@
    So that transport compiled against an older version of this
    header will no longer load in a module that assumes a newer
    version. */
-#define DRBD_TRANSPORT_API_VERSION 7
+#define DRBD_TRANSPORT_API_VERSION 8
 
 /* MSG_MSG_DONTROUTE and MSG_PROBE are not used by DRBD. I.e.
    we can reuse these flags for our purposes */
@@ -203,7 +203,8 @@ extern int drbd_register_transport_class(struct drbd_transport_class *transport_
 					 int api_version,
 					 int drbd_transport_size);
 extern void drbd_unregister_transport_class(struct drbd_transport_class *transport_class);
-extern struct drbd_transport_class *drbd_find_transport_class(const char *transport_name);
+extern struct drbd_transport_class *drbd_get_transport_class(const char *transport_name);
+extern void drbd_put_transport_class(struct drbd_transport_class *);
 extern void drbd_print_transports_loaded(struct seq_file *seq);
 
 extern int drbd_get_listener(struct drbd_waiter *waiter,
