@@ -78,16 +78,24 @@ enum drbd_tr_free_op {
 	DESTROY_TRANSPORT
 };
 
+
+struct drbd_path {
+	struct sockaddr_storage my_addr;
+	struct sockaddr_storage peer_addr;
+
+	int my_addr_len;
+	int peer_addr_len;
+
+	struct list_head list;
+};
+
 /* Each transport implementation should embed a struct drbd_transport
    into it's instance data structure. */
 struct drbd_transport {
 	struct drbd_transport_ops *ops;
 	struct drbd_transport_class *class;
 
-	struct sockaddr_storage my_addr;
-	struct sockaddr_storage peer_addr;
-	int my_addr_len;
-	int peer_addr_len;
+	struct list_head paths;
 
 	const char *log_prefix;		/* resource name */
 	struct net_conf *net_conf;	/* content protected by rcu */
@@ -163,6 +171,8 @@ struct drbd_transport_ops {
 	bool (*stream_ok)(struct drbd_transport *, enum drbd_stream);
 	bool (*hint)(struct drbd_transport *, enum drbd_stream, enum drbd_tr_hints hint);
 	void (*debugfs_show)(struct drbd_transport *, struct seq_file *m);
+	int (*add_path)(struct drbd_transport *, struct drbd_path *path);
+	int (*remove_path)(struct drbd_transport *, struct drbd_path *path);
 };
 
 struct drbd_transport_class {
