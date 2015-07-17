@@ -11,7 +11,7 @@
    So that transport compiled against an older version of this
    header will no longer load in a module that assumes a newer
    version. */
-#define DRBD_TRANSPORT_API_VERSION 9
+#define DRBD_TRANSPORT_API_VERSION 10
 
 /* MSG_MSG_DONTROUTE and MSG_PROBE are not used by DRBD. I.e.
    we can reuse these flags for our purposes */
@@ -112,6 +112,12 @@ struct drbd_transport_stats {
 	int send_buffer_used;
 };
 
+/* argument to ->recv_pages() */
+struct drbd_page_chain_head {
+	struct page *head;
+	unsigned int nr_pages;
+};
+
 struct drbd_transport_ops {
 	void (*free)(struct drbd_transport *, enum drbd_tr_free_op free_op);
 	int (*connect)(struct drbd_transport *);
@@ -152,7 +158,7 @@ struct drbd_transport_ops {
 /**
  * recv_pages() - Receive bulk data via the transport's DATA_STREAM
  * @peer_device: Identify the transport and the device
- * @page:	Here recv_pages() will place the pointer to the first page
+ * @page_chain:	Here recv_pages() will place the page chain head and length
  * @size:	Number of bytes to receive
  *
  * recv_pages() will return the requested amount of data from DATA_STREAM,
@@ -161,7 +167,7 @@ struct drbd_transport_ops {
  * Upon success the function returns 0. Upon error the function returns a
  * negative value
  */
-	int (*recv_pages)(struct drbd_transport *, struct page **page, size_t size);
+	int (*recv_pages)(struct drbd_transport *, struct drbd_page_chain_head *, size_t size);
 
 	void (*stats)(struct drbd_transport *, struct drbd_transport_stats *stats);
 	void (*set_rcvtimeo)(struct drbd_transport *, enum drbd_stream, long timeout);
@@ -229,11 +235,92 @@ extern bool drbd_should_abort_listening(struct drbd_transport *transport);
 extern struct page *drbd_alloc_pages(struct drbd_transport *, unsigned int, gfp_t);
 extern void drbd_free_pages(struct drbd_transport *transport, struct page *page, int is_net);
 
-/* see also page_chain_add and friends in drbd_receiver.c */
-static inline struct page *page_chain_next(struct page *page)
+static inline void drbd_alloc_page_chain(struct drbd_transport *t,
+	struct drbd_page_chain_head *chain, unsigned int nr, gfp_t gfp_flags)
 {
-	return (struct page *)page_private(page);
+	chain->head = drbd_alloc_pages(t, nr, gfp_flags);
+	chain->nr_pages = chain->head ? nr : 0;
 }
+
+static inline void drbd_free_page_chain(struct drbd_transport *transport, struct drbd_page_chain_head *chain, int is_net)
+{
+	drbd_free_pages(transport, chain->head, is_net);
+	chain->head = NULL;
+	chain->nr_pages = 0;
+}
+
+/*
+ * Some helper functions to deal with our page chains.
+ */
+/* Our transports may sometimes need to only partially use a page.
+ * We need to express that somehow.  Use this struct, and "graft" it into
+ * struct page at page->lru.
+ *
+ * According to include/linux/mm.h:
+ *  | A page may be used by anyone else who does a __get_free_page().
+ *  | In this case, page_count still tracks the references, and should only
+ *  | be used through the normal accessor functions. The top bits of page->flags
+ *  | and page->virtual store page management information, but all other fields
+ *  | are unused and could be used privately, carefully. The management of this
+ *  | page is the responsibility of the one who allocated it, and those who have
+ *  | subsequently been given references to it.
+ * (we do alloc_page(), that is equivalent).
+ *
+ * Red Hat struct page is different from upstream (layout and members) :(
+ * So I am not too sure about the "all other fields", and it is not as easy to
+ * find a place where sizeof(struct drbd_page_chain) would fit on all archs and
+ * distribution-changed layouts.
+ *
+ * But (upstream) struct page also says:
+ *  | struct list_head lru;   * ...
+ *  |       * Can be used as a generic list
+ *  |       * by the page owner.
+ *
+ * On 32bit, use unsigned short for offset and size,
+ * to still fit in sizeof(page->lru).
+ */
+
+/* grafted over struct page.lru */
+struct drbd_page_chain {
+	struct page *next;	/* next page in chain, if any */
+#ifdef CONFIG_64BIT
+	unsigned int offset;	/* start offset of data within this page */
+	unsigned int size;	/* number of data bytes within this page */
+#else
+#if PAGE_SIZE > (1U<<16)
+#error "won't work."
+#endif
+	unsigned short offset;	/* start offset of data within this page */
+	unsigned short size;	/* number of data bytes within this page */
+#endif
+};
+
+static inline void dummy_for_buildbug(void)
+{
+	struct page *dummy;
+	BUILD_BUG_ON(sizeof(struct drbd_page_chain) > sizeof(dummy->lru));
+}
+
+#define page_chain_next(page) \
+	(((struct drbd_page_chain*)&(page)->lru)->next)
+#define page_chain_size(page) \
+	(((struct drbd_page_chain*)&(page)->lru)->size)
+#define page_chain_offset(page) \
+	(((struct drbd_page_chain*)&(page)->lru)->offset)
+#define set_page_chain_next(page, v) \
+	(((struct drbd_page_chain*)&(page)->lru)->next = (v))
+#define set_page_chain_size(page, v) \
+	(((struct drbd_page_chain*)&(page)->lru)->size = (v))
+#define set_page_chain_offset(page, v) \
+	(((struct drbd_page_chain*)&(page)->lru)->offset = (v))
+#define set_page_chain_next_offset_size(page, n, o, s)	\
+	*((struct drbd_page_chain*)&(page)->lru) =	\
+	((struct drbd_page_chain) {			\
+		.next = (n),				\
+		.offset = (o),				\
+		.size = (s),				\
+	 })
+
 #define page_chain_for_each(page) \
 	for (; page && ({ prefetch(page_chain_next(page)); 1; }); \
 			page = page_chain_next(page))
