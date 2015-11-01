@@ -11,7 +11,7 @@
    So that transport compiled against an older version of this
    header will no longer load in a module that assumes a newer
    version. */
-#define DRBD_TRANSPORT_API_VERSION 12
+#define DRBD_TRANSPORT_API_VERSION 13
 
 /* MSG_MSG_DONTROUTE and MSG_PROBE are not used by DRBD. I.e.
    we can reuse these flags for our purposes */
@@ -87,6 +87,7 @@ struct drbd_path {
 
 	int my_addr_len;
 	int peer_addr_len;
+	bool established; /* updated by the transport */
 
 	struct list_head list;
 };
@@ -234,6 +235,7 @@ extern void drbd_put_listener(struct drbd_waiter *waiter);
 extern struct drbd_waiter *drbd_find_waiter_by_addr(struct drbd_listener *, struct sockaddr_storage *);
 extern bool drbd_stream_send_timed_out(struct drbd_transport *transport, enum drbd_stream stream);
 extern bool drbd_should_abort_listening(struct drbd_transport *transport);
+extern void drbd_path_event(struct drbd_transport *transport, struct drbd_path *path);
 
 /* drbd_receiver.c*/
 extern struct page *drbd_alloc_pages(struct drbd_transport *, unsigned int, gfp_t);
