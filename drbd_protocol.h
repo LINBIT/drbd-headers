@@ -189,6 +189,7 @@ struct p_block_req {
  */
 
 #define FF_TRIM      1
+#define FF_THIN_RESYNC 2
 
 struct p_connection_features {
 	uint32_t protocol_min;
