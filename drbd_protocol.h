@@ -77,6 +77,11 @@ enum drbd_packet {
 	P_RS_THIN_REQ         = 0x32, /* Request a block for resync or reply P_RS_DEALLOCATED */
 	P_RS_DEALLOCATED      = 0x33, /* Contains only zeros on sync source node */
 
+	/* REQ_WRITE_SAME.
+	 * On a receiving side without REQ_WRITE_SAME,
+	 * we may fall back to an opencoded loop instead. */
+	P_WSAME               = 0x34,
+
 	P_PEER_ACK            = 0x40, /* meta sock: tell which nodes have acked a request */
 	P_PEERS_IN_SYNC       = 0x41, /* data sock: Mark area as in sync */
 
@@ -134,7 +139,10 @@ struct p_header100 {
 	uint32_t pad;
 } __packed;
 
-/* these defines must not be changed without changing the protocol version */
+/* These defines must not be changed without changing the protocol version.
+ * New defines may only be introduced together with protocol version bump or
+ * new protocol feature flags.
+ */
 #define DP_HARDBARRIER	      1 /* no longer used */
 #define DP_RW_SYNC	      2 /* equals REQ_SYNC    */
 #define DP_MAY_SET_IN_SYNC    4
@@ -144,6 +152,7 @@ struct p_header100 {
 #define DP_DISCARD           64 /* equals REQ_DISCARD */
 #define DP_SEND_RECEIVE_ACK 128 /* This is a proto B write request */
 #define DP_SEND_WRITE_ACK   256 /* This is a proto C write request */
+#define DP_WSAME            512 /* equiv. REQ_WRITE_SAME */
 
 struct p_data {
 	uint64_t sector;    /* 64 bits sector number */
@@ -155,6 +164,11 @@ struct p_data {
 struct p_trim {
 	struct p_data p_data;
 	uint32_t size;	/* == bio->bi_size */
+} __packed;
+
+struct p_wsame {
+	struct p_data p_data;
+	uint32_t size;     /* == bio->bi_size */
 } __packed;
 
 /*
@@ -188,8 +202,23 @@ struct p_block_req {
  *   ReportParams
  */
 
-#define FF_TRIM      1
-#define FF_THIN_RESYNC 2
+/* supports TRIM/DISCARD on the "wire" protocol */
+#define DRBD_FF_TRIM 1
+
+/* Detect all-zeros during resync, and rather TRIM/UNMAP/DISCARD those blocks
+ * instead of fully allocate a supposedly thin volume on initial resync */
+#define DRBD_FF_THIN_RESYNC 2
+
+/* supports REQ_WRITE_SAME on the "wire" protocol.
+ * Note: this flag is overloaded,
+ * its presence also
+ *   - indicates support for 128 MiB "batch bios",
+ *     max discard size of 128 MiB
+ *     instead of 4M before that.
+ *   - indicates that we exchange additional settings in p_sizes
+ *     drbd_send_sizes()/receive_sizes()
+ */
+#define DRBD_FF_WSAME 4
 
 struct p_connection_features {
 	uint32_t protocol_min;
@@ -300,6 +329,40 @@ struct p_uuid {
 	uint64_t uuid;
 } __packed;
 
+/* optional queue_limits if (agreed_features & DRBD_FF_WSAME)
+ * see also struct queue_limits, as of late 2015 */
+struct o_qlim {
+	/* we don't need it yet, but we may as well communicate it now */
+	uint32_t physical_block_size;
+
+	/* so the original in struct queue_limits is unsigned short,
+	 * but I'd have to put in padding anyways. */
+	uint32_t logical_block_size;
+
+	/* One incoming bio becomes one DRBD request,
+	 * which may be translated to several bio on the receiving side.
+	 * We don't need to communicate chunk/boundary/segment ... limits.
+	 */
+
+	/* various IO hints may be useful with "diskless client" setups */
+	uint32_t alignment_offset;
+	uint32_t io_min;
+	uint32_t io_opt;
+
+	/* We may need to communicate integrity stuff at some point,
+	 * but let's not get ahead of ourselves. */
+
+	/* Backend discard capabilities.
+	 * Receiving side uses "blkdev_issue_discard()", no need to communicate
+	 * more specifics.  If the backend cannot do discards, the DRBD peer
+	 * may fall back to blkdev_issue_zeroout().
+	 */
+	uint8_t discard_enabled;
+	uint8_t discard_zeroes_data;
+	uint8_t write_same_capable;
+	uint8_t _pad;
+} __packed;
+
 struct p_sizes {
 	uint64_t d_size;  /* size of disk */
 	uint64_t u_size;  /* user requested size */
@@ -307,6 +370,9 @@ struct p_sizes {
 	uint32_t max_bio_size;  /* Maximal size of a BIO */
 	uint16_t queue_order_type;  /* not yet implemented in DRBD*/
 	uint16_t dds_flags; /* use enum dds_flags here. */
+
+	/* optional queue_limits if (agreed_features & DRBD_FF_WSAME) */
+	struct o_qlim qlim[0];
 } __packed;
 
 struct p_state {
