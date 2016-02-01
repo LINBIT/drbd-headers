@@ -11,7 +11,7 @@
    So that transport compiled against an older version of this
    header will no longer load in a module that assumes a newer
    version. */
-#define DRBD_TRANSPORT_API_VERSION 13
+#define DRBD_TRANSPORT_API_VERSION 14
 
 /* MSG_MSG_DONTROUTE and MSG_PROBE are not used by DRBD. I.e.
    we can reuse these flags for our purposes */
@@ -84,6 +84,8 @@ enum drbd_tr_free_op {
 struct drbd_path {
 	struct sockaddr_storage my_addr;
 	struct sockaddr_storage peer_addr;
+
+	struct kref kref;
 
 	int my_addr_len;
 	int peer_addr_len;
@@ -218,6 +220,9 @@ struct drbd_waiter {
 	struct list_head list;
 	struct drbd_listener *listener;
 };
+
+/* drbd_main.c */
+extern void drbd_destroy_path(struct kref *kref);
 
 /* drbd_transport.c */
 extern int drbd_register_transport_class(struct drbd_transport_class *transport_class,
