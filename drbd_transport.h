@@ -25,7 +25,7 @@
  * write-out because in a criss-cross setup, the write-out could lead to memory
  * pressure on the peer, eventually leading to deadlock.
  */
-#define GFP_TRY	(__GFP_HIGHMEM | __GFP_NOWARN | __GFP_WAIT)
+#define GFP_TRY	(__GFP_HIGHMEM | __GFP_NOWARN | __GFP_RECLAIM)
 
 #define tr_printk(level, transport, fmt, args...)  ({		\
 	rcu_read_lock();					\
