@@ -1,7 +1,7 @@
-﻿/* was Mantech ./drbd-headers/windows/wingenl.h */
+/* was Mantech ./drbd-headers/windows/wingenl.h */
 #ifndef __NETLINK_H__
 #define __NETLINK_H__
-#include "windows/types.h"
+#include <asm/types.h>
 #ifdef __KERNEL__
 #include "linux-compat/jiffies.h"
 #endif
