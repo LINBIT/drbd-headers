@@ -108,6 +108,8 @@ enum drbd_read_balancing {
 	RB_1M_STRIPING,
 };
 
+/* Windows km/dderror.h has that a 0L */
+#undef NO_ERROR
 /* KEEP the order, do not delete or insert. Only append. */
 enum drbd_ret_code {
 	ERR_CODE_BASE		= 100,

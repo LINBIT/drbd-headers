@@ -14,7 +14,7 @@
 #endif
 
 #include <linux/netlink.h>
-#include <linux/genetlink.h>
+//#include <linux/genetlink.h>
 #ifdef __KERNEL__
 #include <net/genetlink.h>
 #else
