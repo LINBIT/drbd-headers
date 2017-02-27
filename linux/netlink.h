@@ -2,6 +2,8 @@
 #ifndef __NETLINK_H__
 #define __NETLINK_H__
 #include <asm/types.h>
+#define NETLINK_PORT			5678
+
 
 struct nlmsghdr
 {
