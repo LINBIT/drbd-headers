@@ -121,6 +121,7 @@ static const char * const __error_messages[] = {
 	[-SS_INTERRUPTED] = "Interrupted state change",
 	[-SS_TIMEOUT] = "Timeout in operation",
 	[-SS_WEAKLY_CONNECTED] = "Primary nodes must be strongly connected among each other",
+	[-SS_NO_QUORUM] = "No quorum",
 };
 
 struct state_names drbd_error_messages = {
