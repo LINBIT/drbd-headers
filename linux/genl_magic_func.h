@@ -263,27 +263,26 @@ static struct genl_family ZZZ_genl_family;
  * genetlink: pass family to functions using groups
  * genetlink: only pass array to genl_register_family_with_ops()
  * which are commits c53ed742..2a94fe48
+ *
+ * v4.10, 489111e5 genetlink: statically initialize families
+ *   and previous commit drop GENL_ID_GENERATE and register helper functions.
  */
-#if defined(genl_register_family_with_ops_groups) || \
-    defined(COMPAT_HAVE_GENL_FAMILY_IN_GENLMSG_MULTICAST)
+#if defined(genl_register_family_with_ops_groups) || !defined(GENL_ID_GENERATE)
 #include <linux/genl_magic_func-genl_register_family_with_ops_groups.h>
 #else
 #include <linux/genl_magic_func-genl_register_mc_group.h>
 #endif
 
 static struct genl_family ZZZ_genl_family __read_mostly = {
-#ifdef HAVE_GENL_ID_GENERATE
-	.id = GENL_ID_GENERATE,
-#endif
+	/* .id = GENL_ID_GENERATE, which exists no longer, and was 0 anyways */
 	.name = __stringify(GENL_MAGIC_FAMILY),
 	.version = GENL_MAGIC_VERSION,
 #ifdef GENL_MAGIC_FAMILY_HDRSZ
 	.hdrsize = NLA_ALIGN(GENL_MAGIC_FAMILY_HDRSZ),
 #endif
-	.maxattr = ARRAY_SIZE(drbd_tla_nl_policy)-1,
+	.maxattr = ARRAY_SIZE(CONCAT_(GENL_MAGIC_FAMILY, _tla_nl_policy))-1,
 
-#if !defined(COMPAT_HAVE_GENL_REGISTER_FAMILY_WITH_OPS) && !defined(COMPAT_HAVE_GENL_REGISTER_FAMILY_WITH_OPS3)
-/* removed in 489111e5c25b93, relevant for v4.10,  now set directly */
+#ifndef GENL_ID_GENERATE
 	.ops = ZZZ_genl_ops,
 	.n_ops = ARRAY_SIZE(ZZZ_genl_ops),
 	.mcgrps = ZZZ_genl_mcgrps,
