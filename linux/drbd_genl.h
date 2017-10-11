@@ -231,6 +231,7 @@ GENL_struct(DRBD_NLA_RESOURCE_INFO, 15, resource_info,
 GENL_struct(DRBD_NLA_DEVICE_INFO, 16, device_info,
 	__u32_field(1, 0, dev_disk_state)
 	__flg_field(2, 0, is_intentional_diskless)
+	__flg_field(3, 0, dev_has_quorum)
 )
 
 GENL_struct(DRBD_NLA_CONNECTION_INFO, 17, connection_info,
