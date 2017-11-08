@@ -350,6 +350,7 @@ enum mdf_flag {
 	MDF_CRASHED_PRIMARY =	1 << 6,
 	MDF_AL_CLEAN =		1 << 7,
 	MDF_AL_DISABLED =       1 << 8,
+	MDF_PRIMARY_LOST_QUORUM = 1 << 9,
 };
 
 enum mdf_peer_flag {
