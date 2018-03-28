@@ -51,6 +51,10 @@
 
 #endif
 
+/* Maximal length for the mount point in windrbd */
+
+#define DRBD_WINDOWS_PATH_MAX 260
+
 enum drbd_io_error_p {
 	EP_PASS_ON, /* FIXME should the better be named "Ignore"? */
 	EP_CALL_HELPER,
