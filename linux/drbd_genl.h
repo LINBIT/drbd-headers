@@ -216,6 +216,7 @@ GENL_struct(DRBD_NLA_DETACH_PARMS, 13, detach_parms,
 
 GENL_struct(DRBD_NLA_DEVICE_CONF, 14, device_conf,
 	__u32_field_def(1, DRBD_F_INVARIANT,	max_bio_size, DRBD_MAX_BIO_SIZE_DEF)
+        __flg_field_def(2, 0 /* OPTIONAL */, intentional_diskless, DRBD_DISK_DISKLESS_DEF)
 )
 
 GENL_struct(DRBD_NLA_RESOURCE_INFO, 15, resource_info,
@@ -227,6 +228,7 @@ GENL_struct(DRBD_NLA_RESOURCE_INFO, 15, resource_info,
 
 GENL_struct(DRBD_NLA_DEVICE_INFO, 16, device_info,
 	__u32_field(1, 0, dev_disk_state)
+        __flg_field(2, 0, is_intentional_diskless)
 )
 
 GENL_struct(DRBD_NLA_CONNECTION_INFO, 17, connection_info,
@@ -240,6 +242,7 @@ GENL_struct(DRBD_NLA_PEER_DEVICE_INFO, 18, peer_device_info,
 	__u32_field(3, 0, peer_resync_susp_user)
 	__u32_field(4, 0, peer_resync_susp_peer)
 	__u32_field(5, 0, peer_resync_susp_dependency)
+        __flg_field(6, 0, peer_is_intentional_diskless)
 )
 
 GENL_struct(DRBD_NLA_RESOURCE_STATISTICS, 19, resource_statistics,
