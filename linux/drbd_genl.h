@@ -272,6 +272,8 @@ GENL_struct(DRBD_NLA_DEVICE_STATISTICS, 20, device_statistics,
 
 GENL_struct(DRBD_NLA_CONNECTION_STATISTICS, 21, connection_statistics,
 	__flg_field(1, 0, conn_congested)
+	__u64_field(2, 0, ap_in_flight) /* sectors */
+	__u64_field(3, 0, rs_in_flight) /* sectors */
 )
 
 GENL_struct(DRBD_NLA_PEER_DEVICE_STATISTICS, 22, peer_device_statistics,
