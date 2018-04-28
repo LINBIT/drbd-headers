@@ -285,6 +285,24 @@ GENL_struct(DRBD_NLA_PEER_DEVICE_STATISTICS, 22, peer_device_statistics,
 	__u64_field(6, 0, peer_dev_resync_failed)  /* sectors */
 	__u64_field(7, 0, peer_dev_bitmap_uuid)
 	__u32_field(9, 0, peer_dev_flags)
+	/* you need the peer_repl_state from peer_device_info
+	 * to properly interpret these stats for "progress"
+	 * of syncer/verify */
+	__u64_field(10,0, peer_dev_rs_total)	/* sectors */
+	__u64_field(11,0, peer_dev_ov_start_sector)
+	__u64_field(12,0, peer_dev_ov_stop_sector)
+	__u64_field(13,0, peer_dev_ov_position) /* sectors */
+	__u64_field(14,0, peer_dev_ov_left)	/* sectors */
+	__u64_field(15,0, peer_dev_ov_skipped)	/* sectors */
+	__u64_field(16,0, peer_dev_rs_same_csum)
+	__u64_field(17,0, peer_dev_rs_dt_start_ms)
+	__u64_field(18,0, peer_dev_rs_paused_ms)
+	/* resync progress marks for "resync speed" guestimation */
+	__u64_field(19,0, peer_dev_rs_dt0_ms)
+	__u64_field(20,0, peer_dev_rs_db0_sectors)
+	__u64_field(21,0, peer_dev_rs_dt1_ms)
+	__u64_field(22,0, peer_dev_rs_db1_sectors)
+	__u32_field(23,0, peer_dev_rs_c_sync_rate)
 )
 
 GENL_struct(DRBD_NLA_NOTIFICATION_HEADER, 23, drbd_notification_header,
