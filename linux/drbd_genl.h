@@ -214,6 +214,7 @@ GENL_struct(DRBD_NLA_DISCONNECT_PARMS, 12, disconnect_parms,
 
 GENL_struct(DRBD_NLA_DETACH_PARMS, 13, detach_parms,
 	__flg_field(1, DRBD_GENLA_F_MANDATORY,	force_detach)
+	__flg_field_def(2, 0 /* OPTIONAL */, intentional_diskless_detach, DRBD_DISK_DISKLESS_DEF)
 )
 
 GENL_struct(DRBD_NLA_DEVICE_CONF, 14, device_conf,
