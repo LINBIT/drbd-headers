@@ -99,6 +99,8 @@ enum drbd_packet {
 	P_TWOPC_COMMIT        = 0x47, /* data sock: commit state change */
 	P_TWOPC_RETRY         = 0x48, /* meta sock: retry two-phase commit */
 
+	P_CONFIRM_STABLE      = 0x49, /* meta sock: similar to an unsolicited partial barrier ack */
+
 	P_MAY_IGNORE	      = 0x100, /* Flag to test if (cmd > P_MAY_IGNORE) ... */
 
 	/* special command ids for handshake */
@@ -289,6 +291,13 @@ struct p_barrier {
 struct p_barrier_ack {
 	uint32_t barrier;
 	uint32_t set_size;
+} __packed;
+
+struct p_confirm_stable {
+	uint64_t oldest_block_id;
+	uint64_t youngest_block_id;
+	uint32_t set_size;
+	uint32_t pad; /* to multiple of 8 Byte */
 } __packed;
 
 struct p_rs_param {
