@@ -114,6 +114,11 @@ struct __packed al_transaction_on_disk {
 	be_u32	context[AL_CONTEXT_PER_TRANSACTION];
 };
 
+struct __packed al_on_pmem {
+	be_u32 magic;
+	be_u32 slots[0];
+};
+
 #undef be_u64
 #undef be_u32
 #undef be_s32
