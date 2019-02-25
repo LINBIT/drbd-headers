@@ -114,6 +114,28 @@ struct __packed al_transaction_on_disk {
 	be_u32	context[AL_CONTEXT_PER_TRANSACTION];
 };
 
+struct journal_header_on_disk {
+	/* TODO: magic */
+	/* TODO: version */
+
+	be_u64 live_start;
+	be_u64 live_end;
+
+	/* TODO: cache line alignment with  __aligned(64) ?*/
+	be_u64 reserved[14];
+} __packed;
+
+struct journal_entry_on_disk {
+	be_u64 next;
+	be_u64 dagtag_sector;
+	be_u64 sector;
+	be_u64 size; /* the size of this request on the backing disk */
+	be_u64 data_size; /* the amount of data following this entry */
+
+	/* TODO: cache line alignment with  __aligned(64) ?*/
+	be_u64 reserved[3];
+} __packed;
+
 #undef be_u64
 #undef be_u32
 #undef be_s32
