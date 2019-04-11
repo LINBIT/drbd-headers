@@ -172,6 +172,7 @@ struct p_data {
 	uint64_t block_id;  /* to identify the request in protocol B&C */
 	uint32_t seq_num;
 	uint32_t dp_flags;
+	uint64_t node_mask;
 } __packed;
 
 struct p_trim {
