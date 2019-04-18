@@ -433,10 +433,6 @@ enum drbd_peer_state {
 #define DRBD_MD_MAGIC_84_UNCLEAN	(DRBD_MAGIC+5)
 #define DRBD_MD_MAGIC_09   (DRBD_MAGIC+6)
 
-/* how I came up with this magic?
- * base64 decode "actlog==" ;) */
-#define DRBD_AL_MAGIC 0x69cb65a2
-
 /* these are of type "int" */
 #define DRBD_MD_INDEX_INTERNAL -1
 #define DRBD_MD_INDEX_FLEX_EXT -2

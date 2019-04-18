@@ -13,6 +13,10 @@
 #define be_u16 struct { uint16_t be; }
 #endif
 
+/* how I came up with this magic?
+ * base64 decode "actlog==" ;) */
+#define DRBD_AL_MAGIC 0x69cb65a2
+
 struct peer_dev_md_on_disk_9 {
 	be_u64 bitmap_uuid;
 	be_u64 bitmap_dagtag;
@@ -113,6 +117,8 @@ struct __packed al_transaction_on_disk {
 	/* 4096 - 420 = 3676 = 919 * 4 */
 	be_u32	context[AL_CONTEXT_PER_TRANSACTION];
 };
+
+#define DRBD_AL_PMEM_MAGIC 0x6aa667a6 /* "al==pmem" */
 
 struct __packed al_on_pmem {
 	be_u32 magic;
