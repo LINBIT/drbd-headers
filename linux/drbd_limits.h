@@ -116,6 +116,8 @@
 #define DRBD_KO_COUNT_MAX  200
 #define DRBD_KO_COUNT_DEF  7
 #define DRBD_KO_COUNT_SCALE '1'
+
+#define DRBD_ALLOW_REMOTE_READ_DEF 1
 /* } */
 
 /* syncer { */
