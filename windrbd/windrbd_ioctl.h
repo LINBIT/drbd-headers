@@ -2,8 +2,21 @@
 #define WINDRBD_IOCTL_H
 
 #include <sys/types.h>			/* for int64_t */
-#include <linux/types.h>
+
+#ifdef __CYGWIN__
+
+	/* Windows user space (Cygwin, for drbd-utils) */
+
+#ifndef GENL_NAMSIZ
+#define GENL_NAMSIZ 16
+#endif
+
+#else
+
+	/* Windows kernel space (WinDRBD kernel driver with Linux emulation) */
+
 #include <linux/netlink.h>
+#endif
 
 /* For compiling this for drbd-utils when there are no Windows headers
  * installed, we need this (taken from ReactOS): Hopefully this never
@@ -16,7 +29,13 @@
 )
 #endif
 
+/* Mostly only used for sending ioctl's. User is a device object
+ * accessible by anyone. This allows us for drbdadm status as
+ * a non-Administrator user.
+ */
+
 #define WINDRBD_ROOT_DEVICE_NAME "windrbd_control"
+#define WINDRBD_USER_DEVICE_NAME "windrbd_control_user"
 
 /* TODO: are these used by someone else? Doc states that <= 0x8000
  * is reserved by Microsoft, but it does not state how to obtain
@@ -55,11 +74,11 @@ struct windrbd_ioctl_fault_injection {
 #define IOCTL_WINDRBD_INJECT_FAULTS CTL_CODE(WINDRBD_DEVICE_TYPE, 2, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
 struct windrbd_ioctl_genl_portid {
-	u32 portid;
+	uint32_t portid;
 };
 
 struct windrbd_ioctl_genl_portid_and_multicast_group {
-	u32 portid;
+	uint32_t portid;
         char name[GENL_NAMSIZ];
 };
 
@@ -233,5 +252,32 @@ struct windrbd_minor_mount_point {
  */
 
 #define IOCTL_WINDRBD_ROOT_DUMP_ALLOCATED_MEMORY CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 11, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+/* Cause WinDRBD to run DRBD URI parser test
+ * Input: Test name and parameters (as a char*), currently none defined.
+ * Output: none
+ *
+ * WinDRBD will printk results from the parser test.
+ */
+
+#define IOCTL_WINDRBD_ROOT_RUN_TEST CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 12, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+/* Set syslog IP
+ * Input: The syslog IP (must be v4) as a char*
+ * Output: none
+ *
+ * Direct network printk's to this IP address.
+ */
+
+#define IOCTL_WINDRBD_ROOT_SET_SYSLOG_IP CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 13, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+/* Create resource from URL
+ * Input: The DRBD URL (see documentation on boot device) as a char*
+ * Output: none
+ *
+ * Create a DRBD resource from an WinDRBD URL.
+ */
+
+#define IOCTL_WINDRBD_ROOT_CREATE_RESOURCE_FROM_URL CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 14, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
 #endif
