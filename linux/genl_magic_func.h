@@ -233,7 +233,6 @@ static const char *CONCAT_(GENL_MAGIC_FAMILY, _genl_cmd_to_str)(__u8 cmd)
 {								\
 	handler							\
 	.cmd = op_name,						\
-	.policy	= CONCAT_(GENL_MAGIC_FAMILY, _tla_nl_policy),	\
 },
 
 #define ZZZ_genl_ops		CONCAT_(GENL_MAGIC_FAMILY, _genl_ops)
@@ -292,6 +291,7 @@ static struct genl_family ZZZ_genl_family __read_mostly = {
 #ifdef COMPAT_HAVE_GENL_FAMILY_PARALLEL_OPS
 	.parallel_ops = true,
 #endif
+	.policy = CONCAT_(GENL_MAGIC_FAMILY, _tla_nl_policy),
 };
 
 /*
