@@ -80,7 +80,8 @@ enum drbd_after_sb_p {
 	ASB_CONSENSUS,
 	ASB_DISCARD_SECONDARY,
 	ASB_CALL_HELPER,
-	ASB_VIOLENTLY
+	ASB_VIOLENTLY,
+	ASB_RETRY_CONNECT,
 };
 
 enum drbd_on_no_data {
