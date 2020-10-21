@@ -153,7 +153,7 @@ struct windrbd_usermode_helper {
 		 * cmd<0>arg1<0>arg2<0>...argn<0>env1<0>env2<0> ... envn<0>
 		 * the above members determine how many args/how many envs.
 		 */
-	char data[0];
+	char data[];
 };
 
 struct windrbd_usermode_helper_return_value {

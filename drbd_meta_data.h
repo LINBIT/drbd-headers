@@ -122,7 +122,7 @@ struct __packed al_transaction_on_disk {
 
 struct __packed al_on_pmem {
 	be_u32 magic;
-	be_u32 slots[0];
+	be_u32 slots[];
 };
 
 #undef be_u64
