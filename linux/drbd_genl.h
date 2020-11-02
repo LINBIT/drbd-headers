@@ -306,6 +306,9 @@ GENL_struct(DRBD_NLA_PEER_DEVICE_STATISTICS, 22, peer_device_statistics,
 	__u64_field(21,0, peer_dev_rs_dt1_ms)
 	__u64_field(22,0, peer_dev_rs_db1_sectors)
 	__u32_field(23,0, peer_dev_rs_c_sync_rate)
+	/* events may not be sent for every change of the UUID flags, however
+	 * UUID_FLAG_STABLE can be trusted */
+	__u64_field(24,0, peer_dev_uuid_flags)
 )
 
 GENL_struct(DRBD_NLA_NOTIFICATION_HEADER, 23, drbd_notification_header,
