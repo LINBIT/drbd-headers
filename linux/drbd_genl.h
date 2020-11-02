@@ -230,7 +230,6 @@ GENL_struct(DRBD_NLA_RESOURCE_INFO, 15, resource_info,
 	__flg_field(3, 0, res_susp_nod)
 	__flg_field(4, 0, res_susp_fen)
 	__flg_field(5, 0, res_susp_quorum)
-	__u32_field(6, 0, res_promotion_score)
 )
 
 GENL_struct(DRBD_NLA_DEVICE_INFO, 16, device_info,
