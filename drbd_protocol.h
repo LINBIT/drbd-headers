@@ -364,6 +364,7 @@ struct p_protocol {
 #define UUID_FLAG_DISKLESS_PRIMARY 512 /* Use with UUID_FLAG_RESYNC if a diskless primary is
 					  the reason */
 #define UUID_FLAG_PRIMARY_LOST_QUORUM 1024
+#define UUID_FLAG_SYNC_TARGET 2048 /* currently L_SYNC_TARGET to some peer */
 
 struct p_uuids {
 	uint64_t current_uuid;
