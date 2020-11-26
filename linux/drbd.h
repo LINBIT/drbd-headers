@@ -347,7 +347,9 @@ enum drbd_state_rv {
 	SS_WEAKLY_CONNECTED = -24,
 	SS_NO_QUORUM = -25,
 	SS_ATTACH_NO_BITMAP = -26,
-	SS_AFTER_LAST_ERROR = -27,    /* Keep this at bottom */
+	SS_HANDSHAKE_DISCONNECT = -27,
+	SS_HANDSHAKE_RETRY = -28,
+	SS_AFTER_LAST_ERROR = -29,    /* Keep this at bottom */
 };
 
 #define SHARED_SECRET_MAX 64
