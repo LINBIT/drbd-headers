@@ -192,6 +192,7 @@ static const char * const __packet_names[] = {
 	[P_TWOPC_YES]		= "P_TWOPC_YES",
 	[P_TWOPC_NO]		= "P_TWOPC_NO",
 	[P_TWOPC_RETRY]		= "P_TWOPC_RETRY",
+	[P_DISCONNECT]		= "P_DISCONNECT",
 	/* enum drbd_packet, but not commands - obsoleted flags:
 	 *	P_MAY_IGNORE
 	 *	P_MAX_OPT_CMD
