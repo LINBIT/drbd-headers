@@ -103,6 +103,7 @@ enum drbd_packet {
 	P_RS_CANCEL_AHEAD     = 0x4a, /* protocol version 115,
 		 * meta: cancel RS_DATA_REQUEST packet if already Ahead again,
 		 *       tell peer to stop sending resync requests... */
+	P_DISCONNECT          = 0x4b, /* data sock: Disconnect and stop connection attempts */
 
 	P_MAY_IGNORE	      = 0x100, /* Flag to test if (cmd > P_MAY_IGNORE) ... */
 
