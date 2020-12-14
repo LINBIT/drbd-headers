@@ -346,10 +346,10 @@ struct p_protocol {
 
 } __packed;
 
-#define UUID_FLAG_DISCARD_MY_DATA 1
-#define UUID_FLAG_CRASHED_PRIMARY 2
-#define UUID_FLAG_INCONSISTENT 4
-#define UUID_FLAG_SKIP_INITIAL_SYNC 8
+#define UUID_FLAG_DISCARD_MY_DATA     ((u64)1 << 0)
+#define UUID_FLAG_CRASHED_PRIMARY     ((u64)1 << 1)
+#define UUID_FLAG_INCONSISTENT        ((u64)1 << 2)
+#define UUID_FLAG_SKIP_INITIAL_SYNC   ((u64)1 << 3)
 
 #define UUID_FLAG_MASK_COMPAT_84 \
 	(UUID_FLAG_DISCARD_MY_DATA|\
@@ -357,15 +357,18 @@ struct p_protocol {
 	 UUID_FLAG_INCONSISTENT|\
 	 UUID_FLAG_SKIP_INITIAL_SYNC)
 
-#define UUID_FLAG_NEW_DATAGEN 16
-#define UUID_FLAG_STABLE 32
-#define UUID_FLAG_GOT_STABLE 64 /* send UUIDs */
-#define UUID_FLAG_RESYNC 128    /* compare UUIDs and eventually start resync */
-#define UUID_FLAG_RECONNECT 256
-#define UUID_FLAG_DISKLESS_PRIMARY 512 /* Use with UUID_FLAG_RESYNC if a diskless primary is
-					  the reason */
-#define UUID_FLAG_PRIMARY_LOST_QUORUM 1024
-#define UUID_FLAG_SYNC_TARGET 2048 /* currently L_SYNC_TARGET to some peer */
+#define UUID_FLAG_NEW_DATAGEN         ((u64)1 << 4)
+#define UUID_FLAG_STABLE              ((u64)1 << 5)
+#define UUID_FLAG_GOT_STABLE          ((u64)1 << 6) /* send UUIDs */
+#define UUID_FLAG_RESYNC              ((u64)1 << 7) /* compare UUIDs and eventually start resync */
+#define UUID_FLAG_RECONNECT           ((u64)1 << 8)
+#define UUID_FLAG_DISKLESS_PRIMARY    ((u64)1 << 9) /* Use with UUID_FLAG_RESYNC if a diskless primary is the reason */
+#define UUID_FLAG_PRIMARY_LOST_QUORUM ((u64)1 << 10)
+#define UUID_FLAG_SYNC_TARGET         ((u64)1 << 11) /* currently L_SYNC_TARGET to some peer */
+#define UUID_FLAG_HAS_UNALLOC         ((u64)1 << 12) /* highest byte contains index of not allocated bitmap uuid */
+
+#define UUID_FLAG_UNALLOC_SHIFT       56
+#define UUID_FLAG_UNALLOC_MASK        ((u64)0xff << UUID_FLAG_UNALLOC_SHIFT)
 
 struct p_uuids {
 	uint64_t current_uuid;
