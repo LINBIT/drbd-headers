@@ -41,6 +41,8 @@
 	tr_printk(KERN_ERR, transport, fmt, ## args)
 #define tr_warn(transport, fmt, args...) \
 	tr_printk(KERN_WARNING, transport, fmt, ## args)
+#define tr_notice(transport, fmt, args...) \
+	tr_printk(KERN_NOTICE, transport, fmt, ## args)
 #define tr_info(transport, fmt, args...) \
 	tr_printk(KERN_INFO, transport, fmt, ## args)
 
