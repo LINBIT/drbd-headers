@@ -352,6 +352,14 @@ GENL_struct(DRBD_NLA_PATH_INFO, 30, drbd_path_info,
 	__flg_field(1, 0, path_established)
 )
 
+GENL_struct(DRBD_NLA_RENAME_RESOURCE_PARMS, 31, rename_resource_parms,
+	__str_field(1, DRBD_GENLA_F_MANDATORY, new_resource_name, 128)
+)
+
+GENL_struct(DRBD_NLA_RENAME_RESOURCE_INFO, 32, rename_resource_info,
+	__str_field(1, DRBD_GENLA_F_MANDATORY, res_new_name, 128)
+)
+
 /*
  * Notifications and commands (genlmsghdr->cmd)
  */
@@ -573,6 +581,10 @@ GENL_op(DRBD_ADM_CHG_PEER_DEVICE_OPTS, 43,
 	GENL_doit(drbd_adm_peer_device_opts),
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_PEER_DEVICE_OPTS, DRBD_F_REQUIRED))
+
+GENL_op(DRBD_ADM_RENAME_RESOURCE,		49, GENL_doit(drbd_adm_rename_resource),
+	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
+	GENL_tla_expected(DRBD_NLA_RENAME_RESOURCE_PARMS, DRBD_F_REQUIRED))
 
 GENL_notification(
 	DRBD_PATH_STATE, 48, events,
