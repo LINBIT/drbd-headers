@@ -5,6 +5,7 @@
 #include <linux/types.h>
 #else
 #include <stdint.h>
+#define u64 uint64_t
 #endif
 
 #ifndef ARRAY_SIZE

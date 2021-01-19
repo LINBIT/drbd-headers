@@ -20,6 +20,7 @@
 #else
 #define sk_buff msg_buff
 #define skb msg
+#define nla_strscpy nla_strlcpy
 #endif
 #include <linux/types.h>
 #include "compat.h"
