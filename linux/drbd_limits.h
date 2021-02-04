@@ -184,7 +184,7 @@
 #define DRBD_C_FILL_TARGET_DEF 100 /* Try to place 50KiB in socket send buffer during resync */
 #define DRBD_C_FILL_TARGET_SCALE 's'  /* sectors */
 
-#define DRBD_C_MAX_RATE_MIN     250
+#define DRBD_C_MAX_RATE_MIN     0
 #define DRBD_C_MAX_RATE_MAX     (4 << 20)
 #define DRBD_C_MAX_RATE_DEF     102400
 #define DRBD_C_MAX_RATE_SCALE	'k'  /* kilobytes */
