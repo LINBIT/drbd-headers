@@ -139,7 +139,8 @@ static int __ ## s_name ## _from_attrs(struct s_name *s,		\
 	struct nlattr **ntb;						\
 	struct nlattr *nla;						\
 	int err = 0;							\
-	ret_nested_attribute_table = NULL;				\
+	if (ret_nested_attribute_table)					\
+		*ret_nested_attribute_table = NULL;			\
 	if (!tla)							\
 		return -ENOMSG;						\
 	ntb = kcalloc(ARRAY_SIZE(s_name ## _nl_policy), sizeof(*ntb), GFP_KERNEL); \
@@ -168,7 +169,7 @@ static int s_name ## _ntb_from_attrs(					\
 						struct genl_info *info)	\
 {									\
 	return __ ## s_name ## _from_attrs(NULL,			\
-			ret_nested_attribute_table, NULL, false);	\
+			ret_nested_attribute_table, info, false);	\
 }					__attribute__((unused))		\
 static int s_name ## _from_attrs_for_change(struct s_name *s,		\
 						struct genl_info *info)	\
