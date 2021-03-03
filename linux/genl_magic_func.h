@@ -48,6 +48,11 @@ static struct nla_policy s_name ## _nl_policy[] __read_mostly =		\
 #ifndef pr_info
 #define pr_info(args...)	fprintf(stderr, args);
 #endif
+/* genl_magic_func.h generates *_from_attrs() helper functions
+ * that now allocate/free the nested attribute tables.
+ * Map the kernel API to what we use in userland. */
+#define kcalloc(nmem, size, gfp) calloc((nmem), (size))
+#define kfree(p) free(p)
 #endif
 
 #ifdef GENL_MAGIC_DEBUG
