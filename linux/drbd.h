@@ -189,6 +189,7 @@ enum drbd_ret_code {
 	ERR_CREATE_TRANSPORT    = 172,
 	ERR_LOCAL_AND_PEER_ADDR = 173,
 	ERR_ALREADY_EXISTS 	= 174,
+	ERR_APV_TOO_LOW         = 175,
 
 	/* insert new ones above this line */
 	AFTER_LAST_ERR_CODE

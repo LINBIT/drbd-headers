@@ -323,6 +323,7 @@ GENL_struct(DRBD_NLA_HELPER, 24, drbd_helper_info,
 
 GENL_struct(DRBD_NLA_INVALIDATE_PARMS, 25, invalidate_parms,
 	__s32_field_def(1, DRBD_GENLA_F_MANDATORY, sync_from_peer_node_id, DRBD_SYNC_FROM_NID_DEF)
+	__flg_field_def(2, DRBD_GENLA_F_MANDATORY, reset_bitmap, DRBD_INVALIDATE_RESET_BITMAP_DEF)
 )
 
 GENL_struct(DRBD_NLA_FORGET_PEER_PARMS, 26, forget_peer_parms,
@@ -359,6 +360,10 @@ GENL_struct(DRBD_NLA_RENAME_RESOURCE_PARMS, 31, rename_resource_parms,
 
 GENL_struct(DRBD_NLA_RENAME_RESOURCE_INFO, 32, rename_resource_info,
 	__str_field(1, DRBD_GENLA_F_MANDATORY, res_new_name, 128)
+)
+
+GENL_struct(DRBD_NLA_INVAL_PEER_PARAMS, 33, invalidate_peer_parms,
+	__flg_field_def(1, DRBD_GENLA_F_MANDATORY, p_reset_bitmap, DRBD_INVALIDATE_RESET_BITMAP_DEF)
 )
 
 /*
@@ -477,7 +482,9 @@ GENL_op(DRBD_ADM_INVALIDATE,	19, GENL_doit(drbd_adm_invalidate),
 	GENL_tla_expected(DRBD_NLA_INVALIDATE_PARMS, DRBD_F_REQUIRED))
 
 GENL_op(DRBD_ADM_INVAL_PEER,	20, GENL_doit(drbd_adm_invalidate_peer),
-	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED))
+	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
+	GENL_tla_expected(DRBD_NLA_INVAL_PEER_PARAMS, 0 /* OPTIONAL */))
+
 GENL_op(DRBD_ADM_PAUSE_SYNC,	21, GENL_doit(drbd_adm_pause_sync),
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED))
 GENL_op(DRBD_ADM_RESUME_SYNC,	22, GENL_doit(drbd_adm_resume_sync),
