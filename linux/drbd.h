@@ -82,6 +82,7 @@ enum drbd_after_sb_p {
 	ASB_CALL_HELPER,
 	ASB_VIOLENTLY,
 	ASB_RETRY_CONNECT,
+	ASB_AUTO_DISCARD,
 };
 
 enum drbd_on_no_data {
