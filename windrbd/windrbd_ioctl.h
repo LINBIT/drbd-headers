@@ -280,4 +280,13 @@ struct windrbd_minor_mount_point {
 
 #define IOCTL_WINDRBD_ROOT_CREATE_RESOURCE_FROM_URL CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 14, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
+/* Set the WinDRBD config key
+ * Input: The config key as a hex string
+ * Output: none
+ *
+ * Create a DRBD resource from an WinDRBD URL.
+ */
+
+#define IOCTL_WINDRBD_ROOT_SET_CONFIG_KEY CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 15, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
 #endif
