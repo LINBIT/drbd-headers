@@ -11,7 +11,7 @@
    So that transport compiled against an older version of this
    header will no longer load in a module that assumes a newer
    version. */
-#define DRBD_TRANSPORT_API_VERSION 17
+#define DRBD_TRANSPORT_API_VERSION 18
 
 /* MSG_MSG_DONTROUTE and MSG_PROBE are not used by DRBD. I.e.
    we can reuse these flags for our purposes */
@@ -80,6 +80,11 @@ enum drbd_tr_free_op {
 	DESTROY_TRANSPORT
 };
 
+enum drbd_tr_event {
+	CLOSED_BY_PEER,
+	TIMEOUT,
+};
+
 struct drbd_listener;
 
 /* A transport might wrap its own data structure around this. Having
@@ -129,6 +134,11 @@ struct drbd_transport_stats {
 struct drbd_page_chain_head {
 	struct page *head;
 	unsigned int nr_pages;
+};
+
+struct drbd_const_buffer {
+	const u8 *buffer;
+	unsigned int avail;
 };
 
 struct drbd_transport_ops {
@@ -244,6 +254,8 @@ extern void drbd_path_event(struct drbd_transport *transport, struct drbd_path *
 /* drbd_receiver.c*/
 extern struct page *drbd_alloc_pages(struct drbd_transport *, unsigned int, gfp_t);
 extern void drbd_free_pages(struct drbd_transport *transport, struct page *page, int is_net);
+extern void drbd_control_data_ready(struct drbd_transport *transport, struct drbd_const_buffer *pool);
+extern void drbd_control_event(struct drbd_transport *transport, enum drbd_tr_event);
 
 static inline void drbd_alloc_page_chain(struct drbd_transport *t,
 	struct drbd_page_chain_head *chain, unsigned int nr, gfp_t gfp_flags)
