@@ -284,9 +284,18 @@ struct windrbd_minor_mount_point {
  * Input: The config key as a hex string
  * Output: none
  *
- * Create a DRBD resource from an WinDRBD URL.
+ * Sets the key to lock writable DRBD commands
  */
 
 #define IOCTL_WINDRBD_ROOT_SET_CONFIG_KEY CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 15, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+/* Set the event log log level
+ * Input: A signed 32-bit value (0=emerg, 1=alert, ...)
+ * Output: none
+ *
+ * Sets the threshold value for messages that go into the Windows event log.
+ */
+
+#define IOCTL_WINDRBD_ROOT_SET_EVENT_LOG_LEVEL CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 16, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
 #endif
