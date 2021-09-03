@@ -298,4 +298,13 @@ struct windrbd_minor_mount_point {
 
 #define IOCTL_WINDRBD_ROOT_SET_EVENT_LOG_LEVEL CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 16, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
+/* Report if config key is set (and required for manipulating resources)
+ * Input: none
+ * Output: an int: 1 .. system is locked 0 .. system is not locked
+ *
+ * Reports if config key is set
+ */
+
+#define IOCTL_WINDRBD_ROOT_GET_LOCK_DOWN_STATE CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 17, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
 #endif
