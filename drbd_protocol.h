@@ -106,6 +106,12 @@ enum drbd_packet {
 		 *       tell peer to stop sending resync requests... */
 	P_DISCONNECT          = 0x4b, /* data sock: Disconnect and stop connection attempts */
 
+	P_RS_DAGTAG_REQ       = 0x4c, /* data sock: Request a block for resync, with dagtag dependency */
+	P_RS_CSUM_DAGTAG_REQ  = 0x4d, /* data sock: Request a block for resync if checksum differs, with dagtag dependency */
+	P_RS_THIN_DAGTAG_REQ  = 0x4e, /* data sock: Request a block for resync or reply P_RS_DEALLOCATED, with dagtag dependency */
+	P_OV_DAGTAG_REQ       = 0x4f, /* data sock: Request a checksum for online verify, with dagtag dependency */
+	P_OV_DAGTAG_REPLY     = 0x50, /* data sock: Reply with a checksum for online verify, with dagtag dependency */
+
 	P_MAY_IGNORE	      = 0x100, /* Flag to test if (cmd > P_MAY_IGNORE) ... */
 
 	/* special command ids for handshake */
@@ -190,12 +196,18 @@ struct p_wsame {
 } __packed;
 
 /*
- * commands which share a struct:
- *  p_block_ack:
- *   P_RECV_ACK (proto B), P_WRITE_ACK (proto C),
+ * struct p_block_ack shared by commands:
+ *   P_RECV_ACK (proto B)
+ *   P_WRITE_ACK (proto C),
  *   P_SUPERSEDED (proto C, two-primaries conflict detection)
- *  p_block_req:
- *   P_DATA_REQUEST, P_RS_DATA_REQUEST
+ *   P_RS_WRITE_ACK
+ *   P_NEG_ACK
+ *   P_NEG_DREPLY
+ *   P_NEG_RS_DREPLY
+ *   P_OV_RESULT
+ *   P_RS_IS_IN_SYNC
+ *   P_RS_CANCEL
+ *   P_RS_CANCEL_AHEAD
  */
 struct p_block_ack {
 	uint64_t sector;
@@ -204,21 +216,47 @@ struct p_block_ack {
 	uint32_t seq_num;
 } __packed;
 
-struct p_block_req {
+struct p_block_req_common {
 	uint64_t sector;
 	uint64_t block_id;
 	uint32_t blksize;
+} __packed;
+
+/*
+ * struct p_block_req shared by commands:
+ *   P_DATA_REQUEST
+ *   P_RS_DATA_REQUEST
+ *   P_OV_REQUEST
+ *   P_OV_REPLY
+ *   P_CSUM_RS_REQUEST
+ *   P_RS_THIN_REQ
+ */
+struct p_block_req {
+	/* Allow fields to be addressed directly or via req_common. */
+	union {
+		struct {
+			uint64_t sector;
+			uint64_t block_id;
+			uint32_t blksize;
+		};
+		struct p_block_req_common req_common;
+	};
 	uint32_t pad;	/* to multiple of 8 Byte */
 } __packed;
 
 /*
- * commands with their own struct for additional fields:
- *   P_CONNECTION_FEATURES
- *   P_BARRIER
- *   P_BARRIER_ACK
- *   P_SYNC_PARAM
- *   ReportParams
+ * struct p_rs_req shared by commands:
+ *   P_RS_DAGTAG_REQ
+ *   P_RS_CSUM_DAGTAG_REQ
+ *   P_RS_THIN_DAGTAG_REQ
+ *   P_OV_DAGTAG_REQ
+ *   P_OV_DAGTAG_REPLY
  */
+struct p_rs_req {
+	struct p_block_req_common req_common;
+	uint32_t dagtag_node_id;
+	uint64_t dagtag;
+} __packed;
 
 /* supports TRIM/DISCARD on the "wire" protocol */
 #define DRBD_FF_TRIM 1
@@ -272,6 +310,12 @@ struct p_block_req {
  * set skip_block_zeroing=false.
  */
 #define DRBD_FF_WZEROES 8
+
+/* Supports synchronization of application and resync IO using data generation
+ * tags (dagtags). See Documentation/application-resync-synchronization.rst for
+ * details.
+ */
+#define DRBD_FF_RESYNC_DAGTAG 16
 
 struct p_connection_features {
 	uint32_t protocol_min;

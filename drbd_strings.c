@@ -193,6 +193,11 @@ static const char * const __packet_names[] = {
 	[P_TWOPC_NO]		= "P_TWOPC_NO",
 	[P_TWOPC_RETRY]		= "P_TWOPC_RETRY",
 	[P_DISCONNECT]		= "P_DISCONNECT",
+	[P_RS_DAGTAG_REQ]	= "P_RS_DAGTAG_REQ",
+	[P_RS_CSUM_DAGTAG_REQ]	= "P_RS_CSUM_DAGTAG_REQ",
+	[P_RS_THIN_DAGTAG_REQ]	= "P_RS_THIN_DAGTAG_REQ",
+	[P_OV_DAGTAG_REQ]	= "P_OV_DAGTAG_REQ",
+	[P_OV_DAGTAG_REPLY]	= "P_OV_DAGTAG_REPLY",
 	/* enum drbd_packet, but not commands - obsoleted flags:
 	 *	P_MAY_IGNORE
 	 *	P_MAX_OPT_CMD
