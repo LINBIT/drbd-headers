@@ -238,7 +238,7 @@ struct p_block_req {
 			uint64_t sector;
 			uint64_t block_id;
 			uint32_t blksize;
-		};
+		} __packed;
 		struct p_block_req_common req_common;
 	};
 	uint32_t pad;	/* to multiple of 8 Byte */
