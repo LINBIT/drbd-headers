@@ -228,6 +228,8 @@ struct drbd_listener {
 	spinlock_t waiters_lock;
 	int pending_accepts;
 	struct sockaddr_storage listen_addr;
+	struct completion ready;
+	int err;
 	void (*destroy)(struct drbd_listener *);
 };
 
