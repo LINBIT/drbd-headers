@@ -310,4 +310,6 @@
 /* By default freeze IO, if set error all IOs as quick as possible */
 #define DRBD_ON_NO_QUORUM_DEF ONQ_SUSPEND_IO
 
+#define DRBD_ON_SUSP_PRI_OUTD_DEF SPO_DISCONNECT
+
 #endif

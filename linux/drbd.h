@@ -95,6 +95,11 @@ enum drbd_on_no_quorum {
 	ONQ_SUSPEND_IO = OND_SUSPEND_IO
 };
 
+enum drbd_on_susp_primary_outdated {
+	SPO_DISCONNECT,
+	SPO_FORCE_SECONDARY,
+};
+
 enum drbd_on_congestion {
 	OC_BLOCK,
 	OC_PULL_AHEAD,
