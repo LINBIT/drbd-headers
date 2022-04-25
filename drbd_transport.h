@@ -116,7 +116,7 @@ struct drbd_transport {
 	struct list_head paths;
 
 	const char *log_prefix;		/* resource name */
-	struct net_conf *net_conf;	/* content protected by rcu */
+	struct net_conf __rcu *net_conf;	/* content protected by rcu */
 
 	/* These members are intended to be updated by the transport: */
 	unsigned int ko_count;
