@@ -11,6 +11,7 @@ extern struct state_names drbd_repl_state_names;
 extern struct state_names drbd_role_state_names;
 extern struct state_names drbd_disk_state_names;
 extern struct state_names drbd_error_messages;
+extern struct state_names drbd_packet_names;
 
 enum drbd_packet;
 
