@@ -18,7 +18,7 @@ static int CONCAT_(GENL_MAGIC_FAMILY, _genl_multicast_ ## group)(	\
 {									\
 	unsigned int group_id =						\
 		CONCAT_(GENL_MAGIC_FAMILY, _group_ ## group);		\
-	return genlmsg_multicast(&ZZZ_genl_family, skb, 0,		\
+	return genlmsg_multicast_allns(&ZZZ_genl_family, skb, 0,	\
 				 group_id, flags);			\
 }
 
