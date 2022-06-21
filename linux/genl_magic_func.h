@@ -309,6 +309,7 @@ static struct genl_family ZZZ_genl_family __read_mostly = {
 	.n_mcgrps = ARRAY_SIZE(ZZZ_genl_mcgrps),
 	.module = THIS_MODULE,
 #endif
+	.netnsok = true,
 #ifdef COMPAT_HAVE_GENL_FAMILY_PARALLEL_OPS
 	.parallel_ops = true,
 #endif
