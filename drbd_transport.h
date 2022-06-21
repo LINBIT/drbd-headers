@@ -95,6 +95,7 @@ struct drbd_path {
 
 	struct kref kref;
 
+	struct net *net;
 	int my_addr_len;
 	int peer_addr_len;
 	bool established; /* updated by the transport */
@@ -246,7 +247,7 @@ extern void drbd_put_transport_class(struct drbd_transport_class *);
 extern void drbd_print_transports_loaded(struct seq_file *seq);
 
 extern int drbd_get_listener(struct drbd_transport *transport, struct drbd_path *path,
-			     int (*init_fn)(struct drbd_transport *, const struct sockaddr *, struct drbd_listener *));
+			     int (*init_fn)(struct drbd_transport *, const struct sockaddr *, struct net *net, struct drbd_listener *));
 extern void drbd_put_listener(struct drbd_path *path);
 extern struct drbd_path *drbd_find_path_by_addr(struct drbd_listener *, struct sockaddr_storage *);
 extern bool drbd_stream_send_timed_out(struct drbd_transport *transport, enum drbd_stream stream);
