@@ -73,11 +73,7 @@ extern void CONCAT_(GENL_MAGIC_FAMILY, _genl_unregister)(void);
 
 static inline int nla_put_u64_0pad(struct sk_buff *skb, int attrtype, __u64 value)
 {
-#ifdef COMPAT_HAVE_NLA_PUT_64BIT
 	return nla_put_64bit(skb, attrtype, sizeof(__u64), &value, 0);
-#else
-	return nla_put_u64(skb, attrtype, value);
-#endif
 }
 
 /* possible field types */
@@ -93,15 +89,9 @@ static inline int nla_put_u64_0pad(struct sk_buff *skb, int attrtype, __u64 valu
 #define __u32_field(attr_nr, attr_flag, name)	\
 	__field(attr_nr, attr_flag, name, NLA_U32, __u32, \
 			nla_get_u32, nla_put_u32, false)
-#ifdef COMPAT_HAVE_SIGNED_NLA_PUT
-#define __s32_field(attr_nr, attr_flag, name)	\
-	__field(attr_nr, attr_flag, name, NLA_S32, __s32, \
-			nla_get_s32, nla_put_s32, true)
-#else
 #define __s32_field(attr_nr, attr_flag, name)	\
 	__field(attr_nr, attr_flag, name, NLA_U32, __s32, \
 			nla_get_u32, nla_put_u32, true)
-#endif
 #define __u64_field(attr_nr, attr_flag, name)	\
 	__field(attr_nr, attr_flag, name, NLA_U64, __u64, \
 			nla_get_u64, nla_put_u64_0pad, false)
