@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-only */
 #ifndef DRBD_TRANSPORT_H
 #define DRBD_TRANSPORT_H
 
