@@ -74,11 +74,7 @@ extern void CONCAT_(GENL_MAGIC_FAMILY, _genl_unregister)(void);
 
 static inline int nla_put_u64_0pad(struct sk_buff *skb, int attrtype, __u64 value)
 {
-#ifdef COMPAT_HAVE_NLA_PUT_64BIT
 	return nla_put_64bit(skb, attrtype, sizeof(__u64), &value, 0);
-#else
-	return nla_put_u64(skb, attrtype, value);
-#endif
 }
 
 /* possible field types */
