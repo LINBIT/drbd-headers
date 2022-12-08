@@ -318,6 +318,18 @@ struct p_rs_req {
  */
 #define DRBD_FF_RESYNC_DAGTAG 16
 
+/* V2 of p_twopc_request has a 32 bit flag field and the two fields for node
+ * Ids are reduced to 8 bit instead of 32 bits.
+ *
+ * The flag TWOPC_HAS_RECHABLE indicates that in the commit phase
+ * (P_TWOPC_COMMIT) the reachable_nodes mask is set.
+ *
+ * The old behavior sends the primary_nodes mask, mask, and val in
+ * phase 2 (P_TWOPC_COMMIT), where mask and val are the same values as
+ * in phase 1 (P_TWOPC_PREPARE).
+ */
+#define DRBD_FF_2PC_V2 32
+
 struct p_connection_features {
 	uint32_t protocol_min;
 	uint32_t feature_flags;
@@ -507,27 +519,46 @@ struct p_req_state_reply {
 
 struct p_twopc_request {
 	uint32_t tid;  /* transaction identifier */
-	uint32_t initiator_node_id;  /* initiator of the transaction */
-	uint32_t target_node_id;  /* target of the transaction (or -1) */
+	union {
+		struct { /* when DRBD_FF_2PC_V2 is set */
+			uint32_t flags;
+			uint16_t _pad;
+			int8_t  s8_initiator_node_id;  /* initiator of the transaction */
+			int8_t  s8_target_node_id;  /* target of the transaction (or -1) */
+		};
+		struct { /* original packet version */
+			uint32_t u32_initiator_node_id;  /* initiator of the transaction */
+			uint32_t u32_target_node_id;  /* target of the transaction (or -1) */
+		};
+	};
 	uint64_t nodes_to_reach;
 	union {
-		struct { /* TWOPC_STATE_CHANGE, both phases */
-			uint64_t primary_nodes;
-			uint32_t mask;
-			uint32_t val;
+		union { /* TWOPC_STATE_CHANGE */
+			struct {    /* P_TWOPC_PREPARE */
+				uint64_t _compat_pad;
+				uint32_t mask;
+				uint32_t val;
+			};
+			struct { /* P_TWOPC_COMMIT */
+				uint64_t primary_nodes;
+				uint64_t reachable_nodes; /* when TWOPC_HAS_RECHABLE flag is set */
+			};
 		};
-		union {  /* TWOPC_RESIZE */
+		union {	 /* TWOPC_RESIZE */
 			struct {    /* P_TWOPC_PREP_RSZ */
 				uint64_t user_size;
 				uint16_t dds_flags;
 			};
-			struct {    /* P_TWOPC_COMMIT   */
+			struct {    /* P_TWOPC_COMMIT	*/
 				uint64_t diskful_primary_nodes;
 				uint64_t exposed_size;
 			};
 		};
 	};
 } __packed;
+
+#define TWOPC_HAS_FLAGS     0x80000000 /* For packet dissectors */
+#define TWOPC_HAS_REACHABLE 0x40000000 /* The reachable_nodes field is valid */
 
 struct p_twopc_reply {
 	uint32_t tid;  /* transaction identifier */
