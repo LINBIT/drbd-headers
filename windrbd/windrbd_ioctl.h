@@ -34,8 +34,8 @@
  * a non-Administrator user.
  */
 
-#define WINDRBD_ROOT_DEVICE_NAME "windrbd_control"
-#define WINDRBD_USER_DEVICE_NAME "windrbd_control_user"
+#define WINDRBD_ROOT_DEVICE_NAME L"windrbd_control"
+#define WINDRBD_USER_DEVICE_NAME L"windrbd_control_user"
 
 /* TODO: are these used by someone else? Doc states that <= 0x8000
  * is reserved by Microsoft, but it does not state how to obtain
@@ -103,8 +103,6 @@ struct windrbd_ioctl_genl_portid_and_multicast_group {
  * the actual size is returned by the lpBytesReturned parameter to
  * DeviceIoControl().
  *
- * Does not wait for packets to arrive, use POLL ioctl for waiting for
- * packets.
  */
 
 #define IOCTL_WINDRBD_ROOT_RECEIVE_NL_PACKET CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 4, METHOD_BUFFERED, FILE_ANY_ACCESS)
@@ -317,5 +315,14 @@ struct windrbd_minor_mount_point {
  */
 
 #define IOCTL_WINDRBD_ROOT_SET_SHUTDOWN_FLAG CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 18, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+/* Check if there is a netlink packet without consuming it.
+ *
+ * Input buffer: the port id (getpid()) in a struct windrbd_ioctl_genl_portid
+ * Output buffer: a 32 bit flag: 0 - no netlink packets 1 - there are netlink
+ *                packets.
+ */
+
+#define IOCTL_WINDRBD_ROOT_ARE_THERE_NL_PACKETS CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 19, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
 #endif
