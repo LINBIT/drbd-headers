@@ -170,6 +170,10 @@ static const char * const __packet_names[] = {
 	[P_TWOPC_PREPARE]	= "P_TWOPC_PREPARE",
 	[P_TWOPC_ABORT]		= "P_TWOPC_ABORT",
 	[P_DAGTAG]		= "P_DAGTAG",
+	[P_RS_THIN_REQ]         = "P_RS_THIN_REQ",
+	[P_RS_DEALLOCATED]      = "P_RS_DEALLOCATED",
+	[P_TWOPC_PREP_RSZ]      = "P_TWOPC_PREP_RSZ",
+	[P_ZEROES]              = "P_ZEROES",
 	[P_PEER_ACK]		= "P_PEER_ACK",
 	[P_PEERS_IN_SYNC]       = "P_PEERS_IN_SYNC",
 	[P_UUIDS110]            = "P_UUIDS110",
@@ -179,12 +183,17 @@ static const char * const __packet_names[] = {
 	[P_TWOPC_YES]		= "P_TWOPC_YES",
 	[P_TWOPC_NO]		= "P_TWOPC_NO",
 	[P_TWOPC_RETRY]		= "P_TWOPC_RETRY",
+	[P_CONFIRM_STABLE]      = "P_CONFIRM_STABLE",
 	[P_DISCONNECT]		= "P_DISCONNECT",
 	[P_RS_DAGTAG_REQ]	= "P_RS_DAGTAG_REQ",
 	[P_RS_CSUM_DAGTAG_REQ]	= "P_RS_CSUM_DAGTAG_REQ",
 	[P_RS_THIN_DAGTAG_REQ]	= "P_RS_THIN_DAGTAG_REQ",
 	[P_OV_DAGTAG_REQ]	= "P_OV_DAGTAG_REQ",
 	[P_OV_DAGTAG_REPLY]	= "P_OV_DAGTAG_REPLY",
+	[P_WRITE_ACK_IN_SYNC]   = "P_WRITE_ACK_IN_SYNC",
+	[P_RS_NEG_ACK]          = "P_RS_NEG_ACK",
+	[P_OV_RESULT_ID]        = "P_OV_RESULT_ID",
+	[P_RS_DEALLOCATED_ID]   = "P_RS_DEALLOCATED_ID",
 	/* enum drbd_packet, but not commands - obsoleted flags:
 	 *	P_MAY_IGNORE
 	 *	P_MAX_OPT_CMD

@@ -40,7 +40,7 @@ enum drbd_packet {
 	P_PING_ACK	      = 0x14,
 	P_RECV_ACK	      = 0x15, /* Used in protocol B */
 	P_WRITE_ACK	      = 0x16, /* Used in protocol C */
-	P_RS_WRITE_ACK	      = 0x17, /* Is a P_WRITE_ACK, additionally call set_in_sync(). */
+	P_RS_WRITE_ACK	      = 0x17, /* Write ack for resync reply. */
 	P_SUPERSEDED	      = 0x18, /* Used in proto C, two-primaries conflict detection */
 	P_NEG_ACK	      = 0x19, /* Sent if local disk is unusable */
 	P_NEG_DREPLY	      = 0x1a, /* Local disk is broken... */
@@ -52,7 +52,7 @@ enum drbd_packet {
 
 	P_OV_REQUEST	      = 0x1e, /* data socket */
 	P_OV_REPLY	      = 0x1f,
-	P_OV_RESULT	      = 0x20, /* meta socket */
+	P_OV_RESULT	      = 0x20, /* meta sock: Protocol < 122 version of P_OV_RESULT_ID */
 	P_CSUM_RS_REQUEST     = 0x21, /* data socket */
 	P_RS_IS_IN_SYNC	      = 0x22, /* meta socket */
 	P_SYNC_PARAM89	      = 0x23, /* data socket, protocol version 89 replacement for P_SYNC_PARAM */
@@ -77,7 +77,7 @@ enum drbd_packet {
 
 	/* Only use these two if both support FF_THIN_RESYNC */
 	P_RS_THIN_REQ         = 0x32, /* Request a block for resync or reply P_RS_DEALLOCATED */
-	P_RS_DEALLOCATED      = 0x33, /* Contains only zeros on sync source node */
+	P_RS_DEALLOCATED      = 0x33, /* Protocol < 122 version of P_RS_DEALLOCATED_ID */
 
 	/* REQ_WRITE_SAME.
 	 * On a receiving side without REQ_WRITE_SAME,
@@ -112,6 +112,11 @@ enum drbd_packet {
 	P_RS_THIN_DAGTAG_REQ  = 0x4e, /* data sock: Request a block for resync or reply P_RS_DEALLOCATED, with dagtag dependency */
 	P_OV_DAGTAG_REQ       = 0x4f, /* data sock: Request a checksum for online verify, with dagtag dependency */
 	P_OV_DAGTAG_REPLY     = 0x50, /* data sock: Reply with a checksum for online verify, with dagtag dependency */
+
+	P_WRITE_ACK_IN_SYNC   = 0x51, /* meta sock: Application write ack setting bits in sync. */
+	P_RS_NEG_ACK          = 0x52, /* meta sock: Local disk is unusable writing resync reply. */
+	P_OV_RESULT_ID        = 0x53, /* meta sock: Online verify result with block ID. */
+	P_RS_DEALLOCATED_ID   = 0x54, /* data sock: Contains only zeros on sync source node. */
 
 	P_MAY_IGNORE	      = 0x100, /* Flag to test if (cmd > P_MAY_IGNORE) ... */
 
@@ -200,14 +205,17 @@ struct p_wsame {
  * struct p_block_ack shared by commands:
  *   P_RECV_ACK (proto B)
  *   P_WRITE_ACK (proto C),
+ *   P_WRITE_ACK_IN_SYNC,
  *   P_SUPERSEDED (proto C, two-primaries conflict detection)
  *   P_RS_WRITE_ACK
  *   P_NEG_ACK
  *   P_NEG_DREPLY
  *   P_NEG_RS_DREPLY
+ *   P_RS_NEG_ACK
  *   P_OV_RESULT
  *   P_RS_IS_IN_SYNC
  *   P_RS_CANCEL
+ *   P_RS_DEALLOCATED_ID
  *   P_RS_CANCEL_AHEAD
  */
 struct p_block_ack {
@@ -216,6 +224,22 @@ struct p_block_ack {
 	uint32_t blksize;
 	uint32_t seq_num;
 } __packed;
+
+/* For P_OV_RESULT_ID. */
+struct p_ov_result {
+	uint64_t sector;
+	uint64_t block_id;
+	uint32_t blksize;
+	uint32_t seq_num;
+	uint32_t result;
+	uint32_t pad;
+} __packed;
+
+enum ov_result {
+	OV_RESULT_SKIP = 0,
+	OV_RESULT_IN_SYNC = 1,
+	OV_RESULT_OUT_OF_SYNC = 2,
+};
 
 struct p_block_req_common {
 	uint64_t sector;
