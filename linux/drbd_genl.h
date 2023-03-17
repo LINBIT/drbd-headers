@@ -224,6 +224,7 @@ GENL_struct(DRBD_NLA_DETACH_PARMS, 13, detach_parms,
 GENL_struct(DRBD_NLA_DEVICE_CONF, 14, device_conf,
 	__u32_field_def(1, DRBD_F_INVARIANT,	max_bio_size, DRBD_MAX_BIO_SIZE_DEF)
 	__flg_field_def(2, 0 /* OPTIONAL */, intentional_diskless, DRBD_DISK_DISKLESS_DEF)
+	__u32_field_def(3, 0 /* OPTIONAL */, block_size, DRBD_BLOCK_SIZE_DEF)
 )
 
 GENL_struct(DRBD_NLA_RESOURCE_INFO, 15, resource_info,

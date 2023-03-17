@@ -308,6 +308,11 @@
 #define DRBD_QUORUM_DEF QOU_OFF /* kernel min/max includes symbolic values */
 #define DRBD_QUORUM_SCALE '1' /* nodes */
 
+#define DRBD_BLOCK_SIZE_MIN 512
+#define DRBD_BLOCK_SIZE_MAX 4096
+#define DRBD_BLOCK_SIZE_DEF 512
+#define DRBD_BLOCK_SIZE_SCALE '1' /* Bytes */
+
 /* By default freeze IO, if set error all IOs as quick as possible */
 #define DRBD_ON_NO_QUORUM_DEF ONQ_SUSPEND_IO
 
