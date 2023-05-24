@@ -354,6 +354,16 @@ struct p_rs_req {
  */
 #define DRBD_FF_2PC_V2 32
 
+/* Starting with drbd-9.1.15, a node with a backing disk sends the new
+ * current-uuid also to diskless nodes when the initial resync is
+ * skipped.
+ *
+ * The peer needs to know about this detail to apply the necessary
+ * strictness regarding downgrading its view of the partner's disk
+ * state.
+ */
+#define DRBD_FF_RS_SKIP_UUID 64
+
 struct p_connection_features {
 	uint32_t protocol_min;
 	uint32_t feature_flags;
