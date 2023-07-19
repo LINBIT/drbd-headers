@@ -318,4 +318,9 @@
 
 #define DRBD_ON_SUSP_PRI_OUTD_DEF SPO_DISCONNECT
 
+#define DRBD_TLS_DEF 0U /* disabled by default */
+#define DRBD_TLS_PRIVKEY_DEF 0 /* disabled by default */
+#define DRBD_TLS_CERTIFICATE_DEF 0 /* disabled by default */
+#define DRBD_TLS_KEYRING_DEF 0 /* disabled by default */
+
 #endif

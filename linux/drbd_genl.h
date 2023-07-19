@@ -184,6 +184,10 @@ GENL_struct(DRBD_NLA_NET_CONF, 5, net_conf,
 	__str_field_def(35, DRBD_F_INVARIANT, transport_name, SHARED_SECRET_MAX)
 	__u32_field_def(36, 0 /* OPTIONAL */, max_buffers, DRBD_MAX_BUFFERS_DEF)
 	__flg_field_def(37, 0 /* OPTIONAL */, allow_remote_read, DRBD_ALLOW_REMOTE_READ_DEF)
+	__flg_field_def(38, 0 /* OPTIONAL */, tls, DRBD_TLS_DEF)
+	__s32_field_def(39, 0 /* OPTIONAL */, tls_privkey, DRBD_TLS_PRIVKEY_DEF)
+	__s32_field_def(40, 0 /* OPTIONAL */, tls_certificate, DRBD_TLS_CERTIFICATE_DEF)
+	__s32_field_def(41, 0 /* OPTIONAL */, tls_keyring, DRBD_TLS_KEYRING_DEF)
 )
 
 GENL_struct(DRBD_NLA_SET_ROLE_PARMS, 6, set_role_parms,
