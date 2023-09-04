@@ -254,6 +254,7 @@ extern struct drbd_path *drbd_find_path_by_addr(struct drbd_listener *, struct s
 extern bool drbd_stream_send_timed_out(struct drbd_transport *transport, enum drbd_stream stream);
 extern bool drbd_should_abort_listening(struct drbd_transport *transport);
 extern void drbd_path_event(struct drbd_transport *transport, struct drbd_path *path, bool destroyed);
+extern void drbd_listener_destroy(struct kref *kref);
 
 /* drbd_receiver.c*/
 extern struct page *drbd_alloc_pages(struct drbd_transport *, unsigned int, gfp_t);
