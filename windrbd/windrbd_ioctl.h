@@ -325,4 +325,16 @@ struct windrbd_minor_mount_point {
 
 #define IOCTL_WINDRBD_ROOT_ARE_THERE_NL_PACKETS CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 19, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
+/* Lock or unlock driver in memory
+ * Input: 0 - Set AddDevice to NULL (if otherwise unused) driver can be unloaded
+ *        1 - Set AddDevice to valid AddDevice function, driver cannot be unloaded
+ * Output: none
+ *
+ * Controls whether WinDRBD is reacting to new devices (such as the bus device)
+ * This allows to remove the bus driver and install it again without having
+ * to unload the driver or reboot the system.
+ */
+
+#define IOCTL_WINDRBD_ROOT_SET_DRIVER_LOCKED CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 20, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
 #endif
