@@ -12,7 +12,7 @@
    So that transport compiled against an older version of this
    header will no longer load in a module that assumes a newer
    version. */
-#define DRBD_TRANSPORT_API_VERSION 18
+#define DRBD_TRANSPORT_API_VERSION 19
 
 /* MSG_MSG_DONTROUTE and MSG_PROBE are not used by DRBD. I.e.
    we can reuse these flags for our purposes */
@@ -55,8 +55,8 @@
 	} while (0)
 
 struct drbd_resource;
-struct drbd_connection;
-struct drbd_peer_device;
+struct drbd_listener;
+struct drbd_transport;
 
 enum drbd_stream {
 	DATA_STREAM,
@@ -86,8 +86,6 @@ enum drbd_tr_event {
 	TIMEOUT,
 };
 
-struct drbd_listener;
-
 /* A transport might wrap its own data structure around this. Having
    this base class as its first member. */
 struct drbd_path {
@@ -101,6 +99,7 @@ struct drbd_path {
 	int peer_addr_len;
 	bool established; /* updated by the transport */
 
+	struct drbd_transport *transport;
 	struct list_head list; /* paths of a connection */
 	struct list_head listener_link; /* paths waiting for an incomming connection,
 					   head is in a drbd_listener */
