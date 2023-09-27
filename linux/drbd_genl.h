@@ -539,6 +539,14 @@ GENL_op(DRBD_ADM_GET_PEER_DEVICES, 33,
 	GENL_tla_expected(DRBD_NLA_PEER_DEVICE_INFO, DRBD_GENLA_F_MANDATORY)
 	GENL_tla_expected(DRBD_NLA_PEER_DEVICE_STATISTICS, DRBD_GENLA_F_MANDATORY))
 
+GENL_op(DRBD_ADM_GET_PATHS, 50,
+	GENL_op_init(
+		.dumpit = drbd_adm_dump_paths,
+		.done = drbd_adm_dump_paths_done,
+	),
+	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_GENLA_F_MANDATORY)
+	GENL_tla_expected(DRBD_NLA_PATH_INFO, DRBD_GENLA_F_MANDATORY))
+
 GENL_notification(
 	DRBD_RESOURCE_STATE, 34, events,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
