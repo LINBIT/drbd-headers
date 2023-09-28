@@ -237,6 +237,7 @@ struct drbd_transport_class {
 struct drbd_listener {
 	struct kref kref;
 	struct drbd_resource *resource;
+	struct drbd_transport_class *transport_class;
 	struct list_head list; /* link for resource->listeners */
 	struct list_head waiters; /* list head for paths */
 	spinlock_t waiters_lock;
