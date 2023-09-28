@@ -51,7 +51,8 @@ struct meta_data_on_disk_9 {
 	struct peer_dev_md_on_disk_9 peers[DRBD_PEERS_MAX];
 	be_u64 history_uuids[HISTORY_UUIDS];
 
-	char padding[0] __attribute__((aligned(4096)));
+	unsigned char padding_start[0];
+	unsigned char padding_end[0] __attribute__((aligned(4096)));
 } __packed;
 
 /* Attention, these two are defined in drbd_int.h as well! */
