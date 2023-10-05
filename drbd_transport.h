@@ -195,7 +195,20 @@ struct drbd_transport_ops {
 	int (*recv_pages)(struct drbd_transport *, struct drbd_page_chain_head *, size_t size);
 
 	void (*stats)(struct drbd_transport *, struct drbd_transport_stats *stats);
-	void (*net_conf_change)(struct drbd_transport *, struct net_conf *new_net_conf);
+/**
+ * net_conf_change() - Notify about changed network configuration on the transport.
+ * @new_net_conf: The new network configuration that should be applied.
+ *
+ * net_conf_change() is called in the context of either the initial creation of the connection,
+ * or when the net_conf is changed via netlink. Note that assignment of the net_conf to the
+ * transport object happens after this function is called.
+ *
+ * On a negative (error) return value, it is expected that any changes are reverted and
+ * the old net_conf (if any) is still in effect.
+ *
+ * Upon success the function return 0. Upon error the function returns a negative value.
+ */
+	int (*net_conf_change)(struct drbd_transport *, struct net_conf *new_net_conf);
 	void (*set_rcvtimeo)(struct drbd_transport *, enum drbd_stream, long timeout);
 	long (*get_rcvtimeo)(struct drbd_transport *, enum drbd_stream);
 	int (*send_page)(struct drbd_transport *, enum drbd_stream, struct page *,
