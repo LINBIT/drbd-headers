@@ -323,4 +323,6 @@
 #define DRBD_TLS_CERTIFICATE_DEF 0 /* disabled by default */
 #define DRBD_TLS_KEYRING_DEF 0 /* disabled by default */
 
+#define DRBD_LOAD_BALANCE_PATHS_DEF 0U
+
 #endif

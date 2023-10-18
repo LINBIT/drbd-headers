@@ -188,6 +188,7 @@ GENL_struct(DRBD_NLA_NET_CONF, 5, net_conf,
 	__s32_field_def(39, 0 /* OPTIONAL */, tls_privkey, DRBD_TLS_PRIVKEY_DEF)
 	__s32_field_def(40, 0 /* OPTIONAL */, tls_certificate, DRBD_TLS_CERTIFICATE_DEF)
 	__s32_field_def(41, 0 /* OPTIONAL */, tls_keyring, DRBD_TLS_KEYRING_DEF)
+	__flg_field_def(42, DRBD_F_INVARIANT, load_balance_paths, DRBD_LOAD_BALANCE_PATHS_DEF)
 )
 
 GENL_struct(DRBD_NLA_SET_ROLE_PARMS, 6, set_role_parms,
