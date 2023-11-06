@@ -111,7 +111,6 @@ struct drbd_path {
 /* Each transport implementation should embed a struct drbd_transport
    into it's instance data structure. */
 struct drbd_transport {
-	struct drbd_transport_ops *ops;
 	struct drbd_transport_class *class;
 
 	struct list_head paths;
@@ -143,7 +142,11 @@ struct drbd_const_buffer {
 };
 
 struct drbd_transport_ops {
+	int (*init)(struct drbd_transport *);
 	void (*free)(struct drbd_transport *, enum drbd_tr_free_op free_op);
+	int (*init_listener)(struct drbd_transport *, const struct sockaddr *, struct net *net,
+			     struct drbd_listener *);
+	void (*release_listener)(struct drbd_listener *);
 	int (*connect)(struct drbd_transport *);
 
 /**
@@ -225,8 +228,10 @@ struct drbd_transport_class {
 	const int instance_size;
 	const int path_instance_size;
 	const int listener_instance_size;
+	struct drbd_transport_ops ops;
+
 	struct module *module;
-	int (*init)(struct drbd_transport *);
+
 	struct list_head list;
 };
 
@@ -245,7 +250,6 @@ struct drbd_listener {
 	struct sockaddr_storage listen_addr;
 	struct completion ready;
 	int err;
-	void (*destroy)(struct drbd_listener *);
 };
 
 /* drbd_main.c */
@@ -260,8 +264,7 @@ extern struct drbd_transport_class *drbd_get_transport_class(const char *transpo
 extern void drbd_put_transport_class(struct drbd_transport_class *);
 extern void drbd_print_transports_loaded(struct seq_file *seq);
 
-extern int drbd_get_listener(struct drbd_transport *transport, struct drbd_path *path,
-			     int (*init_fn)(struct drbd_transport *, const struct sockaddr *, struct net *net, struct drbd_listener *));
+extern int drbd_get_listener(struct drbd_transport *transport, struct drbd_path *path);
 extern void drbd_put_listener(struct drbd_path *path);
 extern struct drbd_path *drbd_find_path_by_addr(struct drbd_listener *, struct sockaddr_storage *);
 extern bool drbd_stream_send_timed_out(struct drbd_transport *transport, enum drbd_stream stream);
