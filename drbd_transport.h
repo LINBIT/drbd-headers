@@ -12,7 +12,7 @@
    So that transport compiled against an older version of this
    header will no longer load in a module that assumes a newer
    version. */
-#define DRBD_TRANSPORT_API_VERSION 19
+#define DRBD_TRANSPORT_API_VERSION 20
 
 /* MSG_MSG_DONTROUTE and MSG_PROBE are not used by DRBD. I.e.
    we can reuse these flags for our purposes */
@@ -219,8 +219,8 @@ struct drbd_transport_ops {
 	bool (*stream_ok)(struct drbd_transport *, enum drbd_stream);
 	bool (*hint)(struct drbd_transport *, enum drbd_stream, enum drbd_tr_hints hint);
 	void (*debugfs_show)(struct drbd_transport *, struct seq_file *m);
-	int (*add_path)(struct drbd_transport *, struct drbd_path *path);
-	int (*remove_path)(struct drbd_transport *, struct drbd_path *path);
+	int (*add_path)(struct drbd_path *path);
+	int (*remove_path)(struct drbd_path *path);
 };
 
 struct drbd_transport_class {
@@ -264,7 +264,7 @@ extern struct drbd_transport_class *drbd_get_transport_class(const char *transpo
 extern void drbd_put_transport_class(struct drbd_transport_class *);
 extern void drbd_print_transports_loaded(struct seq_file *seq);
 
-extern int drbd_get_listener(struct drbd_transport *transport, struct drbd_path *path);
+extern int drbd_get_listener(struct drbd_path *path);
 extern void drbd_put_listener(struct drbd_path *path);
 extern struct drbd_path *drbd_find_path_by_addr(struct drbd_listener *, struct sockaddr_storage *);
 extern bool drbd_stream_send_timed_out(struct drbd_transport *transport, enum drbd_stream stream);
