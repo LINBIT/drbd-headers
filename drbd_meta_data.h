@@ -29,7 +29,8 @@ struct peer_dev_md_on_disk_9 {
 struct meta_data_on_disk_9 {
 	be_u64 effective_size;    /* last agreed size */
 	be_u64 current_uuid;
-	be_u64 reserved_u64[4];   /* to have the magic at the same position as in v07, and v08 */
+	be_u64 members;	  	  /* only if MDF_HAVE_MEMBERS_MASK is in the flags */
+	be_u64 reserved_u64[3];   /* to have the magic at the same position as in v07, and v08 */
 	be_u64 device_uuid;
 	be_u32 flags;             /* MDF */
 	be_u32 magic;

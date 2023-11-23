@@ -357,6 +357,7 @@ enum mdf_flag {
 	MDF_AL_CLEAN =		1 << 7,
 	MDF_AL_DISABLED =       1 << 8,
 	MDF_PRIMARY_LOST_QUORUM = 1 << 9,
+	MDF_HAVE_QUORUM =       1 << 10,
 };
 
 enum mdf_peer_flag {
