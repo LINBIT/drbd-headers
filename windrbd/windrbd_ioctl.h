@@ -1,9 +1,9 @@
 #ifndef WINDRBD_IOCTL_H
 #define WINDRBD_IOCTL_H
 
-#include <sys/types.h>			/* for int64_t */
-
 #ifdef __CYGWIN__
+
+#include <sys/types.h>			/* for int64_t */
 
 	/* Windows user space (Cygwin, for drbd-utils) */
 
