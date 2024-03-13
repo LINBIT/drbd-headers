@@ -307,4 +307,51 @@ struct windrbd_minor_mount_point {
 
 #define IOCTL_WINDRBD_ROOT_GET_LOCK_DOWN_STATE CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 17, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
+/* Set WinDRBD shutdown flag.
+ * Input: 1 - signal WinDRBD that it will be unloaded soon
+ *        0 - cancel the above
+ * Output: none
+ *
+ * Set WinDRBD shutdown flag. Will cause drbdsetup events2 to terminate.
+ * Also all further drbdadm commands will fail.
+ */
+
+#define IOCTL_WINDRBD_ROOT_SET_SHUTDOWN_FLAG CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 18, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+/* Check if there is a netlink packet without consuming it.
+ *
+ * Input buffer: the port id (getpid()) in a struct windrbd_ioctl_genl_portid
+ * Output buffer: a 32 bit flag: 0 - no netlink packets 1 - there are netlink
+ *                packets.
+ */
+
+#define IOCTL_WINDRBD_ROOT_ARE_THERE_NL_PACKETS CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 19, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+/* Lock or unlock driver in memory
+ * Input: 0 - Set AddDevice to NULL (if otherwise unused) driver can be unloaded
+ *        1 - Set AddDevice to valid AddDevice function, driver cannot be unloaded
+ * Output: none
+ *
+ * Controls whether WinDRBD is reacting to new devices (such as the bus device)
+ * This allows to remove the bus driver and install it again without having
+ * to unload the driver or reboot the system.
+ */
+
+#define IOCTL_WINDRBD_ROOT_SET_DRIVER_LOCKED CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 20, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+/* Suspend/Resume I/O for a minor on the WinDRBD level (outside DRBD)
+ *
+ * Input: minor - the DRBD minor for which to suspend I/O for
+ * Output: none
+ *
+ * When an application busy writes a block it may happen that
+ * syncing never finished. In that case, set this suspend-io
+ * flag, wait for sync to finish and then clear the suspend-io
+ * flag again. Note that this is different from DRBD's suspend-io
+ * command.
+ */
+
+#define IOCTL_WINDRBD_ROOT_SET_IO_SUSPENDED_FOR_MINOR CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 21, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_WINDRBD_ROOT_CLEAR_IO_SUSPENDED_FOR_MINOR CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 22, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
 #endif
