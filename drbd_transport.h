@@ -86,6 +86,11 @@ enum drbd_tr_event {
 	TIMEOUT,
 };
 
+enum drbd_tr_path_flag {
+	TR_ESTABLISHED, /* updated by the transport */
+	TR_TRANSPORT_PRIVATE = 32, /* flags starting here are used exclusively by the transport */
+};
+
 /* A transport might wrap its own data structure around this. Having
    this base class as its first member. */
 struct drbd_path {
@@ -97,7 +102,7 @@ struct drbd_path {
 	struct net *net;
 	int my_addr_len;
 	int peer_addr_len;
-	bool established; /* updated by the transport */
+	unsigned long flags;
 
 	struct drbd_transport *transport;
 	struct list_head list; /* paths of a connection */
