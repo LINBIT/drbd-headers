@@ -593,6 +593,7 @@ struct p_twopc_request {
 
 #define TWOPC_HAS_FLAGS     0x80000000 /* For packet dissectors */
 #define TWOPC_HAS_REACHABLE 0x40000000 /* The reachable_nodes field is valid */
+#define TWOPC_PRI_INCAPABLE 0x20000000 /* The primary has no access to data */
 
 struct p_twopc_reply {
 	uint32_t tid;  /* transaction identifier */
