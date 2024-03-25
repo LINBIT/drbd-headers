@@ -12,7 +12,7 @@
    So that transport compiled against an older version of this
    header will no longer load in a module that assumes a newer
    version. */
-#define DRBD_TRANSPORT_API_VERSION 20
+#define DRBD_TRANSPORT_API_VERSION 21
 
 /* MSG_MSG_DONTROUTE and MSG_PROBE are not used by DRBD. I.e.
    we can reuse these flags for our purposes */
@@ -147,13 +147,32 @@ struct drbd_const_buffer {
 	unsigned int avail;
 };
 
+/**
+ * struct drbd_transport_ops - Operations implemented by the transport.
+ *
+ * The user of this API guarantees that all of the following will be exclusive
+ * with respect to each other for a given transport instance:
+ * * init()
+ * * free()
+ * * prepare_connect()
+ * * finish_connect()
+ * * add_path() and the subsequent list_add_tail_rcu() for the paths list
+ * * may_remove_path() and the subsequent list_del_rcu() for the paths list
+ *
+ * The connection sequence is as follows:
+ * 1. prepare_connect(), with the above exclusivity guarantee
+ * 2. connect(), this may take a long time
+ * 3. finish_connect(), with the above exclusivity guarantee
+ */
 struct drbd_transport_ops {
 	int (*init)(struct drbd_transport *);
 	void (*free)(struct drbd_transport *, enum drbd_tr_free_op free_op);
 	int (*init_listener)(struct drbd_transport *, const struct sockaddr *, struct net *net,
 			     struct drbd_listener *);
 	void (*release_listener)(struct drbd_listener *);
+	int (*prepare_connect)(struct drbd_transport *);
 	int (*connect)(struct drbd_transport *);
+	void (*finish_connect)(struct drbd_transport *);
 
 /**
  * recv() - Receive data via the transport
@@ -225,8 +244,33 @@ struct drbd_transport_ops {
 	bool (*stream_ok)(struct drbd_transport *, enum drbd_stream);
 	bool (*hint)(struct drbd_transport *, enum drbd_stream, enum drbd_tr_hints hint);
 	void (*debugfs_show)(struct drbd_transport *, struct seq_file *m);
+
+/**
+ * add_path() - Prepare path to be added
+ * @path: The path that is being added
+ *
+ * Called before the path is added to the paths list.
+ *
+ * Return: 0 if path may be added, error code otherwise.
+ */
 	int (*add_path)(struct drbd_path *path);
-	int (*remove_path)(struct drbd_path *path);
+
+/**
+ * may_remove_path() - Query whether path may currently be removed
+ * @path: The path to be removed
+ *
+ * Return: true is path may be removed, false otherwise.
+ */
+	bool (*may_remove_path)(struct drbd_path *path);
+
+/**
+ * remove_path() - Clear up after path removal
+ * @path: The path that is being removed
+ *
+ * Clear up a path that is being removed. Called after the path has been
+ * removed from the list and all kref references have been put.
+ */
+	void (*remove_path)(struct drbd_path *path);
 };
 
 struct drbd_transport_class {
