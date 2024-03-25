@@ -88,6 +88,7 @@ enum drbd_tr_event {
 
 enum drbd_tr_path_flag {
 	TR_ESTABLISHED, /* updated by the transport */
+	TR_UNREGISTERED,
 	TR_TRANSPORT_PRIVATE = 32, /* flags starting here are used exclusively by the transport */
 };
 
@@ -276,6 +277,14 @@ extern bool drbd_stream_send_timed_out(struct drbd_transport *transport, enum dr
 extern bool drbd_should_abort_listening(struct drbd_transport *transport);
 extern void drbd_path_event(struct drbd_transport *transport, struct drbd_path *path, bool destroyed);
 extern void drbd_listener_destroy(struct kref *kref);
+extern struct drbd_path *__drbd_next_path_ref(struct drbd_path *drbd_path,
+					      struct drbd_transport *transport);
+
+/* Might restart iteration, if current element is removed from list!! */
+#define for_each_path_ref(path, transport)			\
+	for (path = __drbd_next_path_ref(NULL, transport);	\
+	     path;						\
+	     path = __drbd_next_path_ref(path, transport))
 
 /* drbd_receiver.c*/
 extern struct page *drbd_alloc_pages(struct drbd_transport *, unsigned int, gfp_t);
