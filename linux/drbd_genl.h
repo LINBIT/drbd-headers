@@ -248,6 +248,7 @@ GENL_struct(DRBD_NLA_DEVICE_INFO, 16, device_info,
 	__u32_field(1, 0, dev_disk_state)
 	__flg_field(2, 0, is_intentional_diskless)
 	__flg_field(3, 0, dev_has_quorum)
+	__flg_field(5, 0, dev_is_open)
 	__str_field(4, 0, backing_dev_path, 128)
 )
 
