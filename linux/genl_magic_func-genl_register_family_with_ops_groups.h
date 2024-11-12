@@ -14,12 +14,12 @@ enum CONCAT_(GENL_MAGIC_FAMILY, group_ids) {
 #undef GENL_mc_group
 #define GENL_mc_group(group)						\
 static int CONCAT_(GENL_MAGIC_FAMILY, _genl_multicast_ ## group)(	\
-	struct sk_buff *skb, gfp_t flags)				\
+	struct sk_buff *skb)						\
 {									\
 	unsigned int group_id =						\
 		CONCAT_(GENL_MAGIC_FAMILY, _group_ ## group);		\
 	return genlmsg_multicast_allns(&ZZZ_genl_family, skb, 0,	\
-				 group_id, flags);			\
+				 group_id);				\
 }
 
 #include GENL_MAGIC_INCLUDE_FILE
