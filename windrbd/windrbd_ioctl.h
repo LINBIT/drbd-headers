@@ -352,4 +352,18 @@ struct windrbd_minor_mount_point {
 #define IOCTL_WINDRBD_ROOT_SET_IO_SUSPENDED_FOR_MINOR CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 21, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_WINDRBD_ROOT_CLEAR_IO_SUSPENDED_FOR_MINOR CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 22, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
+/* Check if DRBD implements a certain command on the netlink layer
+ *
+ * Input: cmd (as an 32-bit int) to query
+ * Output: 0 - does not implement command, 1 - implements command
+ *
+ * Newer drbd-utils query the netlink family of the Linux
+ * kernel for known commands. We don't implement a full
+ * netlink replacement but still want to query the kernel
+ * for commands it knows. Therefore we introduced this ioctl
+ * which checks if a certain command is known.
+ */
+
+#define IOCTL_WINDRBD_ROOT_DRBD_OP_IS_KNOWN CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 23, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
 #endif
