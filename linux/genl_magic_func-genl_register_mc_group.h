@@ -5,13 +5,13 @@ CONCAT_(GENL_MAGIC_FAMILY, _mcg_ ## group) __read_mostly = {		\
 	.name = #group,							\
 };									\
 static int CONCAT_(GENL_MAGIC_FAMILY, _genl_multicast_ ## group)(	\
-	struct sk_buff *skb, gfp_t flags)				\
+	struct sk_buff *skb)				\
 {									\
 	unsigned int group_id =						\
 		CONCAT_(GENL_MAGIC_FAMILY, _mcg_ ## group).id;	\
 	if (!group_id)							\
 		return -EINVAL;						\
-	return genlmsg_multicast(skb, 0, group_id, flags);		\
+	return genlmsg_multicast(skb, 0, group_id, GFP_NOWAIT);		\
 }
 
 #include GENL_MAGIC_INCLUDE_FILE
