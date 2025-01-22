@@ -351,6 +351,7 @@ GENL_struct(DRBD_NLA_PEER_DEVICE_OPTS, 27, peer_device_conf,
 	__u32_field_def(5,	DRBD_GENLA_F_MANDATORY,	c_max_rate, DRBD_C_MAX_RATE_DEF)
 	__u32_field_def(6,	DRBD_GENLA_F_MANDATORY,	c_min_rate, DRBD_C_MIN_RATE_DEF)
 	__flg_field_def(7, 0 /* OPTIONAL */, bitmap, DRBD_BITMAP_DEF)
+	__flg_field_def(8, 0 /* OPTIONAL */, resync_without_replication, DRBD_RESYNC_WITHOUT_REPLICATION_DEF)
 )
 
 GENL_struct(DRBD_NLA_PATH_PARMS, 28, path_parms,
