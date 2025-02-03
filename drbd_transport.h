@@ -28,14 +28,13 @@
 #define GFP_TRY	(__GFP_HIGHMEM | __GFP_NOWARN | __GFP_RECLAIM)
 
 #define tr_printk(level, transport, fmt, args...)  ({		\
-	unsigned long __flags;					\
-	__flags = rcu_read_lock();				\
+	rcu_read_lock();					\
 	printk(level "drbd %s %s:%s: " fmt,			\
 	       (transport)->log_prefix,				\
 	       (transport)->class->name,			\
 	       rcu_dereference((transport)->net_conf)->name,	\
 	       ## args);					\
-	rcu_read_unlock(__flags);					\
+	rcu_read_unlock();					\
 	})
 
 #define tr_err(transport, fmt, args...) \
