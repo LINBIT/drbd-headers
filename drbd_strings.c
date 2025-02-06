@@ -194,6 +194,9 @@ static const char * const __packet_names[] = {
 	[P_RS_NEG_ACK]          = "P_RS_NEG_ACK",
 	[P_OV_RESULT_ID]        = "P_OV_RESULT_ID",
 	[P_RS_DEALLOCATED_ID]   = "P_RS_DEALLOCATED_ID",
+	[P_FLUSH_REQUESTS]      = "P_FLUSH_REQUESTS",
+	[P_FLUSH_FORWARD]       = "P_FLUSH_FORWARD",
+	[P_FLUSH_REQUESTS_ACK]  = "P_FLUSH_REQUESTS_ACK",
 	/* enum drbd_packet, but not commands - obsoleted flags:
 	 *	P_MAY_IGNORE
 	 *	P_MAX_OPT_CMD

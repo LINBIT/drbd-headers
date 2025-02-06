@@ -118,6 +118,10 @@ enum drbd_packet {
 	P_OV_RESULT_ID        = 0x53, /* meta sock: Online verify result with block ID. */
 	P_RS_DEALLOCATED_ID   = 0x54, /* data sock: Contains only zeros on sync source node. */
 
+	P_FLUSH_REQUESTS      = 0x55, /* data sock: Flush prior requests then send ack and/or forward */
+	P_FLUSH_FORWARD       = 0x56, /* meta sock: Send ack after sending P_OUT_OF_SYNC for prior P_PEER_ACK */
+	P_FLUSH_REQUESTS_ACK  = 0x57, /* data sock: Response to initiator of P_FLUSH_REQUESTS */
+
 	P_MAY_IGNORE	      = 0x100, /* Flag to test if (cmd > P_MAY_IGNORE) ... */
 
 	/* special command ids for handshake */
@@ -672,6 +676,20 @@ struct p_peer_block_desc {
 struct p_peer_dagtag {
 	uint64_t dagtag;
 	uint32_t node_id;
+} __packed;
+
+struct p_flush_requests {
+	uint64_t flush_sequence;
+} __packed;
+
+struct p_flush_forward {
+	uint64_t flush_sequence;
+	uint32_t initiator_node_id;
+} __packed;
+
+struct p_flush_ack {
+	uint64_t flush_sequence;
+	uint32_t primary_node_id;
 } __packed;
 
 /*
