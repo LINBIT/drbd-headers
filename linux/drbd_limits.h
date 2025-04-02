@@ -317,6 +317,7 @@
 #define DRBD_ON_NO_QUORUM_DEF ONQ_SUSPEND_IO
 
 #define DRBD_ON_SUSP_PRI_OUTD_DEF SPO_DISCONNECT
+#define DRBD_DRBD8_COMPAT_MODE_DEF 0U
 
 #define DRBD_TLS_DEF 0U /* disabled by default */
 #define DRBD_TLS_PRIVKEY_DEF 0 /* disabled by default */
