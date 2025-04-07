@@ -121,6 +121,8 @@ enum drbd_packet {
 	P_FLUSH_REQUESTS      = 0x55, /* data sock: Flush prior requests then send ack and/or forward */
 	P_FLUSH_FORWARD       = 0x56, /* meta sock: Send ack after sending P_OUT_OF_SYNC for prior P_PEER_ACK */
 	P_FLUSH_REQUESTS_ACK  = 0x57, /* data sock: Response to initiator of P_FLUSH_REQUESTS */
+	P_ENABLE_REPLICATION_NEXT = 0x58, /* data sock: whether to start replication on next resync start */
+	P_ENABLE_REPLICATION  = 0x59, /* data sock: enable or disable replication during resync */
 
 	P_MAY_IGNORE	      = 0x100, /* Flag to test if (cmd > P_MAY_IGNORE) ... */
 
@@ -367,6 +369,10 @@ struct p_rs_req {
  * state.
  */
 #define DRBD_FF_RS_SKIP_UUID 64
+
+/* Support for resync_without_replication.
+ */
+#define DRBD_FF_RESYNC_WITHOUT_REPLICATION 128
 
 struct p_connection_features {
 	uint32_t protocol_min;
@@ -690,6 +696,12 @@ struct p_flush_forward {
 struct p_flush_ack {
 	uint64_t flush_sequence;
 	uint32_t primary_node_id;
+} __packed;
+
+struct p_enable_replication {
+       uint8_t enable;
+       uint8_t _pad1;
+       uint16_t _pad2;
 } __packed;
 
 /*

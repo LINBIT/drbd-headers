@@ -197,6 +197,8 @@ static const char * const __packet_names[] = {
 	[P_FLUSH_REQUESTS]      = "P_FLUSH_REQUESTS",
 	[P_FLUSH_FORWARD]       = "P_FLUSH_FORWARD",
 	[P_FLUSH_REQUESTS_ACK]  = "P_FLUSH_REQUESTS_ACK",
+	[P_ENABLE_REPLICATION_NEXT] = "P_ENABLE_REPLICATION_NEXT",
+	[P_ENABLE_REPLICATION]  = "P_ENABLE_REPLICATION",
 	/* enum drbd_packet, but not commands - obsoleted flags:
 	 *	P_MAY_IGNORE
 	 *	P_MAX_OPT_CMD
