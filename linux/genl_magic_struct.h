@@ -29,8 +29,8 @@
 #define CONCAT__(a,b)	a ## b
 #define CONCAT_(a,b)	CONCAT__(a,b)
 
-extern int CONCAT_(GENL_MAGIC_FAMILY, _genl_register)(void);
-extern void CONCAT_(GENL_MAGIC_FAMILY, _genl_unregister)(void);
+int CONCAT_(GENL_MAGIC_FAMILY, _genl_register)(void);
+void CONCAT_(GENL_MAGIC_FAMILY, _genl_unregister)(void);
 
 /*
  * Extension of genl attribute validation policies			{{{2

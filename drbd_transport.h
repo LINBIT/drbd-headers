@@ -303,26 +303,27 @@ struct drbd_listener {
 };
 
 /* drbd_main.c */
-extern void drbd_destroy_path(struct kref *kref);
+void drbd_destroy_path(struct kref *kref);
 
 /* drbd_transport.c */
-extern int drbd_register_transport_class(struct drbd_transport_class *transport_class,
-					 int api_version,
-					 int drbd_transport_size);
-extern void drbd_unregister_transport_class(struct drbd_transport_class *transport_class);
-extern struct drbd_transport_class *drbd_get_transport_class(const char *transport_name);
-extern void drbd_put_transport_class(struct drbd_transport_class *);
-extern void drbd_print_transports_loaded(struct seq_file *seq);
+int drbd_register_transport_class(struct drbd_transport_class *transport_class,
+				  int version, int drbd_transport_size);
+void drbd_unregister_transport_class(struct drbd_transport_class *transport_class);
+struct drbd_transport_class *drbd_get_transport_class(const char *name);
+void drbd_put_transport_class(struct drbd_transport_class *tc);
+void drbd_print_transports_loaded(struct seq_file *seq);
 
-extern int drbd_get_listener(struct drbd_path *path);
-extern void drbd_put_listener(struct drbd_path *path);
-extern struct drbd_path *drbd_find_path_by_addr(struct drbd_listener *, struct sockaddr_storage *);
-extern bool drbd_stream_send_timed_out(struct drbd_transport *transport, enum drbd_stream stream);
-extern bool drbd_should_abort_listening(struct drbd_transport *transport);
-extern void drbd_path_event(struct drbd_transport *transport, struct drbd_path *path);
-extern void drbd_listener_destroy(struct kref *kref);
-extern struct drbd_path *__drbd_next_path_ref(struct drbd_path *drbd_path,
-					      struct drbd_transport *transport);
+int drbd_get_listener(struct drbd_path *path);
+void drbd_put_listener(struct drbd_path *path);
+struct drbd_path *drbd_find_path_by_addr(struct drbd_listener *listener,
+					 struct sockaddr_storage *addr);
+bool drbd_stream_send_timed_out(struct drbd_transport *transport,
+				enum drbd_stream stream);
+bool drbd_should_abort_listening(struct drbd_transport *transport);
+void drbd_path_event(struct drbd_transport *transport, struct drbd_path *path);
+void drbd_listener_destroy(struct kref *kref);
+struct drbd_path *__drbd_next_path_ref(struct drbd_path *drbd_path,
+				       struct drbd_transport *transport);
 
 /* Might restart iteration, if current element is removed from list!! */
 #define for_each_path_ref(path, transport)			\
@@ -331,10 +332,14 @@ extern struct drbd_path *__drbd_next_path_ref(struct drbd_path *drbd_path,
 	     path = __drbd_next_path_ref(path, transport))
 
 /* drbd_receiver.c*/
-extern struct page *drbd_alloc_pages(struct drbd_transport *, unsigned int, gfp_t);
-extern void drbd_free_pages(struct drbd_transport *transport, struct page *page, int is_net);
-extern void drbd_control_data_ready(struct drbd_transport *transport, struct drbd_const_buffer *pool);
-extern void drbd_control_event(struct drbd_transport *transport, enum drbd_tr_event);
+struct page *drbd_alloc_pages(struct drbd_transport *transport,
+			      unsigned int number, gfp_t gfp_mask);
+void drbd_free_pages(struct drbd_transport *transport, struct page *page,
+		     int is_net);
+void drbd_control_data_ready(struct drbd_transport *transport,
+			     struct drbd_const_buffer *pool);
+void drbd_control_event(struct drbd_transport *transport,
+			enum drbd_tr_event event);
 
 static inline void drbd_alloc_page_chain(struct drbd_transport *t,
 	struct drbd_page_chain_head *chain, unsigned int nr, gfp_t gfp_flags)
