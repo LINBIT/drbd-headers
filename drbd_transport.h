@@ -334,8 +334,7 @@ struct drbd_path *__drbd_next_path_ref(struct drbd_path *drbd_path,
 /* drbd_receiver.c*/
 struct page *drbd_alloc_pages(struct drbd_transport *transport,
 			      unsigned int number, gfp_t gfp_mask);
-void drbd_free_pages(struct drbd_transport *transport, struct page *page,
-		     int is_net);
+void drbd_free_pages(struct drbd_transport *transport, struct page *page);
 void drbd_control_data_ready(struct drbd_transport *transport,
 			     struct drbd_const_buffer *pool);
 void drbd_control_event(struct drbd_transport *transport,
@@ -348,9 +347,10 @@ static inline void drbd_alloc_page_chain(struct drbd_transport *t,
 	chain->nr_pages = chain->head ? nr : 0;
 }
 
-static inline void drbd_free_page_chain(struct drbd_transport *transport, struct drbd_page_chain_head *chain, int is_net)
+static inline void drbd_free_page_chain(struct drbd_transport *transport,
+					struct drbd_page_chain_head *chain)
 {
-	drbd_free_pages(transport, chain->head, is_net);
+	drbd_free_pages(transport, chain->head);
 	chain->head = NULL;
 	chain->nr_pages = 0;
 }
