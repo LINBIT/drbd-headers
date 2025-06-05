@@ -368,4 +368,17 @@ struct windrbd_minor_mount_point {
 
 #define IOCTL_WINDRBD_ROOT_DRBD_OP_IS_KNOWN CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 23, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
+/* Check if the WinDRBD virtual bus device is working correctly
+ *
+ * Input: none
+ * Output: 0 - does NOT work correctly 1 - works as expected
+ *
+ * Sometimes the WinDRBD bus device does not work correctly after
+ * a new install. The reason for that is yet unknown but we know
+ * how to fix it. In order to allow the installer to apply the fix
+ * we need a possibility to check if the bus device works as expected.
+ */
+
+#define IOCTL_WINDRBD_ROOT_BUS_DEVICE_IS_WORKING CTL_CODE(WINDRBD_ROOT_DEVICE_TYPE, 24, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
 #endif
