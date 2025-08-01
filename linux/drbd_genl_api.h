@@ -33,6 +33,7 @@ enum {
 #undef linux
 
 #include <linux/drbd.h>
+#include <linux/drbd_config.h>
 #define GENL_MAGIC_VERSION	2
 #define GENL_MAGIC_FAMILY	drbd
 #define GENL_MAGIC_FAMILY_HDRSZ	sizeof(struct drbd_genlmsghdr)
