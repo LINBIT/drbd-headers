@@ -57,6 +57,7 @@
 struct drbd_resource;
 struct drbd_listener;
 struct drbd_transport;
+struct bio;
 
 enum drbd_stream {
 	DATA_STREAM,
@@ -208,18 +209,20 @@ struct drbd_transport_ops {
 	int (*recv)(struct drbd_transport *, enum drbd_stream, void **buf, size_t size, int flags);
 
 /**
- * recv_pages() - Receive bulk data via the transport's DATA_STREAM
+ * recv_bio() - Receive bulk data via the transport's DATA_STREAM into a bio
  * @peer_device: Identify the transport and the device
- * @page_chain:	Here recv_pages() will place the page chain head and length
+ * @bio:	the bio
  * @size:	Number of bytes to receive
  *
- * recv_pages() will return the requested amount of data from DATA_STREAM,
- * and place it into pages allocated with drbd_alloc_pages().
+ * recv_bio() receives the requested amount of data from DATA_STREAM. It
+ * expects a WRITE bio. It tries to reuse the pages that already have the
+ * data and give those pages to the bio. If that is not possible, it
+ * allocates pages by using drbd_alloc_pages().
  *
  * Upon success the function returns 0. Upon error the function returns a
  * negative value
  */
-	int (*recv_pages)(struct drbd_transport *, struct drbd_page_chain_head *, size_t size);
+	int (*recv_bio)(struct drbd_transport *, struct bio *bio, size_t size);
 
 	void (*stats)(struct drbd_transport *, struct drbd_transport_stats *stats);
 /**
@@ -324,6 +327,8 @@ void drbd_path_event(struct drbd_transport *transport, struct drbd_path *path);
 void drbd_listener_destroy(struct kref *kref);
 struct drbd_path *__drbd_next_path_ref(struct drbd_path *drbd_path,
 				       struct drbd_transport *transport);
+int drbd_bio_add_page(struct drbd_transport *transport, struct bio *bio,
+		      struct page *page, unsigned int len, unsigned int offset);
 
 /* Might restart iteration, if current element is removed from list!! */
 #define for_each_path_ref(path, transport)			\
