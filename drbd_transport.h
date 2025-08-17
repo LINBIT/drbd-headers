@@ -137,12 +137,6 @@ struct drbd_transport_stats {
 	int send_buffer_used;
 };
 
-/* argument to ->recv_pages() */
-struct drbd_page_chain_head {
-	struct page *head;
-	unsigned int nr_pages;
-};
-
 struct drbd_const_buffer {
 	const u8 *buffer;
 	unsigned int avail;
@@ -217,7 +211,7 @@ struct drbd_transport_ops {
  * recv_bio() receives the requested amount of data from DATA_STREAM. It
  * expects a WRITE bio. It tries to reuse the pages that already have the
  * data and give those pages to the bio. If that is not possible, it
- * allocates pages by using drbd_alloc_pages().
+ * allocates pages by using drbd_alloc_page().
  *
  * Upon success the function returns 0. Upon error the function returns a
  * negative value
@@ -337,28 +331,12 @@ int drbd_bio_add_page(struct drbd_transport *transport, struct bio *bio,
 	     path = __drbd_next_path_ref(path, transport))
 
 /* drbd_receiver.c*/
-struct page *drbd_alloc_pages(struct drbd_transport *transport,
-			      unsigned int number, gfp_t gfp_mask);
-void drbd_free_pages(struct drbd_transport *transport, struct page *page);
+struct page *drbd_alloc_page(struct drbd_transport *transport, gfp_t gfp_mask);
+void drbd_free_page(struct drbd_transport *transport, struct page *page);
 void drbd_control_data_ready(struct drbd_transport *transport,
 			     struct drbd_const_buffer *pool);
 void drbd_control_event(struct drbd_transport *transport,
 			enum drbd_tr_event event);
-
-static inline void drbd_alloc_page_chain(struct drbd_transport *t,
-	struct drbd_page_chain_head *chain, unsigned int nr, gfp_t gfp_flags)
-{
-	chain->head = drbd_alloc_pages(t, nr, gfp_flags);
-	chain->nr_pages = chain->head ? nr : 0;
-}
-
-static inline void drbd_free_page_chain(struct drbd_transport *transport,
-					struct drbd_page_chain_head *chain)
-{
-	drbd_free_pages(transport, chain->head);
-	chain->head = NULL;
-	chain->nr_pages = 0;
-}
 
 /*
  * Some helper functions to deal with our page chains.
