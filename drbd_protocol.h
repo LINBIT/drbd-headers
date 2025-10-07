@@ -375,6 +375,12 @@ struct p_rs_req {
  */
 #define DRBD_FF_RESYNC_WITHOUT_REPLICATION 128
 
+/* Support for bitmap block size != 4k. If you connect peers with
+ * different bitmap block sizes, the resync becomes more
+ * interesting, and we need to communicate the bitmap block size.
+ */
+#define DRBD_FF_BM_BLOCK_SHIFT 256
+
 struct p_connection_features {
 	uint32_t protocol_min;
 	uint32_t feature_flags;
@@ -534,7 +540,14 @@ struct o_qlim {
 	uint8_t discard_enabled;
 	uint8_t discard_zeroes_data;
 	uint8_t write_same_capable;
-	uint8_t _pad;
+
+	/* Bitmap block shift relative to 4k. If peers have differnt bitmap
+	 * granularity, any resync related request needs to be aligned to the
+	 * larger granularity: we can not clear partial bits.
+	 * 0 to 8 to represent 4k to 1M.
+	 * If DRBD_FF_BM_BLOCK_SHIFT is agreed on.
+	 */
+	uint8_t bm_block_shift_minus_12;
 } __packed;
 
 struct p_sizes {
