@@ -209,7 +209,7 @@ struct drbd_transport_ops {
  * @size:	Number of bytes to receive
  *
  * recv_bio() receives the requested amount of data from DATA_STREAM. It
- * allocates pages by using drbd_alloc_page() and adds them to bios in the
+ * allocates pages by using drbd_alloc_pages() and adds them to bios in the
  * bio_list.
  *
  * Upon success the function returns 0. Upon error the function returns a
@@ -330,7 +330,7 @@ int drbd_bio_add_page(struct drbd_transport *transport, struct bio_list *bios,
 	     path = __drbd_next_path_ref(path, transport))
 
 /* drbd_receiver.c*/
-struct page *drbd_alloc_page(struct drbd_transport *transport, gfp_t gfp_mask);
+struct page *drbd_alloc_pages(struct drbd_transport *transport, gfp_t gfp_mask, unsigned int size);
 void drbd_free_page(struct drbd_transport *transport, struct page *page);
 void drbd_control_data_ready(struct drbd_transport *transport,
 			     struct drbd_const_buffer *pool);
