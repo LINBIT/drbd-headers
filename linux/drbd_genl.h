@@ -385,6 +385,10 @@ GENL_struct(DRBD_NLA_INVAL_PEER_PARAMS, 33, invalidate_peer_parms,
 	__flg_field_def(1, DRBD_GENLA_F_MANDATORY, p_reset_bitmap, DRBD_INVALIDATE_RESET_BITMAP_DEF)
 )
 
+GENL_struct(DRBD_NLA_SUSPEND_IO_PARAMS, 34, suspend_io_parms,
+	__flg_field_def(1, DRBD_GENLA_F_MANDATORY, bdev_freeze, DRBD_SUSPEND_IO_BDEV_FREEZE_DEF)
+)
+
 /*
  * Notifications and commands (genlmsghdr->cmd)
  */
@@ -508,8 +512,11 @@ GENL_op(DRBD_ADM_PAUSE_SYNC,	21, GENL_doit(drbd_adm_pause_sync),
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED))
 GENL_op(DRBD_ADM_RESUME_SYNC,	22, GENL_doit(drbd_adm_resume_sync),
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED))
+
 GENL_op(DRBD_ADM_SUSPEND_IO,	23, GENL_doit(drbd_adm_suspend_io),
-	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED))
+	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
+	GENL_tla_expected(DRBD_NLA_SUSPEND_IO_PARAMS, 0 /* OPTIONAL */))
+
 GENL_op(DRBD_ADM_RESUME_IO,	24, GENL_doit(drbd_adm_resume_io),
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED))
 GENL_op(DRBD_ADM_OUTDATE,	25, GENL_doit(drbd_adm_outdate),

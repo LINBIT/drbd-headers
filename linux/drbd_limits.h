@@ -336,4 +336,7 @@
 #define DRBD_RDMA_CTRL_SNDBUF_SIZE_DEF 0
 #define DRBD_RDMA_CTRL_SNDBUF_SIZE_SCALE '1'
 
+/* Enable bdev_freeze/lockfs by default */
+#define DRBD_SUSPEND_IO_BDEV_FREEZE_DEF 1U
+
 #endif
