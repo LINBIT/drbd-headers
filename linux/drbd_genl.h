@@ -194,7 +194,6 @@ GENL_struct(DRBD_NLA_NET_CONF, 5, net_conf,
 	__flg_field_def(42, DRBD_F_INVARIANT, load_balance_paths, DRBD_LOAD_BALANCE_PATHS_DEF)
 	__u32_field_def(43, 0 /* OPTIONAL */, rdma_ctrl_rcvbuf_size, DRBD_RDMA_CTRL_RCVBUF_SIZE_DEF)
 	__u32_field_def(44, 0 /* OPTIONAL */, rdma_ctrl_sndbuf_size, DRBD_RDMA_CTRL_SNDBUF_SIZE_DEF)
-
 )
 
 GENL_struct(DRBD_NLA_SET_ROLE_PARMS, 6, set_role_parms,
@@ -357,6 +356,7 @@ GENL_struct(DRBD_NLA_PEER_DEVICE_OPTS, 27, peer_device_conf,
 #if (PRO_FEATURES & DRBD_FF_RESYNC_WITHOUT_REPLICATION) || !defined(__KERNEL__)
 	__flg_field_def(8, 0 /* OPTIONAL */, resync_without_replication, DRBD_RESYNC_WITHOUT_REPLICATION_DEF)
 #endif
+	__flg_field_def(9, 0 /* OPTIONAL */, peer_tiebreaker, DRBD_PEER_TIEBREAKER_DEF)
 )
 
 GENL_struct(DRBD_NLA_PATH_PARMS, 28, path_parms,
