@@ -139,7 +139,7 @@ static inline int nla_put_u64_0pad(struct sk_buff *skb, int attrtype, __u64 valu
 	op_name = op_num,
 
 #undef GENL_op
-#define GENL_op(op_name, op_num, handler, tla_list)			\
+#define GENL_op(op_name, op_num, handler, prepare_flags, tla_list)			\
 	op_name = op_num,
 
 enum {
@@ -150,7 +150,7 @@ enum {
 #define GENL_notification(op_name, op_num, mcast_group, tla_list)
 
 #undef GENL_op
-#define GENL_op(op_name, op_num, handler, attr_list)
+#define GENL_op(op_name, op_num, handler, prepare_flags, attr_list)
 
 #undef GENL_struct
 #define GENL_struct(tag_name, tag_number, s_name, s_fields) \
@@ -189,7 +189,7 @@ enum {								\
 #define GENL_struct(tag_name, tag_number, s_name, s_fields)
 
 #undef GENL_op
-#define GENL_op(op_name, op_num, handler, attr_list)	\
+#define GENL_op(op_name, op_num, handler, prepare_flags, attr_list)	\
 	case op_name:
 
 #undef GENL_notification
@@ -206,7 +206,7 @@ static inline void ct_assert_unique_operations(void)
 }
 
 #undef GENL_op
-#define GENL_op(op_name, op_num, handler, attr_list)
+#define GENL_op(op_name, op_num, handler, prepare_flags, attr_list)
 
 #undef GENL_notification
 #define GENL_notification(op_name, op_num, mcast_group, tla_list)

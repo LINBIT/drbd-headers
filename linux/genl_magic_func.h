@@ -16,7 +16,7 @@
 #define GENL_notification(op_name, op_num, mcast_group, tla_list)
 
 #undef GENL_op
-#define GENL_op(op_name, op_num, handler, tla_list)
+#define GENL_op(op_name, op_num, handler, prepare_flags, tla_list)
 
 #undef GENL_struct
 #define GENL_struct(tag_name, tag_number, s_name, s_fields)		\
@@ -234,7 +234,7 @@ static const char *CONCAT_(GENL_MAGIC_FAMILY, _genl_cmd_to_str)(__u8 cmd)
 {
 	switch (cmd) {
 #undef GENL_op
-#define GENL_op(op_name, op_num, handler, tla_list)		\
+#define GENL_op(op_name, op_num, handler, prepare_flags, tla_list)		\
 	case op_num: return #op_name;
 #include GENL_MAGIC_INCLUDE_FILE
 	default:
@@ -250,7 +250,7 @@ static const char *CONCAT_(GENL_MAGIC_FAMILY, _genl_cmd_to_str)(__u8 cmd)
  */
 
 #undef GENL_op
-#define GENL_op(op_name, op_num, handler, tla_list)		\
+#define GENL_op(op_name, op_num, handler, prepare_flags, tla_list)		\
 {								\
 	handler							\
 	.cmd = op_name,						\
@@ -262,8 +262,21 @@ static struct genl_ops ZZZ_genl_ops[] __read_mostly = {
 #include GENL_MAGIC_INCLUDE_FILE
 };
 
+/*
+ * Magic: define per-command prepare flags table			{{{1
+ *									{{{2
+ */
 #undef GENL_op
-#define GENL_op(op_name, op_num, handler, tla_list)
+#define GENL_op(op_name, op_num, handler, prepare_flags, tla_list)	\
+	[op_name] = prepare_flags,
+
+#define ZZZ_genl_cmd_flags	CONCAT_(GENL_MAGIC_FAMILY, _genl_cmd_flags)
+static const unsigned int ZZZ_genl_cmd_flags[] = {
+#include GENL_MAGIC_INCLUDE_FILE
+};
+
+#undef GENL_op
+#define GENL_op(op_name, op_num, handler, prepare_flags, tla_list)
 
 /*
  * Define the genl_family, multicast groups,				{{{1
@@ -340,7 +353,7 @@ void CONCAT_(GENL_MAGIC_FAMILY, _genl_unregister)(void)
  */
 
 #undef GENL_op
-#define GENL_op(op_name, op_num, handler, tla_list)
+#define GENL_op(op_name, op_num, handler, prepare_flags, tla_list)
 
 #undef GENL_struct
 #define GENL_struct(tag_name, tag_number, s_name, s_fields)		\

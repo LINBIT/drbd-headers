@@ -57,7 +57,7 @@
  *	tla list: the list of expected top level attributes,
  *	for documentation and sanity checking.
  *
- * GENL_op(op_name, op_num, flags and handler, tla list) - "genl operations"
+ * GENL_op(op_name, op_num, handler, prepare_flags, tla list) - "genl operations"
  *	These are requests from userspace.
  *
  *	_op and _notification share the same "number space",
@@ -67,12 +67,14 @@
  *		generates an entry in the genl_ops enum,
  *	genl_magic_func.h
  *		generates an entry in the static genl_ops array,
+ *		generates an entry in the static per-command flags array,
  *		and static register/unregister functions to
  *		genl_register_family_with_ops().
  *
- *	flags and handler:
+ *	handler:
  *		GENL_op_init( .doit = x, .dumpit = y, .flags = something)
  *		GENL_doit(x) => .dumpit = NULL, .flags = GENL_ADMIN_PERM
+ *	prepare_flags: flags for drbd_adm_prepare() (e.g. DRBD_ADM_NEED_MINOR)
  *	tla list: the list of expected top level attributes,
  *	for documentation and sanity checking.
  */
@@ -393,48 +395,67 @@ GENL_struct(DRBD_NLA_SUSPEND_IO_PARAMS, 34, suspend_io_parms,
 /*
  * Notifications and commands (genlmsghdr->cmd)
  */
+
+/* Flags for drbd_adm_prepare(), used as prepare_flags in GENL_op() below. */
+#define DRBD_ADM_NEED_MINOR        (1 << 0)
+#define DRBD_ADM_NEED_RESOURCE     (1 << 1)
+#define DRBD_ADM_NEED_CONNECTION   (1 << 2)
+#define DRBD_ADM_NEED_PEER_DEVICE  (1 << 3)
+#define DRBD_ADM_NEED_PEER_NODE    (1 << 4)
+#define DRBD_ADM_IGNORE_VERSION    (1 << 5)
+
 GENL_mc_group(events)
 
 	/* add DRBD minor devices as volumes to resources */
 GENL_op(DRBD_ADM_NEW_MINOR, 5, GENL_doit(drbd_adm_new_minor),
+	DRBD_ADM_NEED_RESOURCE,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_DEVICE_CONF, DRBD_GENLA_F_MANDATORY))
 GENL_op(DRBD_ADM_DEL_MINOR, 6, GENL_doit(drbd_adm_del_minor),
+	DRBD_ADM_NEED_MINOR,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED))
 
 	/* add or delete resources */
 GENL_op(DRBD_ADM_NEW_RESOURCE, 7, GENL_doit(drbd_adm_new_resource),
+	0,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED))
 GENL_op(DRBD_ADM_DEL_RESOURCE, 8, GENL_doit(drbd_adm_del_resource),
+	DRBD_ADM_NEED_RESOURCE,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED))
 
 GENL_op(DRBD_ADM_RESOURCE_OPTS, 9,
 	GENL_doit(drbd_adm_resource_opts),
+	DRBD_ADM_NEED_RESOURCE,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_RESOURCE_OPTS, DRBD_GENLA_F_MANDATORY)
 )
 
 GENL_op(DRBD_ADM_NEW_PEER, 44, GENL_doit(drbd_adm_new_peer),
+	DRBD_ADM_NEED_PEER_NODE,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_NET_CONF, DRBD_GENLA_F_MANDATORY)
 )
 
 GENL_op(DRBD_ADM_NEW_PATH, 45, GENL_doit(drbd_adm_new_path),
+	DRBD_ADM_NEED_CONNECTION,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_PATH_PARMS, DRBD_F_REQUIRED)
 )
 
 GENL_op(DRBD_ADM_DEL_PEER, 46, GENL_doit(drbd_adm_del_peer),
+	DRBD_ADM_NEED_CONNECTION,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_DISCONNECT_PARMS, DRBD_GENLA_F_MANDATORY)
 )
 
 GENL_op(DRBD_ADM_DEL_PATH, 47, GENL_doit(drbd_adm_del_path),
+	DRBD_ADM_NEED_CONNECTION,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_PATH_PARMS, DRBD_F_REQUIRED)
 )
 
 GENL_op(DRBD_ADM_CONNECT, 10, GENL_doit(drbd_adm_connect),
+	DRBD_ADM_NEED_CONNECTION,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_CONNECT_PARMS, DRBD_GENLA_F_MANDATORY)
 )
@@ -442,23 +463,27 @@ GENL_op(DRBD_ADM_CONNECT, 10, GENL_doit(drbd_adm_connect),
 GENL_op(
 	DRBD_ADM_CHG_NET_OPTS, 29,
 	GENL_doit(drbd_adm_net_opts),
+	DRBD_ADM_NEED_CONNECTION,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_NET_CONF, DRBD_F_REQUIRED)
 )
 
 GENL_op(DRBD_ADM_DISCONNECT, 11, GENL_doit(drbd_adm_disconnect),
+	DRBD_ADM_NEED_CONNECTION,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_DISCONNECT_PARMS, DRBD_GENLA_F_MANDATORY)
 )
 
 GENL_op(DRBD_ADM_ATTACH, 12,
 	GENL_doit(drbd_adm_attach),
+	DRBD_ADM_NEED_MINOR,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_DISK_CONF, DRBD_F_REQUIRED)
 )
 
 GENL_op(DRBD_ADM_CHG_DISK_OPTS, 28,
 	GENL_doit(drbd_adm_disk_opts),
+	DRBD_ADM_NEED_MINOR,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_DISK_OPTS, DRBD_F_REQUIRED)
 )
@@ -466,6 +491,7 @@ GENL_op(DRBD_ADM_CHG_DISK_OPTS, 28,
 GENL_op(
 	DRBD_ADM_RESIZE, 13,
 	GENL_doit(drbd_adm_resize),
+	DRBD_ADM_NEED_MINOR,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_RESIZE_PARMS, DRBD_GENLA_F_MANDATORY)
 )
@@ -473,6 +499,7 @@ GENL_op(
 GENL_op(
 	DRBD_ADM_PRIMARY, 14,
 	GENL_doit(drbd_adm_set_role),
+	DRBD_ADM_NEED_RESOURCE,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_SET_ROLE_PARMS, DRBD_F_REQUIRED)
 )
@@ -480,6 +507,7 @@ GENL_op(
 GENL_op(
 	DRBD_ADM_SECONDARY, 15,
 	GENL_doit(drbd_adm_set_role),
+	DRBD_ADM_NEED_RESOURCE,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_SET_ROLE_PARMS, DRBD_F_REQUIRED)
 )
@@ -487,6 +515,7 @@ GENL_op(
 GENL_op(
 	DRBD_ADM_NEW_C_UUID, 16,
 	GENL_doit(drbd_adm_new_c_uuid),
+	DRBD_ADM_NEED_MINOR,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_NEW_C_UUID_PARMS, DRBD_GENLA_F_MANDATORY)
 )
@@ -494,43 +523,55 @@ GENL_op(
 GENL_op(
 	DRBD_ADM_START_OV, 17,
 	GENL_doit(drbd_adm_start_ov),
+	DRBD_ADM_NEED_PEER_DEVICE,
 	GENL_tla_expected(DRBD_NLA_START_OV_PARMS, DRBD_GENLA_F_MANDATORY)
 )
 
 GENL_op(DRBD_ADM_DETACH,	18, GENL_doit(drbd_adm_detach),
+	DRBD_ADM_NEED_MINOR,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_DETACH_PARMS, DRBD_GENLA_F_MANDATORY))
 
 GENL_op(DRBD_ADM_INVALIDATE,	19, GENL_doit(drbd_adm_invalidate),
+	DRBD_ADM_NEED_MINOR,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_INVALIDATE_PARMS, DRBD_F_REQUIRED))
 
 GENL_op(DRBD_ADM_INVAL_PEER,	20, GENL_doit(drbd_adm_invalidate_peer),
+	DRBD_ADM_NEED_PEER_DEVICE,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_INVAL_PEER_PARAMS, 0 /* OPTIONAL */))
 
 GENL_op(DRBD_ADM_PAUSE_SYNC,	21, GENL_doit(drbd_adm_pause_sync),
+	DRBD_ADM_NEED_PEER_DEVICE,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED))
 GENL_op(DRBD_ADM_RESUME_SYNC,	22, GENL_doit(drbd_adm_resume_sync),
+	DRBD_ADM_NEED_PEER_DEVICE,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED))
 
 GENL_op(DRBD_ADM_SUSPEND_IO,	23, GENL_doit(drbd_adm_suspend_io),
+	DRBD_ADM_NEED_MINOR,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_SUSPEND_IO_PARAMS, 0 /* OPTIONAL */))
 
 GENL_op(DRBD_ADM_RESUME_IO,	24, GENL_doit(drbd_adm_resume_io),
+	DRBD_ADM_NEED_MINOR,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED))
 GENL_op(DRBD_ADM_OUTDATE,	25, GENL_doit(drbd_adm_outdate),
+	DRBD_ADM_NEED_MINOR,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED))
 GENL_op(DRBD_ADM_GET_TIMEOUT_TYPE, 26, GENL_doit(drbd_adm_get_timeout_type),
+	DRBD_ADM_NEED_PEER_DEVICE,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED))
 GENL_op(DRBD_ADM_DOWN,		27, GENL_doit(drbd_adm_down),
+	DRBD_ADM_NEED_RESOURCE | DRBD_ADM_IGNORE_VERSION,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED))
 
 GENL_op(DRBD_ADM_GET_RESOURCES, 30,
 	GENL_op_init(
 		.dumpit = drbd_adm_dump_resources,
 	),
+	0,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_GENLA_F_MANDATORY)
 	GENL_tla_expected(DRBD_NLA_RESOURCE_INFO, DRBD_GENLA_F_MANDATORY)
 	GENL_tla_expected(DRBD_NLA_RESOURCE_STATISTICS, DRBD_GENLA_F_MANDATORY))
@@ -540,6 +581,7 @@ GENL_op(DRBD_ADM_GET_DEVICES, 31,
 		.dumpit = drbd_adm_dump_devices,
 		.done = drbd_adm_dump_devices_done,
 	),
+	0,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_GENLA_F_MANDATORY)
 	GENL_tla_expected(DRBD_NLA_DEVICE_INFO, DRBD_GENLA_F_MANDATORY)
 	GENL_tla_expected(DRBD_NLA_DEVICE_STATISTICS, DRBD_GENLA_F_MANDATORY))
@@ -549,6 +591,7 @@ GENL_op(DRBD_ADM_GET_CONNECTIONS, 32,
 		.dumpit = drbd_adm_dump_connections,
 		.done = drbd_adm_dump_connections_done,
 	),
+	0,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_GENLA_F_MANDATORY)
 	GENL_tla_expected(DRBD_NLA_CONNECTION_INFO, DRBD_GENLA_F_MANDATORY)
 	GENL_tla_expected(DRBD_NLA_CONNECTION_STATISTICS, DRBD_GENLA_F_MANDATORY))
@@ -558,6 +601,7 @@ GENL_op(DRBD_ADM_GET_PEER_DEVICES, 33,
 		.dumpit = drbd_adm_dump_peer_devices,
 		.done = drbd_adm_dump_peer_devices_done,
 	),
+	0,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_GENLA_F_MANDATORY)
 	GENL_tla_expected(DRBD_NLA_PEER_DEVICE_INFO, DRBD_GENLA_F_MANDATORY)
 	GENL_tla_expected(DRBD_NLA_PEER_DEVICE_STATISTICS, DRBD_GENLA_F_MANDATORY))
@@ -567,6 +611,7 @@ GENL_op(DRBD_ADM_GET_PATHS, 50,
 		.dumpit = drbd_adm_dump_paths,
 		.done = drbd_adm_dump_paths_done,
 	),
+	0,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_GENLA_F_MANDATORY)
 	GENL_tla_expected(DRBD_NLA_PATH_INFO, DRBD_GENLA_F_MANDATORY))
 
@@ -605,6 +650,7 @@ GENL_op(
 		.dumpit = drbd_adm_get_initial_state,
 		.done = drbd_adm_get_initial_state_done,
 	),
+	0,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_GENLA_F_MANDATORY))
 
 GENL_notification(
@@ -617,15 +663,18 @@ GENL_notification(
 	GENL_tla_expected(DRBD_NLA_NOTIFICATION_HEADER, DRBD_F_REQUIRED))
 
 GENL_op(DRBD_ADM_FORGET_PEER,		42, GENL_doit(drbd_adm_forget_peer),
+	DRBD_ADM_NEED_RESOURCE,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_FORGET_PEER_PARMS, DRBD_F_REQUIRED))
 
 GENL_op(DRBD_ADM_CHG_PEER_DEVICE_OPTS, 43,
 	GENL_doit(drbd_adm_peer_device_opts),
+	DRBD_ADM_NEED_PEER_DEVICE,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_PEER_DEVICE_OPTS, DRBD_F_REQUIRED))
 
 GENL_op(DRBD_ADM_RENAME_RESOURCE,		49, GENL_doit(drbd_adm_rename_resource),
+	DRBD_ADM_NEED_RESOURCE,
 	GENL_tla_expected(DRBD_NLA_CFG_CONTEXT, DRBD_F_REQUIRED)
 	GENL_tla_expected(DRBD_NLA_RENAME_RESOURCE_PARMS, DRBD_F_REQUIRED))
 
