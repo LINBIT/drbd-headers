@@ -12,7 +12,7 @@
    So that transport compiled against an older version of this
    header will no longer load in a module that assumes a newer
    version. */
-#define DRBD_TRANSPORT_API_VERSION 21
+#define DRBD_TRANSPORT_API_VERSION 22
 
 /* MSG_MSG_DONTROUTE and MSG_PROBE are not used by DRBD. I.e.
    we can reuse these flags for our purposes */
@@ -212,8 +212,9 @@ struct drbd_transport_ops {
  * allocates pages by using drbd_alloc_pages() and adds them to bios in the
  * bio_list.
  *
- * Upon success the function returns 0. Upon error the function returns a
- * negative value
+ * Upon success the function returns the bytes read. Upon error the return
+ * code is negative. A 0 indicates that the socket was closed by the remote
+ * side.
  */
 	int (*recv_bio)(struct drbd_transport *, struct bio_list *bios, size_t size);
 
