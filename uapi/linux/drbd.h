@@ -379,6 +379,7 @@ enum drbd_uuid_index {
 
 #define HISTORY_UUIDS_V08 (UI_HISTORY_END - UI_HISTORY_START + 1)
 #define HISTORY_UUIDS DRBD_PEERS_MAX
+#define HISTORY_UUIDS_SIZE (HISTORY_UUIDS * sizeof(__u64))
 
 enum drbd_timeout_flag {
 	UT_DEFAULT      = 0,
@@ -444,5 +445,38 @@ enum drbd_peer_state {
 #define QOU_OFF 0
 #define QOU_MAJORITY 1024
 #define QOU_ALL 1025
+
+/**
+ * struct drbd_genlmsghdr - DRBD specific header used in NETLINK_GENERIC requests
+ * @minor:
+ *     For admin requests (user -> kernel): which minor device to operate on.
+ *     For (unicast) replies or informational (broadcast) messages
+ *     (kernel -> user): which minor device the information is about.
+ *     If we do not operate on minors, but on connections or resources,
+ *     the minor value shall be (~0), and the attribute DRBD_NLA_CFG_CONTEXT
+ *     is used instead.
+ * @flags: possible operation modifiers (relevant only for user->kernel):
+ *     DRBD_GENL_F_SET_DEFAULTS
+ * @ret_code: kernel->userland unicast cfg reply return code (union with flags);
+ */
+struct drbd_genlmsghdr {
+	__u32 minor;
+	union {
+	__u32 flags;
+	__s32 ret_code;
+	};
+};
+
+/* To be used in drbd_genlmsghdr.flags */
+enum {
+	DRBD_GENL_F_SET_DEFAULTS = 1,
+};
+
+/*
+ * DRBD_GENLA_F_MANDATORY: netlink ignores attributes it does not know
+ * about by default. This flag in nlattr->nla_type indicates that this
+ * attribute must not be ignored. Checked and stripped in pre_doit.
+ */
+#define DRBD_GENLA_F_MANDATORY (1 << 14)
 
 #endif
