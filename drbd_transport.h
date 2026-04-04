@@ -1,4 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2014, LINBIT HA-Solutions GmbH.
+ */
+
 #ifndef DRBD_TRANSPORT_H
 #define DRBD_TRANSPORT_H
 
