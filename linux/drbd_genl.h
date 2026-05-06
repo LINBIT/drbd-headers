@@ -269,6 +269,7 @@ GENL_struct(DRBD_NLA_PEER_DEVICE_INFO, 18, peer_device_info,
 	__u32_field(4, 0, peer_resync_susp_peer)
 	__u32_field(5, 0, peer_resync_susp_dependency)
 	__flg_field(6, 0, peer_is_intentional_diskless)
+	__u32_field(7, 0, peer_resync_susp_max_parallel)
 )
 
 GENL_struct(DRBD_NLA_RESOURCE_STATISTICS, 19, resource_statistics,
