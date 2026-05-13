@@ -318,6 +318,8 @@ int drbd_get_listener(struct drbd_path *path);
 void drbd_put_listener(struct drbd_path *path);
 struct drbd_path *drbd_find_path_by_addr(struct drbd_listener *listener,
 					 struct sockaddr_storage *addr);
+bool drbd_path_conflicts_by_listener(struct drbd_path *existing,
+				     struct drbd_path *candidate);
 bool drbd_stream_send_timed_out(struct drbd_transport *transport,
 				enum drbd_stream stream);
 bool drbd_should_abort_listening(struct drbd_transport *transport);
