@@ -316,6 +316,7 @@ void drbd_print_transports_loaded(struct seq_file *seq);
 
 int drbd_get_listener(struct drbd_path *path);
 void drbd_put_listener(struct drbd_path *path);
+struct drbd_listener *drbd_listener_try_get_ref(struct drbd_path *path);
 struct drbd_path *drbd_find_path_by_addr(struct drbd_listener *listener,
 					 struct sockaddr_storage *addr);
 bool drbd_path_conflicts_by_listener(struct drbd_path *existing,
