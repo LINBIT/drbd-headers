@@ -156,7 +156,7 @@ struct drbd_const_buffer {
  * * prepare_connect()
  * * finish_connect()
  * * add_path() and the subsequent list_add_tail_rcu() for the paths list
- * * may_remove_path() and the subsequent list_del_rcu() for the paths list
+ * * may_remove_path(), remove_path() and the subsequent list_del_rcu() for the paths list
  *
  * The connection sequence is as follows:
  * 1. prepare_connect(), with the above exclusivity guarantee
@@ -265,11 +265,14 @@ struct drbd_transport_ops {
 	bool (*may_remove_path)(struct drbd_path *path);
 
 /**
- * remove_path() - Clear up after path removal
+ * remove_path() - Tear down a path that is being removed
  * @path: The path that is being removed
  *
- * Clear up a path that is being removed. Called after the path has been
- * removed from the list and all kref references have been put.
+ * Clean up a path that is being removed. Called with the path still on the
+ * transport's paths list and with references still held, under the same
+ * exclusivity guarantee as may_remove_path(). The transport may sleep here,
+ * e.g. to gracefully shut down an established connection, before the caller
+ * removes the path from the list and drops the remaining references.
  */
 	void (*remove_path)(struct drbd_path *path);
 };
@@ -330,6 +333,9 @@ struct drbd_path *__drbd_next_path_ref(struct drbd_path *drbd_path,
 				       struct drbd_transport *transport);
 int drbd_bio_add_page(struct drbd_transport *transport, struct bio_list *bios,
 		      struct page *page, unsigned int len, unsigned int offset);
+
+void drbd_transport_lock(struct drbd_transport *transport);
+void drbd_transport_unlock(struct drbd_transport *transport);
 
 /* Might restart iteration, if current element is removed from list!! */
 #define for_each_path_ref(path, transport)			\
