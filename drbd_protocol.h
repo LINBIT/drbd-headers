@@ -385,6 +385,10 @@ struct p_rs_req {
  */
 #define DRBD_FF_BM_BLOCK_SHIFT 256
 
+/* Starting with drbd-9.2.19 a new kind of reconciliation resync
+ */
+#define DRBD_FF_RECONCILE_RECONNECT 512
+
 struct p_connection_features {
 	uint32_t protocol_min;
 	uint32_t feature_flags;
