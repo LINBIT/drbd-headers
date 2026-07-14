@@ -360,6 +360,7 @@ enum mdf_peer_flag {
 	MDF_PEER_FENCING =	1 << 2,
 	MDF_PEER_FULL_SYNC =	1 << 3,
 	MDF_PEER_DEVICE_SEEN =	1 << 4,
+	MDF_PEER_DIVERGENCE_BITMAP = 1 << 5, /* bitmap fully records divergence; safe to copy from */
 	MDF_NODE_EXISTS =       1 << 16,
 	MDF_HAVE_BITMAP =       1 << 31,  /* For in core use; no meaning when persistet */
 };
