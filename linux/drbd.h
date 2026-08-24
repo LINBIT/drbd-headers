@@ -360,15 +360,30 @@ enum mdf_flag {
 	MDF_HAVE_QUORUM =       1 << 10,
 };
 
+/* Bit numbers, for the atomic bit operations on struct drbd_peer_md flags.
+ * Maximum value 31 because the flags are persisted as be32.
+ */
+enum mdf_peer_flag_bit {
+	__MDF_PEER_CONNECTED =	0,
+	__MDF_PEER_OUTDATED =	1,
+	__MDF_PEER_FENCING =	2,
+	__MDF_PEER_FULL_SYNC =	3,
+	__MDF_PEER_DEVICE_SEEN = 4,
+	__MDF_PEER_DIVERGENCE_BITMAP = 5, /* bitmap fully records divergence; safe to copy from */
+	__MDF_NODE_EXISTS =	16,
+	__MDF_HAVE_BITMAP =	31,  /* For in core use; no meaning when persisted */
+};
+
+/* Masks, for the on-disk and netlink representations. */
 enum mdf_peer_flag {
-	MDF_PEER_CONNECTED =	1 << 0,
-	MDF_PEER_OUTDATED =	1 << 1,
-	MDF_PEER_FENCING =	1 << 2,
-	MDF_PEER_FULL_SYNC =	1 << 3,
-	MDF_PEER_DEVICE_SEEN =	1 << 4,
-	MDF_PEER_DIVERGENCE_BITMAP = 1 << 5, /* bitmap fully records divergence; safe to copy from */
-	MDF_NODE_EXISTS =       1 << 16,
-	MDF_HAVE_BITMAP =       1 << 31,  /* For in core use; no meaning when persistet */
+	MDF_PEER_CONNECTED =	1U << __MDF_PEER_CONNECTED,
+	MDF_PEER_OUTDATED =	1U << __MDF_PEER_OUTDATED,
+	MDF_PEER_FENCING =	1U << __MDF_PEER_FENCING,
+	MDF_PEER_FULL_SYNC =	1U << __MDF_PEER_FULL_SYNC,
+	MDF_PEER_DEVICE_SEEN =	1U << __MDF_PEER_DEVICE_SEEN,
+	MDF_PEER_DIVERGENCE_BITMAP = 1U << __MDF_PEER_DIVERGENCE_BITMAP,
+	MDF_NODE_EXISTS =       1U << __MDF_NODE_EXISTS,
+	MDF_HAVE_BITMAP =       1U << __MDF_HAVE_BITMAP,
 };
 
 #define DRBD_PEERS_MAX 32
