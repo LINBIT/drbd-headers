@@ -2812,7 +2812,8 @@ def kernel_can_gen_family_struct(family):
 
 
 def policy_should_be_static(family):
-    return family.kernel_policy == 'split' or kernel_can_gen_family_struct(family)
+    return family.kernel_policy in ('per-op', 'split') or \
+        kernel_can_gen_family_struct(family)
 
 
 def print_kernel_policy_ranges(family, cw):
@@ -2903,7 +2904,7 @@ def print_kernel_op_table_fwd(family, cw, terminate):
                 if 'dump' in op:
                     cnt += 1
         else:
-            cnt = len(family.ops)
+            cnt = len([op for op in family.ops.values() if not op.is_async])
 
         qual = 'static const' if not exported else 'const'
         line = f"{qual} struct {struct_type} {family.c_name}_nl_ops[{cnt}]"
@@ -2967,11 +2968,17 @@ def print_kernel_op_table(family, cw):
                 members.append(('validate',
                                 ' | '.join([c_upper('genl-dont-validate-' + x)
                                             for x in op['dont-validate']])), )
+            # struct genl_ops has no per-op do hooks, those go into
+            # struct genl_family. The dump hooks are per op.
             for op_mode in ['do', 'dump']:
                 if op_mode in op:
+                    if op_mode == 'dump' and 'pre' in op[op_mode]:
+                        members.append(('start', c_lower(op[op_mode]['pre'])))
                     name = c_lower(f"{family.fn_prefix}-{op_name}-{op_mode}it")
                     members.append((op_mode + 'it', name))
-            if family.kernel_policy == 'per-op':
+                    if op_mode == 'dump' and 'post' in op[op_mode]:
+                        members.append(('done', c_lower(op[op_mode]['post'])))
+            if family.kernel_policy == 'per-op' and 'request' in op.get('do', {}):
                 struct = Struct(family, op['attribute-set'],
                                 type_list=op['do']['request']['attributes'])
 
