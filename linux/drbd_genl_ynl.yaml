@@ -3,6 +3,11 @@ name: drbd
 protocol: genetlink-legacy
 version: 2
 uapi-header: linux/drbd_genl.h
+# Kernels 6.2 to 6.6 mis-pair a do-only split op with the following dump-only
+# split op (fixed upstream by f862ed2d0bf0 in 6.7). DRBD's command numbers
+# interleave do-only and dump-only commands, so the split representation cannot
+# be used there. Emit a legacy per-op genl_ops table instead.
+kernel-policy: per-op
 kernel-family:
   emit-structs: true
 doc: 'DRBD (Distributed Replicated Block Device) genetlink protocol for

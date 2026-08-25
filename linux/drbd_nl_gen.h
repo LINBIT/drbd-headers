@@ -36,7 +36,7 @@ extern const struct nla_policy drbd_start_ov_parms_nl_policy[DRBD_A_START_OV_PAR
 extern const struct nla_policy drbd_suspend_io_parms_nl_policy[DRBD_A_SUSPEND_IO_PARMS_BDEV_FREEZE + 1];
 
 /* Ops table for drbd */
-extern const struct genl_split_ops drbd_nl_ops[38];
+extern const struct genl_ops drbd_nl_ops[38];
 
 int drbd_pre_doit(const struct genl_split_ops *ops, struct sk_buff *skb,
 		  struct genl_info *info);
