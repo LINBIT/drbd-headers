@@ -23,3 +23,12 @@ python3 "$GEN" --mode kernel --header \
 python3 "$GEN" --mode kernel --source \
     --schema "$SCHEMA" --spec "$SPEC" \
     -o "$SCRIPT_DIR/drbd_nl_gen.c"
+
+# Userspace variant for drbd-utils (parsers built on libgenl.h)
+python3 "$GEN" --mode userspace --header \
+    --schema "$SCHEMA" --spec "$SPEC" \
+    -o "$SCRIPT_DIR/drbd_genl_userspace.h"
+
+python3 "$GEN" --mode userspace --source \
+    --schema "$SCHEMA" --spec "$SPEC" \
+    -o "$SCRIPT_DIR/drbd_genl_userspace.c"

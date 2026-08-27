@@ -3486,14 +3486,20 @@ def _nla_put_fn(attr_type):
     return fn_map.get(attr_type)
 
 
-def render_from_attrs(family, cw):
-    """Generate from_attrs() deserialization functions."""
+def render_from_attrs(family, cw, userspace=False):
+    """Generate from_attrs() deserialization functions.
+
+    With userspace=True, emit code for drbd-utils' libgenl.h helpers instead
+    of the kernel netlink API, and cover every nested set rather than only
+    request sets: userspace has to parse the structs the kernel sends.
+    """
     root_set = family.attr_sets.get(family['name'])
+    strcpy_fn = 'nla_strlcpy' if userspace else 'nla_strscpy'
 
     for set_name, attr_set in _nested_attr_sets(family):
         s_name = c_lower(set_name)
         struct = family.pure_nested_structs.get(set_name)
-        if not struct or not struct.request:
+        if not struct or not (userspace or struct.request):
             continue
         tla_name = None
         if root_set:
@@ -3512,7 +3518,10 @@ def render_from_attrs(family, cw):
         cw.block_start()
         cw.p(f"const int maxtype = {max_attr};")
         cw.p(f"struct nlattr *tla = info->attrs[{tla_name}];")
-        cw.p('struct nlattr **ntb;')
+        if userspace:
+            cw.p(f"struct nlattr *ntb[{max_attr} + 1];")
+        else:
+            cw.p('struct nlattr **ntb;')
         cw.p('struct nlattr *nla;')
         cw.p('int err = 0;')
         cw.nl()
@@ -3520,12 +3529,17 @@ def render_from_attrs(family, cw):
         cw.p('*ret_nested_attribute_table = NULL;')
         cw.p('if (!tla)')
         cw.p('return -ENOMSG;')
-        cw.p(f"ntb = kcalloc({max_attr} + 1, sizeof(*ntb), GFP_KERNEL);")
-        cw.p('if (!ntb)')
-        cw.p('return -ENOMEM;')
-        cw.p(f"err = nla_parse_nested_deprecated(ntb, maxtype, tla, {policy_name}, NULL);")
-        cw.p('if (err)')
-        cw.p('goto out;')
+        if userspace:
+            cw.p(f"err = nla_parse_nested(ntb, maxtype, tla, {policy_name});")
+            cw.p('if (err)')
+            cw.p('return err;')
+        else:
+            cw.p(f"ntb = kcalloc({max_attr} + 1, sizeof(*ntb), GFP_KERNEL);")
+            cw.p('if (!ntb)')
+            cw.p('return -ENOMEM;')
+            cw.p(f"err = nla_parse_nested_deprecated(ntb, maxtype, tla, {policy_name}, NULL);")
+            cw.p('if (err)')
+            cw.p('goto out;')
         cw.nl()
 
         for _, attr in attr_set.items():
@@ -3542,14 +3556,17 @@ def render_from_attrs(family, cw):
                 elif attr['type'] == 'string':
                     maxlen = attr.get('checks', {}).get('max-len', 0)
                     cw.p('if (s)')
-                    cw.p(f"s->{c_name}_len = nla_strscpy(s->{c_name}, nla, {maxlen});")
+                    cw.p(f"s->{c_name}_len = {strcpy_fn}(s->{c_name}, nla, {maxlen});")
                 elif attr['type'] == 'binary':
                     maxlen = attr.get('checks', {}).get('max-len', 0)
                     cw.p('if (s)')
                     cw.p(f"s->{c_name}_len = nla_memcpy(s->{c_name}, nla, {maxlen});")
                 cw.block_end()
                 cw.block_start(line='else')
-                cw.p(f'pr_debug("<< missing required attr: {c_name}\\n");')
+                if userspace:
+                    cw.p(f'fprintf(stderr, "<< missing required attr: {c_name}\\n");')
+                else:
+                    cw.p(f'pr_debug("<< missing required attr: {c_name}\\n");')
                 cw.p('err = -ENOMSG;')
                 cw.block_end()
             else:
@@ -3559,18 +3576,22 @@ def render_from_attrs(family, cw):
                 elif attr['type'] == 'string':
                     maxlen = attr.get('checks', {}).get('max-len', 0)
                     cw.p('if (nla && s)')
-                    cw.p(f"s->{c_name}_len = nla_strscpy(s->{c_name}, nla, {maxlen});")
+                    cw.p(f"s->{c_name}_len = {strcpy_fn}(s->{c_name}, nla, {maxlen});")
                 elif attr['type'] == 'binary':
                     maxlen = attr.get('checks', {}).get('max-len', 0)
                     cw.p('if (nla && s)')
                     cw.p(f"s->{c_name}_len = nla_memcpy(s->{c_name}, nla, {maxlen});")
             cw.nl()
 
-        cw.p('out:')
-        cw.p('if (ret_nested_attribute_table && (!err || err == -ENOMSG))')
-        cw.p('*ret_nested_attribute_table = ntb;')
-        cw.p('else')
-        cw.p('kfree(ntb);')
+        if userspace:
+            cw.p('if (ret_nested_attribute_table && (!err || err == -ENOMSG))')
+            cw.p('memcpy(ret_nested_attribute_table, ntb, sizeof(ntb));')
+        else:
+            cw.p('out:')
+            cw.p('if (ret_nested_attribute_table && (!err || err == -ENOMSG))')
+            cw.p('*ret_nested_attribute_table = ntb;')
+            cw.p('else')
+            cw.p('kfree(ntb);')
         cw.p('return err;')
         cw.block_end()
         cw.nl()
@@ -3668,10 +3689,130 @@ def render_set_defaults(family, cw):
         cw.nl()
 
 
+def render_is_signed_defines(family, cw):
+    """Generate F_<field>_IS_SIGNED macros (used by drbd-utils config_flags.c)."""
+    signed_types = {'s8', 's16', 's32', 's64'}
+    cw.p('/* IS_SIGNED helpers for config_flags */')
+    for set_name, attr_set in _nested_attr_sets(family):
+        for _, attr in attr_set.items():
+            c_name = c_lower(attr.name)
+            is_signed = 1 if attr['type'] in signed_types else 0
+            cw.p(f"#define F_{c_name}_IS_SIGNED {is_signed}")
+    cw.nl()
+
+
+def render_userspace(family, cw, header, hdr_file):
+    """Render --mode userspace output.
+
+    The same structs and nla_policy arrays as --mode kernel, but built for
+    drbd-utils: parsers use the libgenl.h helpers, from_attrs() exists for
+    every nested set (not only requests), a top-level attribute policy is
+    emitted for nla_parse(), and the ops table, family struct and to_skb()
+    serializers are left out.
+    """
+    hdr_prot = f"_LINUX_{family.c_name.upper()}_GEN_USERSPACE_H"
+    root_set = family.attr_sets.get(family['name'])
+    tla_policy = f"{family.c_name}_tla_nl_policy"
+    tla_policy_len = f"{family.c_name.upper()}_TLA_NL_POLICY_LEN"
+    emit_structs = family.kernel_family.get('emit-structs')
+
+    if header:
+        cw.p('#ifndef ' + hdr_prot)
+        cw.p('#define ' + hdr_prot)
+        cw.nl()
+        cw.p('#include <linux/types.h>')
+        cw.p('#include "libgenl.h"')
+        cw.nl()
+
+        headers = ['uapi/' + family.uapi_header]
+        headers += family.kernel_family.get('headers', [])
+        for definition in family['definitions'] + family['attribute-sets']:
+            if 'header' in definition:
+                headers.append(definition['header'])
+        seen_header = []
+        for one in headers:
+            if one not in seen_header:
+                cw.p(f"#include <{one}>")
+                seen_header.append(one)
+        cw.nl()
+
+        cw.p('/* Nested type policies */')
+        for _, struct in sorted(family.pure_nested_structs.items()):
+            print_req_policy_fwd(cw, struct)
+        cw.nl()
+
+        if emit_structs:
+            render_struct_decl(family, cw)
+            render_is_signed_defines(family, cw)
+
+            for set_name, attr_set in _nested_attr_sets(family):
+                s_name = c_lower(set_name)
+                struct = family.pure_nested_structs.get(set_name)
+                has_tla = False
+                if root_set:
+                    for _, tla_attr in root_set.items():
+                        if tla_attr.attr.get('nested-attributes') == set_name:
+                            has_tla = True
+                            break
+                if not has_tla:
+                    continue
+                if struct:
+                    cw.p(f"int {s_name}_from_attrs(struct {s_name} *s, struct genl_info *info);")
+                    cw.p(f"int {s_name}_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);")
+                has_defaults = any('default' in a.attr for _, a in attr_set.items())
+                if has_defaults:
+                    cw.p(f"void set_{s_name}_defaults(struct {s_name} *x);")
+                cw.nl()
+
+        if root_set:
+            max_tla = list(root_set.items())[-1][1].enum_name
+            cw.p(f"#define {tla_policy_len} ({max_tla} + 1)")
+            cw.p(f"extern const struct nla_policy {tla_policy}[{tla_policy_len}];")
+            cw.nl()
+
+        cw.p(f'#endif /* {hdr_prot} */')
+        return
+
+    cw.p(f'#include "{hdr_file}"')
+    cw.p('#include "libgenl.h"')
+    cw.p('#include <string.h>')
+    cw.p('#include <stdio.h>')
+    cw.p('#include <errno.h>')
+    cw.nl()
+
+    print_kernel_policy_ranges(family, cw)
+    print_kernel_policy_sparse_enum_validates(family, cw)
+
+    cw.p('/* Nested type policies */')
+    for _, struct in sorted(family.pure_nested_structs.items()):
+        print_req_policy(cw, struct)
+    cw.nl()
+
+    if family.kernel_policy == 'global':
+        cw.p(f"/* Global operation policy for {family.name} */")
+        struct = Struct(family, family.global_policy_set, type_list=family.global_policy)
+        print_req_policy(cw, struct)
+        cw.nl()
+
+    if root_set:
+        cw.p(f"const struct nla_policy {tla_policy}[{tla_policy_len}] = {{")
+        for _, attr in root_set.items():
+            cw.p(f"\t[{attr.enum_name}] = {{ .type = NLA_NESTED }},")
+        cw.p("};")
+        cw.nl()
+
+    if emit_structs:
+        render_from_attrs(family, cw, userspace=True)
+        render_set_defaults(family, cw)
+        if cw._block_end:
+            cw._block_end = False
+            cw._out.write('}\n')
+
+
 def main():
     parser = argparse.ArgumentParser(description='Netlink simple parsing generator')
     parser.add_argument('--mode', dest='mode', type=str, required=True,
-                        choices=('user', 'kernel', 'uapi'))
+                        choices=('user', 'kernel', 'uapi', 'userspace'))
     parser.add_argument('--spec', dest='spec', type=str, required=True)
     parser.add_argument('--schema', dest='schema', type=str, default=None,
                         help='Path to schema YAML (default: auto-discover from spec path)')
@@ -3727,16 +3868,20 @@ def main():
         render_uapi(parsed, cw)
         return
 
+    if args.out_file:
+        hdr_file = os.path.basename(args.out_file[:-2]) + ".h"
+    else:
+        hdr_file = "generated_header_file.h"
+
+    if args.mode == 'userspace':
+        render_userspace(parsed, cw, args.header, hdr_file)
+        return
+
     hdr_prot = f"_LINUX_{parsed.c_name.upper()}_GEN_H"
     if args.header:
         cw.p('#ifndef ' + hdr_prot)
         cw.p('#define ' + hdr_prot)
         cw.nl()
-
-    if args.out_file:
-        hdr_file = os.path.basename(args.out_file[:-2]) + ".h"
-    else:
-        hdr_file = "generated_header_file.h"
 
     if args.mode == 'kernel':
         cw.p('#include <net/netlink.h>')
