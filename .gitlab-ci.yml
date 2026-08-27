@@ -1,0 +1,36 @@
+# The C files under linux/ and uapi/linux/ that carry a "Do not edit directly"
+# banner are generated from linux/drbd_genl_ynl.yaml by linux/generate.sh.
+# Make sure nobody edits them by hand or forgets to regenerate after a spec
+# or generator change.
+
+stages:
+  - check
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # avoid duplicate branch + MR pipelines
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_COMMIT_TAG
+
+check-generated:
+  stage: check
+  # already has git and python3
+  image: $LINBIT_DOCKER_REGISTRY/build-helpers:latest
+  before_script:
+    - dnf install --setopt=install_weak_deps=False -y python3-pyyaml python3-jsonschema
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+  script:
+    - bash linux/generate.sh
+    - |
+      if [ -n "$(git status --porcelain -- linux uapi)" ]; then
+        echo "ERROR: generated files do not match the committed ones."
+        echo "Run linux/generate.sh and commit the result. Differences:"
+        git status --short -- linux uapi
+        git --no-pager diff --stat -- linux uapi
+        git --no-pager diff -- linux uapi
+        exit 1
+      fi
+      echo "Generated files are up to date."
