@@ -18,6 +18,7 @@ python3 "$GEN" --mode uapi --header \
 
 python3 "$GEN" --mode kernel --header \
     --schema "$SCHEMA" --spec "$SPEC" \
+    --struct-header linux/drbd_nl_types.h \
     -o "$SCRIPT_DIR/drbd_nl_gen.h"
 
 python3 "$GEN" --mode kernel --source \

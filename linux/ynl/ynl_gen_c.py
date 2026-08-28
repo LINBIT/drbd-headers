@@ -3855,6 +3855,8 @@ def main():
     parser.add_argument('--exclude-op', action='append', default=[])
     parser.add_argument('-o', dest='out_file', type=str, default=None)
     parser.add_argument('--function-prefix', dest='fn_prefix', type=str)
+    parser.add_argument('--struct-header', dest='struct_header', type=str, default=None,
+                        help='kernel mode: include this header instead of emitting struct declarations')
     args = parser.parse_args()
 
     if args.header is None:
@@ -4000,7 +4002,11 @@ def main():
 
             if parsed.kernel_family.get('emit-structs'):
                 cw.nl()
-                render_struct_decl(parsed, cw)
+                if args.struct_header:
+                    cw.p(f'#include <{args.struct_header}>')
+                    cw.nl()
+                else:
+                    render_struct_decl(parsed, cw)
                 # Function prototypes
                 root_set = parsed.attr_sets.get(parsed['name'])
                 for set_name, attr_set in _nested_attr_sets(parsed):
