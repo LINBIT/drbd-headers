@@ -32,3 +32,12 @@ python3 "$GEN" --mode userspace --header \
 python3 "$GEN" --mode userspace --source \
     --schema "$SCHEMA" --spec "$SPEC" \
     -o "$SCRIPT_DIR/drbd_genl_userspace.c"
+
+# drbd2 (modern genetlink family): generated with the unmodified YNL tooling
+# of a kernel source tree, which kernel-devel packages do not carry; skip
+# without KDIR (CI has none), see generate-drbd2.sh.
+if [ -n "${KDIR:-}" ]; then
+	"$SCRIPT_DIR/generate-drbd2.sh"
+else
+	echo "KDIR not set; skipping drbd2 generation (see linux/generate-drbd2.sh)" >&2
+fi

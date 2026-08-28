@@ -1,0 +1,11 @@
+The drbd2 family (linux/drbd2.yaml) is generated with the unmodified YNL
+tooling of a Linux kernel source tree (tools/net/ynl/pyynl), see
+linux/generate-drbd2.sh. The generated files committed here were produced
+with:
+
+kernel: 7.0.0-rc3
+ynl:    tools/net/ynl as of commit 71a58ec6672f (tag v7.0-rc1)
+
+Regenerate with the same or a newer kernel; if the output changes with a
+newer generator, commit the regenerated files together with an update of
+this file.
