@@ -343,6 +343,9 @@ enum drbd_state_rv {
 
 #define SHARED_SECRET_MAX 64
 
+/* Meta data feature flags */
+#define DRBD_MDFF_DIVERGENCE_BITMAP (1ULL << 0)
+
 enum mdf_flag {
 	MDF_CONSISTENT =	1 << 0,
 	MDF_PRIMARY_IND =	1 << 1,
