@@ -16,7 +16,7 @@
    So that transport compiled against an older version of this
    header will no longer load in a module that assumes a newer
    version. */
-#define DRBD_TRANSPORT_API_VERSION 22
+#define DRBD_TRANSPORT_API_VERSION 23
 
 /* MSG_MSG_DONTROUTE and MSG_PROBE are not used by DRBD. I.e.
    we can reuse these flags for our purposes */
@@ -211,16 +211,25 @@ struct drbd_transport_ops {
  * @peer_device: Identify the transport and the device
  * @bios:	the bio_list to add received data to
  * @size:	Number of bytes to receive
+ * @misalign_bits: Out: the bitwise OR of the offset of every bvec added to
+ *		@bios, and of the length of every bvec but the last
  *
  * recv_bio() receives the requested amount of data from DATA_STREAM. It
  * allocates pages by using drbd_alloc_pages() and adds them to bios in the
  * bio_list.
  *
+ * The core submits the bvecs to a backing device whose queue dma_alignment
+ * constrains their offset and length. Reporting @misalign_bits lets it test
+ * the payload with a single mask, and copy it into aligned pages when it has
+ * to. The length of the last bvec is the payload size the core asked for; no
+ * copy can change it, so it stays out of @misalign_bits.
+ *
  * Upon success the function returns the bytes read. Upon error the return
  * code is negative. A 0 indicates that the socket was closed by the remote
  * side.
  */
-	int (*recv_bio)(struct drbd_transport *, struct bio_list *bios, size_t size);
+	int (*recv_bio)(struct drbd_transport *, struct bio_list *bios, size_t size,
+			unsigned int *misalign_bits);
 
 	void (*stats)(struct drbd_transport *, struct drbd_transport_stats *stats);
 /**
@@ -245,6 +254,20 @@ struct drbd_transport_ops {
 	bool (*stream_ok)(struct drbd_transport *, enum drbd_stream);
 	bool (*hint)(struct drbd_transport *, enum drbd_stream, enum drbd_tr_hints hint);
 	void (*debugfs_show)(struct drbd_transport *, struct seq_file *m);
+
+/**
+ * set_rx_alignment() - Tell the transport the alignment received payload needs
+ * @bytes:	Alignment in bytes (a power of two, at most PAGE_SIZE), or 0 if
+ *		no backing device is attached.
+ *
+ * The DRBD core submits pages received via recv_bio() to its backing devices,
+ * whose queue dma_alignment constrains the offset and length of every bvec. A
+ * transport that places received payload at sub-page offsets uses this to
+ * align it accordingly. Purely a performance hint: the core copies misaligned
+ * payload into aligned pages itself. Called whenever the set of attached
+ * backing devices changes. Optional; must not sleep.
+ */
+	void (*set_rx_alignment)(struct drbd_transport *, unsigned int bytes);
 
 /**
  * add_path() - Prepare path to be added
@@ -333,6 +356,8 @@ struct drbd_path *__drbd_next_path_ref(struct drbd_path *drbd_path,
 				       struct drbd_transport *transport);
 int drbd_bio_add_page(struct drbd_transport *transport, struct bio_list *bios,
 		      struct page *page, unsigned int len, unsigned int offset);
+int drbd_bio_add_page_nomerge(struct drbd_transport *transport, struct bio_list *bios,
+			      struct page *page, unsigned int len, unsigned int offset);
 
 void drbd_transport_lock(struct drbd_transport *transport);
 void drbd_transport_unlock(struct drbd_transport *transport);
@@ -346,6 +371,7 @@ void drbd_transport_unlock(struct drbd_transport *transport);
 /* drbd_receiver.c*/
 struct page *drbd_alloc_pages(struct drbd_transport *transport, gfp_t gfp_mask, unsigned int size);
 void drbd_free_page(struct drbd_transport *transport, struct page *page);
+void drbd_get_page(struct drbd_transport *transport, struct page *page);
 void drbd_control_data_ready(struct drbd_transport *transport,
 			     struct drbd_const_buffer *pool);
 void drbd_control_event(struct drbd_transport *transport,
