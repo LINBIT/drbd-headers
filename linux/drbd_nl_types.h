@@ -320,4 +320,18 @@ struct drbd_suspend_io_parms {
 	unsigned char bdev_freeze;
 };
 
+/*
+ * Default-value setters for the structs above that have optional fields.
+ * The core calls these before parsing a partial request, regardless of
+ * which dialect received it; the definitions live with the generated
+ * marshalling code in linux/drbd_nl_gen.c, which is always built into the
+ * module regardless of dialect configuration.
+ */
+void drbd_set_disk_conf_defaults(struct drbd_disk_conf *x);
+void drbd_set_res_opts_defaults(struct drbd_res_opts *x);
+void drbd_set_net_conf_defaults(struct drbd_net_conf *x);
+void drbd_set_resize_parms_defaults(struct drbd_resize_parms *x);
+void drbd_set_device_conf_defaults(struct drbd_device_conf *x);
+void drbd_set_peer_device_conf_defaults(struct drbd_peer_device_conf *x);
+
 #endif /* __DRBD_NL_TYPES_H */
