@@ -383,6 +383,14 @@ enum drbd_uuid_index {
 #define HISTORY_UUIDS DRBD_PEERS_MAX
 #define HISTORY_UUIDS_SIZE (HISTORY_UUIDS * sizeof(__u64))
 
+/*
+ * Wire sizes of the uuid attributes of the "drbd" netlink family at
+ * version 1, as served by drbd_nl_84.c. Same values as the 8.4 driver's:
+ * UI_SIZE and HISTORY_UUIDS are identical in 8.4 and 9.
+ */
+#define DRBD_NL_UUIDS_SIZE		(UI_SIZE * sizeof(__u64))
+#define DRBD_NL_HISTORY_UUIDS_SIZE	HISTORY_UUIDS_SIZE
+
 enum drbd_timeout_flag {
 	UT_DEFAULT      = 0,
 	UT_DEGRADED     = 1,
