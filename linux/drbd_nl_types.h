@@ -321,17 +321,24 @@ struct drbd_suspend_io_parms {
 };
 
 /*
- * Default-value setters for the structs above that have optional fields.
- * The core calls these before parsing a partial request, regardless of
- * which dialect received it; the definitions live with the generated
- * marshalling code in linux/drbd_nl_gen.c, which is always built into the
- * module regardless of dialect configuration.
+ * Neutral config defaults, shared by every dialect: default-value setters
+ * for the structs above that have optional fields. The core calls these
+ * before parsing a partial request, regardless of which dialect received
+ * it; the definitions live in linux/drbd_nl_defaults.c, which is always
+ * built into the module regardless of dialect configuration.
  */
+void drbd_set_nl_cfg_context_defaults(struct drbd_nl_cfg_context *x);
 void drbd_set_disk_conf_defaults(struct drbd_disk_conf *x);
 void drbd_set_res_opts_defaults(struct drbd_res_opts *x);
 void drbd_set_net_conf_defaults(struct drbd_net_conf *x);
 void drbd_set_resize_parms_defaults(struct drbd_resize_parms *x);
+void drbd_set_detach_parms_defaults(struct drbd_detach_parms *x);
 void drbd_set_device_conf_defaults(struct drbd_device_conf *x);
+void drbd_set_invalidate_parms_defaults(struct drbd_invalidate_parms *x);
+void drbd_set_forget_peer_parms_defaults(struct drbd_forget_peer_parms *x);
 void drbd_set_peer_device_conf_defaults(struct drbd_peer_device_conf *x);
+void drbd_set_connect_parms_defaults(struct drbd_connect_parms *x);
+void drbd_set_invalidate_peer_parms_defaults(struct drbd_invalidate_peer_parms *x);
+void drbd_set_suspend_io_parms_defaults(struct drbd_suspend_io_parms *x);
 
 #endif /* __DRBD_NL_TYPES_H */

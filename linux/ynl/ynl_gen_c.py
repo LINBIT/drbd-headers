@@ -3879,6 +3879,10 @@ def main():
                         help='kernel mode: include this header instead of emitting struct declarations')
     parser.add_argument('--struct-prefix', dest='struct_prefix', type=str, default=None,
                         help='kernel mode: prefix for the emitted struct tags and set_*_defaults() names')
+    parser.add_argument('--defaults-only', dest='defaults_only', action='store_true', default=False,
+                        help='kernel source: emit only the set_*_defaults() functions')
+    parser.add_argument('--no-defaults', dest='no_defaults', action='store_true', default=False,
+                        help='kernel source: leave out the set_*_defaults() functions')
     args = parser.parse_args()
 
     if args.header is None:
@@ -3888,6 +3892,11 @@ def main():
             parser.error("--struct-prefix needs --mode kernel")
         global STRUCT_PREFIX
         STRUCT_PREFIX = args.struct_prefix
+    if args.defaults_only or args.no_defaults:
+        if args.mode != 'kernel' or args.header:
+            parser.error("--defaults-only and --no-defaults need --mode kernel --source")
+        if args.defaults_only and args.no_defaults:
+            parser.error("--defaults-only and --no-defaults are mutually exclusive")
 
     exclude_ops = [re.compile(expr) for expr in args.exclude_op]
 
@@ -3916,20 +3925,37 @@ def main():
         cw.p(f'/* SPDX-License-Identifier: {parsed.license} */')
     else:
         cw.p(f'// SPDX-License-Identifier: {parsed.license}')
-    cw.p("/* Do not edit directly, auto-generated from: */")
-    cw.p(f"/*\t{spec_kernel} */")
-    cw.p(f"/* YNL-GEN {args.mode} {'header' if args.header else 'source'} */")
-    if args.exclude_op or args.user_header or args.fn_prefix:
-        line = ''
-        if args.user_header:
-            line += ' --user-header '.join([''] + args.user_header)
-        if args.exclude_op:
-            line += ' --exclude-op '.join([''] + args.exclude_op)
-        if args.fn_prefix:
-            line += f' --function-prefix {args.fn_prefix}'
-        cw.p(f'/* YNL-ARG{line} */')
-    cw.p('/* To regenerate run: tools/net/ynl/ynl-regen.sh */')
-    cw.nl()
+    if args.defaults_only:
+        # --defaults-only exists only in this copy of the generator, so the
+        # kernel's ynl-regen.sh cannot rebuild the file. Leave out the
+        # YNL-GEN/YNL-ARG banner it goes by and say where the file comes from.
+        structs = (f'the structs in {os.path.basename(args.struct_header)}'
+                   if args.struct_header else "the family's structs")
+        cw.p('/*')
+        cw.p(f' * Default setters for {structs}, generated from')
+        cw.p(f' * {os.path.basename(args.spec)} by the YNL generator carried with the out-of-tree')
+        cw.p(' * DRBD sources (drbd-headers, linux/generate.sh). The kernel\'s')
+        cw.p(' * tools/net/ynl cannot regenerate this file.')
+        cw.p(' */')
+        cw.nl()
+    else:
+        cw.p("/* Do not edit directly, auto-generated from: */")
+        cw.p(f"/*\t{spec_kernel} */")
+        cw.p(f"/* YNL-GEN {args.mode} {'header' if args.header else 'source'} */")
+        if args.exclude_op or args.user_header or args.fn_prefix or \
+                args.no_defaults:
+            line = ''
+            if args.user_header:
+                line += ' --user-header '.join([''] + args.user_header)
+            if args.exclude_op:
+                line += ' --exclude-op '.join([''] + args.exclude_op)
+            if args.fn_prefix:
+                line += f' --function-prefix {args.fn_prefix}'
+            if args.no_defaults:
+                line += ' --no-defaults'
+            cw.p(f'/* YNL-ARG{line} */')
+        cw.p('/* To regenerate run: tools/net/ynl/ynl-regen.sh */')
+        cw.nl()
 
     if args.mode == 'uapi':
         render_uapi(parsed, cw)
@@ -3950,7 +3976,15 @@ def main():
         cw.p('#define ' + hdr_prot)
         cw.nl()
 
-    if args.mode == 'kernel':
+    if args.mode == 'kernel' and args.defaults_only:
+        # The setters only fill in the emitted structs from the family's
+        # own headers; nothing netlink-related is needed.
+        if args.struct_header:
+            cw.p(f'#include <{args.struct_header}>')
+        cw.p('#include <linux/string.h>')
+        cw.nl()
+        headers = list(parsed.kernel_family.get('headers', []))
+    elif args.mode == 'kernel':
         cw.p('#include <net/netlink.h>')
         cw.p('#include <net/genetlink.h>')
         cw.nl()
@@ -3998,7 +4032,15 @@ def main():
             render_user_family(parsed, cw, True)
         cw.nl()
 
-    if args.mode == "kernel":
+    if args.mode == "kernel" and args.defaults_only:
+        if not parsed.kernel_family.get('emit-structs'):
+            print('--defaults-only needs kernel-family: emit-structs')
+            os.sys.exit(1)
+        render_set_defaults(parsed, cw)
+        if cw._block_end:
+            cw._block_end = False
+            cw._out.write('}\n')
+    elif args.mode == "kernel":
         if args.header:
             for _, struct in sorted(parsed.pure_nested_structs.items()):
                 if struct.request:
@@ -4092,7 +4134,8 @@ def main():
                 cw.nl()
                 render_from_attrs(parsed, cw)
                 render_to_skb(parsed, cw)
-                render_set_defaults(parsed, cw)
+                if not args.no_defaults:
+                    render_set_defaults(parsed, cw)
                 if cw._block_end:
                     cw._block_end = False
                     cw._out.write('}\n')

@@ -22,10 +22,20 @@ python3 "$GEN" --mode kernel --header \
     --struct-prefix drbd_ \
     -o "$SCRIPT_DIR/drbd_nl_gen.h"
 
-python3 "$GEN" --mode kernel --source \
+# The set_*_defaults() setters fill in the wire-neutral structs of
+# drbd_nl_types.h and are called by the dialect-neutral core in drbd_nl.c
+# regardless of which netlink family is built. Keep them out of the v2
+# dialect's object and generate them into a file every dialect can link.
+python3 "$GEN" --mode kernel --source --no-defaults \
     --schema "$SCHEMA" --spec "$SPEC" \
     --struct-prefix drbd_ \
     -o "$SCRIPT_DIR/drbd_nl_gen.c"
+
+python3 "$GEN" --mode kernel --source --defaults-only \
+    --schema "$SCHEMA" --spec "$SPEC" \
+    --struct-prefix drbd_ \
+    --struct-header linux/drbd_nl_types.h \
+    -o "$SCRIPT_DIR/drbd_nl_defaults.c"
 
 # Userspace variant for drbd-utils (parsers built on libgenl.h)
 python3 "$GEN" --mode userspace --header \
