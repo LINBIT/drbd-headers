@@ -345,6 +345,7 @@ enum drbd_state_rv {
 
 /* Meta data feature flags */
 #define DRBD_MDFF_DIVERGENCE_BITMAP (1ULL << 0)
+#define DRBD_MDFF_BITMAP_AUTHORITATIVE (1ULL << 1) /* MDF_PEER_BITMAP_AUTHORITATIVE is maintained */
 
 enum mdf_flag {
 	MDF_CONSISTENT =	1 << 0,
@@ -367,6 +368,7 @@ enum mdf_peer_flag_bit {
 	__MDF_PEER_FULL_SYNC =	3,
 	__MDF_PEER_DEVICE_SEEN = 4,
 	__MDF_PEER_DIVERGENCE_BITMAP = 5, /* bitmap fully records divergence; safe to copy from */
+	__MDF_PEER_BITMAP_AUTHORITATIVE = 6, /* out-of-sync bits were set for blocks the peer lacks, not by a resync or an invalidate */
 	__MDF_NODE_EXISTS =	16,
 	__MDF_HAVE_BITMAP =	31,  /* For in core use; no meaning when persisted */
 };
@@ -379,6 +381,7 @@ enum mdf_peer_flag {
 	MDF_PEER_FULL_SYNC =	1U << __MDF_PEER_FULL_SYNC,
 	MDF_PEER_DEVICE_SEEN =	1U << __MDF_PEER_DEVICE_SEEN,
 	MDF_PEER_DIVERGENCE_BITMAP = 1U << __MDF_PEER_DIVERGENCE_BITMAP,
+	MDF_PEER_BITMAP_AUTHORITATIVE = 1U << __MDF_PEER_BITMAP_AUTHORITATIVE,
 	MDF_NODE_EXISTS =       1U << __MDF_NODE_EXISTS,
 	MDF_HAVE_BITMAP =       1U << __MDF_HAVE_BITMAP,
 };

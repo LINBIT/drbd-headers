@@ -508,6 +508,7 @@ struct p_protocol {
 #define UUID_FLAG_PRIMARY_LOST_QUORUM ((u64)1 << 10)
 #define UUID_FLAG_SYNC_TARGET         ((u64)1 << 11) /* currently L_SYNC_TARGET to some peer */
 #define UUID_FLAG_HAS_UNALLOC         ((u64)1 << 12) /* highest byte contains index of not allocated bitmap uuid */
+#define UUID_FLAG_BITMAP_AUTHORITATIVE ((u64)1 << 13) /* my out-of-sync bits toward you were set for blocks you lack, not by a resync or an invalidate; protocol 125 */
 
 #define UUID_FLAG_UNALLOC_SHIFT       56
 #define UUID_FLAG_UNALLOC_MASK        ((u64)0xff << UUID_FLAG_UNALLOC_SHIFT)
