@@ -52,20 +52,20 @@ const struct nla_policy drbd_disk_conf_nl_policy[DRBD_A_DISK_CONF_D_BITMAP + 1] 
 	[DRBD_A_DISK_CONF_DISK_TIMEOUT] = { .type = NLA_U32, },
 	[DRBD_A_DISK_CONF_READ_BALANCING] = { .type = NLA_U32, },
 	[DRBD_A_DISK_CONF_UNPLUG_WATERMARK] = { .type = NLA_U32, },
-	[DRBD_A_DISK_CONF_RS_DISCARD_GRANULARITY] = { .type = NLA_U32, },
 	[DRBD_A_DISK_CONF_AL_UPDATES] = { .type = NLA_U8, },
 	[DRBD_A_DISK_CONF_DISCARD_ZEROES_IF_ALIGNED] = { .type = NLA_U8, },
+	[DRBD_A_DISK_CONF_RS_DISCARD_GRANULARITY] = { .type = NLA_U32, },
 	[DRBD_A_DISK_CONF_DISABLE_WRITE_SAME] = { .type = NLA_U8, },
 	[DRBD_A_DISK_CONF_D_BITMAP] = { .type = NLA_U8, },
 };
 
 const struct nla_policy drbd_drbd_cfg_context_nl_policy[DRBD_A_DRBD_CFG_CONTEXT_CTX_PEER_NODE_ID + 1] = {
-	[DRBD_A_DRBD_CFG_CONTEXT_CTX_PEER_NODE_ID] = { .type = NLA_U32, },
 	[DRBD_A_DRBD_CFG_CONTEXT_CTX_VOLUME] = { .type = NLA_U32, },
 	[DRBD_A_DRBD_CFG_CONTEXT_CTX_RESOURCE_NAME] = { .type = NLA_NUL_STRING, .len = 128, },
 	[DRBD_A_DRBD_CFG_CONTEXT_CTX_MY_ADDR] = NLA_POLICY_MAX_LEN(128),
 	[DRBD_A_DRBD_CFG_CONTEXT_CTX_PEER_ADDR] = NLA_POLICY_MAX_LEN(128),
 	[DRBD_A_DRBD_CFG_CONTEXT_CTX_CONN_NAME] = { .type = NLA_NUL_STRING, .len = SHARED_SECRET_MAX, },
+	[DRBD_A_DRBD_CFG_CONTEXT_CTX_PEER_NODE_ID] = { .type = NLA_U32, },
 };
 
 const struct nla_policy drbd_forget_peer_parms_nl_policy[DRBD_A_FORGET_PEER_PARMS_FORGET_PEER_NODE_ID + 1] = {
@@ -655,10 +655,6 @@ static int __drbd_cfg_context_from_attrs(struct drbd_cfg_context *s,
 	if (err)
 		goto out;
 
-	nla = ntb[DRBD_A_DRBD_CFG_CONTEXT_CTX_PEER_NODE_ID];
-	if (nla && s)
-		s->ctx_peer_node_id = nla_get_u32(nla);
-
 	nla = ntb[DRBD_A_DRBD_CFG_CONTEXT_CTX_VOLUME];
 	if (nla && s)
 		s->ctx_volume = nla_get_u32(nla);
@@ -678,6 +674,10 @@ static int __drbd_cfg_context_from_attrs(struct drbd_cfg_context *s,
 	nla = ntb[DRBD_A_DRBD_CFG_CONTEXT_CTX_CONN_NAME];
 	if (nla && s)
 		s->ctx_conn_name_len = nla_strscpy(s->ctx_conn_name, nla, SHARED_SECRET_MAX);
+
+	nla = ntb[DRBD_A_DRBD_CFG_CONTEXT_CTX_PEER_NODE_ID];
+	if (nla && s)
+		s->ctx_peer_node_id = nla_get_u32(nla);
 
 out:
 	if (ret_nested_attribute_table && (!err || err == -ENOMSG))
@@ -792,10 +792,6 @@ static int __disk_conf_from_attrs(struct disk_conf *s,
 	if (nla && s)
 		s->unplug_watermark = nla_get_u32(nla);
 
-	nla = ntb[DRBD_A_DISK_CONF_RS_DISCARD_GRANULARITY];
-	if (nla && s)
-		s->rs_discard_granularity = nla_get_u32(nla);
-
 	nla = ntb[DRBD_A_DISK_CONF_AL_UPDATES];
 	if (nla && s)
 		s->al_updates = nla_get_u8(nla);
@@ -803,6 +799,10 @@ static int __disk_conf_from_attrs(struct disk_conf *s,
 	nla = ntb[DRBD_A_DISK_CONF_DISCARD_ZEROES_IF_ALIGNED];
 	if (nla && s)
 		s->discard_zeroes_if_aligned = nla_get_u8(nla);
+
+	nla = ntb[DRBD_A_DISK_CONF_RS_DISCARD_GRANULARITY];
+	if (nla && s)
+		s->rs_discard_granularity = nla_get_u32(nla);
 
 	nla = ntb[DRBD_A_DISK_CONF_DISABLE_WRITE_SAME];
 	if (nla && s)
@@ -1943,8 +1943,6 @@ int drbd_cfg_context_to_skb(struct sk_buff *skb, struct drbd_cfg_context *s)
 	if (!tla)
 		goto nla_put_failure;
 
-	if (nla_put_u32(skb, DRBD_A_DRBD_CFG_CONTEXT_CTX_PEER_NODE_ID, s->ctx_peer_node_id))
-		goto nla_put_failure;
 	if (nla_put_u32(skb, DRBD_A_DRBD_CFG_CONTEXT_CTX_VOLUME, s->ctx_volume))
 		goto nla_put_failure;
 	if (nla_put(skb, DRBD_A_DRBD_CFG_CONTEXT_CTX_RESOURCE_NAME, min_t(int, 128,
@@ -1958,6 +1956,8 @@ int drbd_cfg_context_to_skb(struct sk_buff *skb, struct drbd_cfg_context *s)
 		goto nla_put_failure;
 	if (nla_put(skb, DRBD_A_DRBD_CFG_CONTEXT_CTX_CONN_NAME, min_t(int, SHARED_SECRET_MAX,
 			s->ctx_conn_name_len + (s->ctx_conn_name_len < SHARED_SECRET_MAX)), s->ctx_conn_name))
+		goto nla_put_failure;
+	if (nla_put_u32(skb, DRBD_A_DRBD_CFG_CONTEXT_CTX_PEER_NODE_ID, s->ctx_peer_node_id))
 		goto nla_put_failure;
 
 	nla_nest_end(skb, tla);
@@ -2006,11 +2006,11 @@ int disk_conf_to_skb(struct sk_buff *skb, struct disk_conf *s)
 		goto nla_put_failure;
 	if (nla_put_u32(skb, DRBD_A_DISK_CONF_UNPLUG_WATERMARK, s->unplug_watermark))
 		goto nla_put_failure;
-	if (nla_put_u32(skb, DRBD_A_DISK_CONF_RS_DISCARD_GRANULARITY, s->rs_discard_granularity))
-		goto nla_put_failure;
 	if (nla_put_u8(skb, DRBD_A_DISK_CONF_AL_UPDATES, s->al_updates))
 		goto nla_put_failure;
 	if (nla_put_u8(skb, DRBD_A_DISK_CONF_DISCARD_ZEROES_IF_ALIGNED, s->discard_zeroes_if_aligned))
+		goto nla_put_failure;
+	if (nla_put_u32(skb, DRBD_A_DISK_CONF_RS_DISCARD_GRANULARITY, s->rs_discard_granularity))
 		goto nla_put_failure;
 	if (nla_put_u8(skb, DRBD_A_DISK_CONF_DISABLE_WRITE_SAME, s->disable_write_same))
 		goto nla_put_failure;
@@ -2392,10 +2392,10 @@ int device_info_to_skb(struct sk_buff *skb, struct device_info *s)
 		goto nla_put_failure;
 	if (nla_put_u8(skb, DRBD_A_DEVICE_INFO_DEV_HAS_QUORUM, s->dev_has_quorum))
 		goto nla_put_failure;
-	if (nla_put_u8(skb, DRBD_A_DEVICE_INFO_DEV_IS_OPEN, s->dev_is_open))
-		goto nla_put_failure;
 	if (nla_put(skb, DRBD_A_DEVICE_INFO_BACKING_DEV_PATH, min_t(int, 128,
 			s->backing_dev_path_len + (s->backing_dev_path_len < 128)), s->backing_dev_path))
+		goto nla_put_failure;
+	if (nla_put_u8(skb, DRBD_A_DEVICE_INFO_DEV_IS_OPEN, s->dev_is_open))
 		goto nla_put_failure;
 
 	nla_nest_end(skb, tla);
@@ -2885,9 +2885,9 @@ void set_disk_conf_defaults(struct disk_conf *x)
 	x->disk_timeout = DRBD_DISK_TIMEOUT_DEF;
 	x->read_balancing = DRBD_READ_BALANCING_DEF;
 	x->unplug_watermark = DRBD_UNPLUG_WATERMARK_DEF;
-	x->rs_discard_granularity = DRBD_RS_DISCARD_GRANULARITY_DEF;
 	x->al_updates = DRBD_AL_UPDATES_DEF;
 	x->discard_zeroes_if_aligned = DRBD_DISCARD_ZEROES_IF_ALIGNED_DEF;
+	x->rs_discard_granularity = DRBD_RS_DISCARD_GRANULARITY_DEF;
 	x->disable_write_same = DRBD_DISABLE_WRITE_SAME_DEF;
 	x->d_bitmap = DRBD_BITMAP_DEF;
 }

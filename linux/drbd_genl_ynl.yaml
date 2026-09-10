@@ -1,4 +1,25 @@
 # SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause)
+
+# ####################################################################
+# #                                                                  #
+# #     DECLARE THE ATTRIBUTES OF A SET IN ASCENDING value: ORDER    #
+# #                                                                  #
+# ####################################################################
+#
+# A NEW ATTRIBUTE GOES AT THE END OF ITS SET, WITH THE NEXT FREE value:.
+# Never in the middle, never with a value: below the one before it.
+#
+# Why this is not merely style: the generator walks a set in declaration
+# order, emits an explicit value only where its running counter disagrees,
+# and derives the trailing __<set>_MAX sentinel from the counter it stops
+# at. So <set>_MAX is the attribute count only for a set that ascends. Put
+# one attribute out of order and <set>_MAX comes out LOWER than the highest
+# attribute type of the set. It is not a build error, the generated policy
+# arrays still look correct, and nothing in the generated code complains.
+#
+# But released drbd-utils (every release up to 9.34.0... ) will fail!
+# ####################################################################
+
 name: drbd
 protocol: genetlink-legacy
 version: 2
@@ -41,9 +62,6 @@ attribute-sets:
     value: 1
 - name: drbd-cfg-context
   attributes:
-  - name: ctx-peer-node-id
-    type: u32
-    value: 6
   - name: ctx-volume
     type: u32
     value: 1
@@ -68,6 +86,9 @@ attribute-sets:
     checks:
       max-len: SHARED_SECRET_MAX
     default: ''
+  - name: ctx-peer-node-id
+    type: u32
+    value: 6
 - name: disk-conf
   attributes:
   - name: backing-dev
@@ -129,10 +150,6 @@ attribute-sets:
     type: u32
     value: 22
     default: DRBD_UNPLUG_WATERMARK_DEF
-  - name: rs-discard-granularity
-    type: u32
-    value: 25
-    default: DRBD_RS_DISCARD_GRANULARITY_DEF
   - name: al-updates
     type: u8
     value: 23
@@ -141,6 +158,10 @@ attribute-sets:
     type: u8
     value: 24
     default: DRBD_DISCARD_ZEROES_IF_ALIGNED_DEF
+  - name: rs-discard-granularity
+    type: u32
+    value: 25
+    default: DRBD_RS_DISCARD_GRANULARITY_DEF
   - name: disable-write-same
     type: u8
     value: 26
@@ -498,14 +519,14 @@ attribute-sets:
   - name: dev-has-quorum
     type: u8
     value: 3
-  - name: dev-is-open
-    type: u8
-    value: 5
   - name: backing-dev-path
     type: string
     value: 4
     checks:
       max-len: 128
+  - name: dev-is-open
+    type: u8
+    value: 5
 - name: connection-info
   attributes:
   - name: conn-connection-state

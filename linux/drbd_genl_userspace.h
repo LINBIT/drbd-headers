@@ -55,7 +55,6 @@ struct drbd_cfg_reply {
 };
 
 struct drbd_cfg_context {
-	__u32 ctx_peer_node_id;
 	__u32 ctx_volume;
 	char ctx_resource_name[128];
 	__u32 ctx_resource_name_len;
@@ -65,6 +64,7 @@ struct drbd_cfg_context {
 	__u32 ctx_peer_addr_len;
 	char ctx_conn_name[SHARED_SECRET_MAX];
 	__u32 ctx_conn_name_len;
+	__u32 ctx_peer_node_id;
 };
 
 struct disk_conf {
@@ -84,9 +84,9 @@ struct disk_conf {
 	__u32 disk_timeout;
 	__u32 read_balancing;
 	__u32 unplug_watermark;
-	__u32 rs_discard_granularity;
 	unsigned char al_updates;
 	unsigned char discard_zeroes_if_aligned;
+	__u32 rs_discard_granularity;
 	unsigned char disable_write_same;
 	unsigned char d_bitmap;
 };
@@ -215,9 +215,9 @@ struct device_info {
 	__u32 dev_disk_state;
 	unsigned char is_intentional_diskless;
 	unsigned char dev_has_quorum;
-	unsigned char dev_is_open;
 	char backing_dev_path[128];
 	__u32 backing_dev_path_len;
+	unsigned char dev_is_open;
 };
 
 struct connection_info {
@@ -356,12 +356,12 @@ struct suspend_io_parms {
 
 /* IS_SIGNED helpers for config_flags */
 #define F_info_text_IS_SIGNED 0
-#define F_ctx_peer_node_id_IS_SIGNED 0
 #define F_ctx_volume_IS_SIGNED 0
 #define F_ctx_resource_name_IS_SIGNED 0
 #define F_ctx_my_addr_IS_SIGNED 0
 #define F_ctx_peer_addr_IS_SIGNED 0
 #define F_ctx_conn_name_IS_SIGNED 0
+#define F_ctx_peer_node_id_IS_SIGNED 0
 #define F_backing_dev_IS_SIGNED 0
 #define F_meta_dev_IS_SIGNED 0
 #define F_meta_dev_idx_IS_SIGNED 1
@@ -376,9 +376,9 @@ struct suspend_io_parms {
 #define F_disk_timeout_IS_SIGNED 0
 #define F_read_balancing_IS_SIGNED 0
 #define F_unplug_watermark_IS_SIGNED 0
-#define F_rs_discard_granularity_IS_SIGNED 0
 #define F_al_updates_IS_SIGNED 0
 #define F_discard_zeroes_if_aligned_IS_SIGNED 0
+#define F_rs_discard_granularity_IS_SIGNED 0
 #define F_disable_write_same_IS_SIGNED 0
 #define F_d_bitmap_IS_SIGNED 0
 #define F_cpu_mask_IS_SIGNED 0
@@ -463,8 +463,8 @@ struct suspend_io_parms {
 #define F_dev_disk_state_IS_SIGNED 0
 #define F_is_intentional_diskless_IS_SIGNED 0
 #define F_dev_has_quorum_IS_SIGNED 0
-#define F_dev_is_open_IS_SIGNED 0
 #define F_backing_dev_path_IS_SIGNED 0
+#define F_dev_is_open_IS_SIGNED 0
 #define F_conn_connection_state_IS_SIGNED 0
 #define F_conn_role_IS_SIGNED 0
 #define F_peer_repl_state_IS_SIGNED 0

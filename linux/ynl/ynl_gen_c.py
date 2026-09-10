@@ -3816,6 +3816,30 @@ def render_userspace(family, cw, header, hdr_file):
             cw._out.write('}\n')
 
 
+def check_attr_set_order(parsed):
+    """Report attribute sets that are not declared in ascending value order.
+
+    render_uapi() writes the attributes of a set in declaration order and
+    derives the trailing __<set>_MAX sentinel from the value it stops at, so
+    that sentinel is the attribute count only for a set that ascends. Declare
+    one attribute out of order and <set>_MAX silently comes out below the
+    highest attribute type of the set. Subsets do not get an enum of their
+    own, so they are not checked.
+    """
+    errors = []
+    for set_name, attr_set in parsed.attr_sets.items():
+        if attr_set.subset_of:
+            continue
+        prev = None
+        for attr_name, attr in attr_set.items():
+            if prev is not None and attr.value <= prev[1]:
+                errors.append(f"  {set_name}: '{attr_name}' (value {attr.value})"
+                              f" is declared after '{prev[0]}'"
+                              f" (value {prev[1]})")
+            prev = (attr_name, attr.value)
+    return errors
+
+
 def main():
     parser = argparse.ArgumentParser(description='Netlink simple parsing generator')
     parser.add_argument('--mode', dest='mode', type=str, required=True,
@@ -3844,6 +3868,13 @@ def main():
         if parsed.license != '((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause)':
             print('Spec license:', parsed.license)
             print('License must be: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause)')
+            os.sys.exit(1)
+        order_errors = check_attr_set_order(parsed)
+        if order_errors:
+            print('Attributes must be declared in ascending value order:')
+            print('\n'.join(order_errors))
+            print('A new attribute goes at the end of its set,'
+                  ' with the next free value.')
             os.sys.exit(1)
     except pyyaml.YAMLError as exc:
         print(exc)

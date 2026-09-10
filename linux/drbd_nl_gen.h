@@ -103,7 +103,6 @@ struct drbd_cfg_reply {
 };
 
 struct drbd_cfg_context {
-	__u32 ctx_peer_node_id;
 	__u32 ctx_volume;
 	char ctx_resource_name[128];
 	__u32 ctx_resource_name_len;
@@ -113,6 +112,7 @@ struct drbd_cfg_context {
 	__u32 ctx_peer_addr_len;
 	char ctx_conn_name[SHARED_SECRET_MAX];
 	__u32 ctx_conn_name_len;
+	__u32 ctx_peer_node_id;
 };
 
 struct disk_conf {
@@ -132,9 +132,9 @@ struct disk_conf {
 	__u32 disk_timeout;
 	__u32 read_balancing;
 	__u32 unplug_watermark;
-	__u32 rs_discard_granularity;
 	unsigned char al_updates;
 	unsigned char discard_zeroes_if_aligned;
+	__u32 rs_discard_granularity;
 	unsigned char disable_write_same;
 	unsigned char d_bitmap;
 };
@@ -263,9 +263,9 @@ struct device_info {
 	__u32 dev_disk_state;
 	unsigned char is_intentional_diskless;
 	unsigned char dev_has_quorum;
-	unsigned char dev_is_open;
 	char backing_dev_path[128];
 	__u32 backing_dev_path_len;
+	unsigned char dev_is_open;
 };
 
 struct connection_info {
