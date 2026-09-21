@@ -175,6 +175,22 @@ struct drbd_resource_info {
 	unsigned char res_susp_fen;
 	unsigned char res_susp_quorum;
 	unsigned char res_fail_io;
+#ifdef CONFIG_DRBD_COMPAT_84
+	/*
+	 * The pre-transition values of the four fields above, for the v1
+	 * dialect's fused DRBD_EVENT (drbd_nl_84.c's compat84_emit_event()):
+	 * 8.4's ST-prev/ST-new event lines need a real "before" state, not
+	 * just the "after" state every other field here already carries.
+	 * Filled only at notify_resource_state_change()'s NOTIFY_CHANGE call
+	 * site (drbd_state.c); left unset (and unread) everywhere else,
+	 * including every notify_resource_state() call the v1 dialect never
+	 * sees a fused event for.
+	 */
+	__u32 old_res_role;
+	unsigned char old_res_susp;
+	unsigned char old_res_susp_nod;
+	unsigned char old_res_susp_fen;
+#endif
 };
 
 struct drbd_device_info {
@@ -184,11 +200,22 @@ struct drbd_device_info {
 	unsigned char dev_is_open;
 	char backing_dev_path[128];
 	__u32 backing_dev_path_len;
+#ifdef CONFIG_DRBD_COMPAT_84
+	/* dev_disk_state's pre-transition value; see resource_info above. */
+	__u32 old_dev_disk_state;
+#endif
 };
 
 struct drbd_connection_info {
 	__u32 conn_connection_state;
 	__u32 conn_role;
+#ifdef CONFIG_DRBD_COMPAT_84
+	/* Pre-transition values of the two fields above; see resource_info
+	 * above.
+	 */
+	__u32 old_conn_connection_state;
+	__u32 old_conn_role;
+#endif
 };
 
 struct drbd_peer_device_info {
@@ -199,6 +226,23 @@ struct drbd_peer_device_info {
 	__u32 peer_resync_susp_dependency;
 	unsigned char peer_is_intentional_diskless;
 	__u32 peer_resync_susp_max_parallel;
+#ifdef CONFIG_DRBD_COMPAT_84
+	/* peer_repl_state's and peer_disk_state's pre-transition values; see
+	 * resource_info above. old_peer_resync_susp_user/_peer are the exact
+	 * pre-transition values of the two fields above them; old_peer_
+	 * resync_susp_dependency approximates peer_resync_susp_dependency's
+	 * combined derivation (resync_susp_dependency || resync_susp_other_c
+	 * || (sync-source with an inconsistent local disk)) with only its
+	 * first two terms, since the third needs the sibling device's
+	 * pre-transition disk state, not reachable from a peer-device-only
+	 * snapshot without widening the notification callback's signature.
+	 */
+	__u32 old_peer_repl_state;
+	__u32 old_peer_disk_state;
+	__u32 old_peer_resync_susp_user;
+	__u32 old_peer_resync_susp_peer;
+	__u32 old_peer_resync_susp_dependency;
+#endif
 };
 
 struct drbd_resource_statistics {
