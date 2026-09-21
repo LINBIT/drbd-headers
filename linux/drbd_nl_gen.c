@@ -634,7 +634,7 @@ static const struct genl_multicast_group drbd_nl_mcgrps[] = {
 	[DRBD_NLGRP_EVENTS] = { "events", },
 };
 
-static int __drbd_cfg_context_from_attrs(struct drbd_cfg_context *s,
+static int __drbd_cfg_context_from_attrs(struct drbd_nl_cfg_context *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -687,7 +687,7 @@ out:
 	return err;
 }
 
-int drbd_cfg_context_from_attrs(struct drbd_cfg_context *s,
+int drbd_cfg_context_from_attrs(struct drbd_nl_cfg_context *s,
 				struct genl_info *info)
 {
 	return __drbd_cfg_context_from_attrs(s, NULL, info);
@@ -700,7 +700,7 @@ int drbd_cfg_context_ntb_from_attrs(
 	return __drbd_cfg_context_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __disk_conf_from_attrs(struct disk_conf *s,
+static int __disk_conf_from_attrs(struct drbd_disk_conf *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -820,7 +820,7 @@ out:
 	return err;
 }
 
-int disk_conf_from_attrs(struct disk_conf *s,
+int disk_conf_from_attrs(struct drbd_disk_conf *s,
 				struct genl_info *info)
 {
 	return __disk_conf_from_attrs(s, NULL, info);
@@ -833,7 +833,7 @@ int disk_conf_ntb_from_attrs(
 	return __disk_conf_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __res_opts_from_attrs(struct res_opts *s,
+static int __res_opts_from_attrs(struct drbd_res_opts *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -931,7 +931,7 @@ out:
 	return err;
 }
 
-int res_opts_from_attrs(struct res_opts *s,
+int res_opts_from_attrs(struct drbd_res_opts *s,
 				struct genl_info *info)
 {
 	return __res_opts_from_attrs(s, NULL, info);
@@ -944,7 +944,7 @@ int res_opts_ntb_from_attrs(
 	return __res_opts_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __net_conf_from_attrs(struct net_conf *s,
+static int __net_conf_from_attrs(struct drbd_net_conf *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -1129,7 +1129,7 @@ out:
 	return err;
 }
 
-int net_conf_from_attrs(struct net_conf *s,
+int net_conf_from_attrs(struct drbd_net_conf *s,
 				struct genl_info *info)
 {
 	return __net_conf_from_attrs(s, NULL, info);
@@ -1142,7 +1142,7 @@ int net_conf_ntb_from_attrs(
 	return __net_conf_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __set_role_parms_from_attrs(struct set_role_parms *s,
+static int __set_role_parms_from_attrs(struct drbd_set_role_parms *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -1175,7 +1175,7 @@ out:
 	return err;
 }
 
-int set_role_parms_from_attrs(struct set_role_parms *s,
+int set_role_parms_from_attrs(struct drbd_set_role_parms *s,
 				struct genl_info *info)
 {
 	return __set_role_parms_from_attrs(s, NULL, info);
@@ -1188,7 +1188,7 @@ int set_role_parms_ntb_from_attrs(
 	return __set_role_parms_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __resize_parms_from_attrs(struct resize_parms *s,
+static int __resize_parms_from_attrs(struct drbd_resize_parms *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -1237,7 +1237,7 @@ out:
 	return err;
 }
 
-int resize_parms_from_attrs(struct resize_parms *s,
+int resize_parms_from_attrs(struct drbd_resize_parms *s,
 				struct genl_info *info)
 {
 	return __resize_parms_from_attrs(s, NULL, info);
@@ -1250,7 +1250,7 @@ int resize_parms_ntb_from_attrs(
 	return __resize_parms_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __start_ov_parms_from_attrs(struct start_ov_parms *s,
+static int __start_ov_parms_from_attrs(struct drbd_start_ov_parms *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -1287,7 +1287,7 @@ out:
 	return err;
 }
 
-int start_ov_parms_from_attrs(struct start_ov_parms *s,
+int start_ov_parms_from_attrs(struct drbd_start_ov_parms *s,
 				struct genl_info *info)
 {
 	return __start_ov_parms_from_attrs(s, NULL, info);
@@ -1300,7 +1300,7 @@ int start_ov_parms_ntb_from_attrs(
 	return __start_ov_parms_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __new_c_uuid_parms_from_attrs(struct new_c_uuid_parms *s,
+static int __new_c_uuid_parms_from_attrs(struct drbd_new_c_uuid_parms *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -1337,7 +1337,7 @@ out:
 	return err;
 }
 
-int new_c_uuid_parms_from_attrs(struct new_c_uuid_parms *s,
+int new_c_uuid_parms_from_attrs(struct drbd_new_c_uuid_parms *s,
 				struct genl_info *info)
 {
 	return __new_c_uuid_parms_from_attrs(s, NULL, info);
@@ -1350,7 +1350,7 @@ int new_c_uuid_parms_ntb_from_attrs(
 	return __new_c_uuid_parms_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __disconnect_parms_from_attrs(struct disconnect_parms *s,
+static int __disconnect_parms_from_attrs(struct drbd_disconnect_parms *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -1383,7 +1383,7 @@ out:
 	return err;
 }
 
-int disconnect_parms_from_attrs(struct disconnect_parms *s,
+int disconnect_parms_from_attrs(struct drbd_disconnect_parms *s,
 				struct genl_info *info)
 {
 	return __disconnect_parms_from_attrs(s, NULL, info);
@@ -1396,7 +1396,7 @@ int disconnect_parms_ntb_from_attrs(
 	return __disconnect_parms_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __detach_parms_from_attrs(struct detach_parms *s,
+static int __detach_parms_from_attrs(struct drbd_detach_parms *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -1433,7 +1433,7 @@ out:
 	return err;
 }
 
-int detach_parms_from_attrs(struct detach_parms *s,
+int detach_parms_from_attrs(struct drbd_detach_parms *s,
 				struct genl_info *info)
 {
 	return __detach_parms_from_attrs(s, NULL, info);
@@ -1446,7 +1446,7 @@ int detach_parms_ntb_from_attrs(
 	return __detach_parms_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __device_conf_from_attrs(struct device_conf *s,
+static int __device_conf_from_attrs(struct drbd_device_conf *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -1491,7 +1491,7 @@ out:
 	return err;
 }
 
-int device_conf_from_attrs(struct device_conf *s,
+int device_conf_from_attrs(struct drbd_device_conf *s,
 				struct genl_info *info)
 {
 	return __device_conf_from_attrs(s, NULL, info);
@@ -1504,7 +1504,7 @@ int device_conf_ntb_from_attrs(
 	return __device_conf_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __invalidate_parms_from_attrs(struct invalidate_parms *s,
+static int __invalidate_parms_from_attrs(struct drbd_invalidate_parms *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -1541,7 +1541,7 @@ out:
 	return err;
 }
 
-int invalidate_parms_from_attrs(struct invalidate_parms *s,
+int invalidate_parms_from_attrs(struct drbd_invalidate_parms *s,
 				struct genl_info *info)
 {
 	return __invalidate_parms_from_attrs(s, NULL, info);
@@ -1554,7 +1554,7 @@ int invalidate_parms_ntb_from_attrs(
 	return __invalidate_parms_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __forget_peer_parms_from_attrs(struct forget_peer_parms *s,
+static int __forget_peer_parms_from_attrs(struct drbd_forget_peer_parms *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -1587,7 +1587,7 @@ out:
 	return err;
 }
 
-int forget_peer_parms_from_attrs(struct forget_peer_parms *s,
+int forget_peer_parms_from_attrs(struct drbd_forget_peer_parms *s,
 				struct genl_info *info)
 {
 	return __forget_peer_parms_from_attrs(s, NULL, info);
@@ -1600,7 +1600,7 @@ int forget_peer_parms_ntb_from_attrs(
 	return __forget_peer_parms_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __peer_device_conf_from_attrs(struct peer_device_conf *s,
+static int __peer_device_conf_from_attrs(struct drbd_peer_device_conf *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -1665,7 +1665,7 @@ out:
 	return err;
 }
 
-int peer_device_conf_from_attrs(struct peer_device_conf *s,
+int peer_device_conf_from_attrs(struct drbd_peer_device_conf *s,
 				struct genl_info *info)
 {
 	return __peer_device_conf_from_attrs(s, NULL, info);
@@ -1678,7 +1678,7 @@ int peer_device_conf_ntb_from_attrs(
 	return __peer_device_conf_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __path_parms_from_attrs(struct path_parms *s,
+static int __path_parms_from_attrs(struct drbd_path_parms *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -1715,7 +1715,7 @@ out:
 	return err;
 }
 
-int path_parms_from_attrs(struct path_parms *s,
+int path_parms_from_attrs(struct drbd_path_parms *s,
 				struct genl_info *info)
 {
 	return __path_parms_from_attrs(s, NULL, info);
@@ -1728,7 +1728,7 @@ int path_parms_ntb_from_attrs(
 	return __path_parms_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __connect_parms_from_attrs(struct connect_parms *s,
+static int __connect_parms_from_attrs(struct drbd_connect_parms *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -1765,7 +1765,7 @@ out:
 	return err;
 }
 
-int connect_parms_from_attrs(struct connect_parms *s,
+int connect_parms_from_attrs(struct drbd_connect_parms *s,
 				struct genl_info *info)
 {
 	return __connect_parms_from_attrs(s, NULL, info);
@@ -1778,7 +1778,7 @@ int connect_parms_ntb_from_attrs(
 	return __connect_parms_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __rename_resource_parms_from_attrs(struct rename_resource_parms *s,
+static int __rename_resource_parms_from_attrs(struct drbd_rename_resource_parms *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -1811,7 +1811,7 @@ out:
 	return err;
 }
 
-int rename_resource_parms_from_attrs(struct rename_resource_parms *s,
+int rename_resource_parms_from_attrs(struct drbd_rename_resource_parms *s,
 				struct genl_info *info)
 {
 	return __rename_resource_parms_from_attrs(s, NULL, info);
@@ -1824,7 +1824,7 @@ int rename_resource_parms_ntb_from_attrs(
 	return __rename_resource_parms_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __invalidate_peer_parms_from_attrs(struct invalidate_peer_parms *s,
+static int __invalidate_peer_parms_from_attrs(struct drbd_invalidate_peer_parms *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -1857,7 +1857,7 @@ out:
 	return err;
 }
 
-int invalidate_peer_parms_from_attrs(struct invalidate_peer_parms *s,
+int invalidate_peer_parms_from_attrs(struct drbd_invalidate_peer_parms *s,
 				struct genl_info *info)
 {
 	return __invalidate_peer_parms_from_attrs(s, NULL, info);
@@ -1870,7 +1870,7 @@ int invalidate_peer_parms_ntb_from_attrs(
 	return __invalidate_peer_parms_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-static int __suspend_io_parms_from_attrs(struct suspend_io_parms *s,
+static int __suspend_io_parms_from_attrs(struct drbd_suspend_io_parms *s,
 		struct nlattr ***ret_nested_attribute_table,
 		struct genl_info *info)
 {
@@ -1903,7 +1903,7 @@ out:
 	return err;
 }
 
-int suspend_io_parms_from_attrs(struct suspend_io_parms *s,
+int suspend_io_parms_from_attrs(struct drbd_suspend_io_parms *s,
 				struct genl_info *info)
 {
 	return __suspend_io_parms_from_attrs(s, NULL, info);
@@ -1916,7 +1916,7 @@ int suspend_io_parms_ntb_from_attrs(
 	return __suspend_io_parms_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
-int drbd_cfg_reply_to_skb(struct sk_buff *skb, struct drbd_cfg_reply *s)
+int drbd_cfg_reply_to_skb(struct sk_buff *skb, struct drbd_nl_cfg_reply *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_CFG_REPLY);
 
@@ -1936,7 +1936,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int drbd_cfg_context_to_skb(struct sk_buff *skb, struct drbd_cfg_context *s)
+int drbd_cfg_context_to_skb(struct sk_buff *skb, struct drbd_nl_cfg_context *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_CFG_CONTEXT);
 
@@ -1969,7 +1969,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int disk_conf_to_skb(struct sk_buff *skb, struct disk_conf *s)
+int disk_conf_to_skb(struct sk_buff *skb, struct drbd_disk_conf *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_DISK_CONF);
 
@@ -2026,7 +2026,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int res_opts_to_skb(struct sk_buff *skb, struct res_opts *s)
+int res_opts_to_skb(struct sk_buff *skb, struct drbd_res_opts *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_RESOURCE_OPTS);
 
@@ -2076,7 +2076,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int net_conf_to_skb(struct sk_buff *skb, struct net_conf *s)
+int net_conf_to_skb(struct sk_buff *skb, struct drbd_net_conf *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_NET_CONF);
 
@@ -2178,7 +2178,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int set_role_parms_to_skb(struct sk_buff *skb, struct set_role_parms *s)
+int set_role_parms_to_skb(struct sk_buff *skb, struct drbd_set_role_parms *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_SET_ROLE_PARMS);
 
@@ -2197,7 +2197,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int resize_parms_to_skb(struct sk_buff *skb, struct resize_parms *s)
+int resize_parms_to_skb(struct sk_buff *skb, struct drbd_resize_parms *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_RESIZE_PARMS);
 
@@ -2224,7 +2224,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int start_ov_parms_to_skb(struct sk_buff *skb, struct start_ov_parms *s)
+int start_ov_parms_to_skb(struct sk_buff *skb, struct drbd_start_ov_parms *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_START_OV_PARMS);
 
@@ -2245,7 +2245,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int new_c_uuid_parms_to_skb(struct sk_buff *skb, struct new_c_uuid_parms *s)
+int new_c_uuid_parms_to_skb(struct sk_buff *skb, struct drbd_new_c_uuid_parms *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_NEW_C_UUID_PARMS);
 
@@ -2266,7 +2266,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int timeout_parms_to_skb(struct sk_buff *skb, struct timeout_parms *s)
+int timeout_parms_to_skb(struct sk_buff *skb, struct drbd_timeout_parms *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_TIMEOUT_PARMS);
 
@@ -2285,7 +2285,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int disconnect_parms_to_skb(struct sk_buff *skb, struct disconnect_parms *s)
+int disconnect_parms_to_skb(struct sk_buff *skb, struct drbd_disconnect_parms *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_DISCONNECT_PARMS);
 
@@ -2304,7 +2304,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int detach_parms_to_skb(struct sk_buff *skb, struct detach_parms *s)
+int detach_parms_to_skb(struct sk_buff *skb, struct drbd_detach_parms *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_DETACH_PARMS);
 
@@ -2325,7 +2325,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int device_conf_to_skb(struct sk_buff *skb, struct device_conf *s)
+int device_conf_to_skb(struct sk_buff *skb, struct drbd_device_conf *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_DEVICE_CONF);
 
@@ -2350,7 +2350,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int resource_info_to_skb(struct sk_buff *skb, struct resource_info *s)
+int resource_info_to_skb(struct sk_buff *skb, struct drbd_resource_info *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_RESOURCE_INFO);
 
@@ -2379,7 +2379,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int device_info_to_skb(struct sk_buff *skb, struct device_info *s)
+int device_info_to_skb(struct sk_buff *skb, struct drbd_device_info *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_DEVICE_INFO);
 
@@ -2407,7 +2407,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int connection_info_to_skb(struct sk_buff *skb, struct connection_info *s)
+int connection_info_to_skb(struct sk_buff *skb, struct drbd_connection_info *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_CONNECTION_INFO);
 
@@ -2428,7 +2428,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int peer_device_info_to_skb(struct sk_buff *skb, struct peer_device_info *s)
+int peer_device_info_to_skb(struct sk_buff *skb, struct drbd_peer_device_info *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_PEER_DEVICE_INFO);
 
@@ -2459,7 +2459,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int resource_statistics_to_skb(struct sk_buff *skb, struct resource_statistics *s)
+int resource_statistics_to_skb(struct sk_buff *skb, struct drbd_resource_statistics *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_RESOURCE_STATISTICS);
 
@@ -2478,7 +2478,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int device_statistics_to_skb(struct sk_buff *skb, struct device_statistics *s)
+int device_statistics_to_skb(struct sk_buff *skb, struct drbd_device_statistics *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_DEVICE_STATISTICS);
 
@@ -2524,7 +2524,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int connection_statistics_to_skb(struct sk_buff *skb, struct connection_statistics *s)
+int connection_statistics_to_skb(struct sk_buff *skb, struct drbd_connection_statistics *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_CONNECTION_STATISTICS);
 
@@ -2547,7 +2547,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int peer_device_statistics_to_skb(struct sk_buff *skb, struct peer_device_statistics *s)
+int peer_device_statistics_to_skb(struct sk_buff *skb, struct drbd_peer_device_statistics *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_PEER_DEVICE_STATISTICS);
 
@@ -2610,7 +2610,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int drbd_notification_header_to_skb(struct sk_buff *skb, struct drbd_notification_header *s)
+int drbd_notification_header_to_skb(struct sk_buff *skb, struct drbd_nl_notification_header *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_NOTIFICATION_HEADER);
 
@@ -2629,7 +2629,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int drbd_helper_info_to_skb(struct sk_buff *skb, struct drbd_helper_info *s)
+int drbd_helper_info_to_skb(struct sk_buff *skb, struct drbd_nl_helper_info *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_HELPER);
 
@@ -2651,7 +2651,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int invalidate_parms_to_skb(struct sk_buff *skb, struct invalidate_parms *s)
+int invalidate_parms_to_skb(struct sk_buff *skb, struct drbd_invalidate_parms *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_INVALIDATE_PARMS);
 
@@ -2672,7 +2672,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int forget_peer_parms_to_skb(struct sk_buff *skb, struct forget_peer_parms *s)
+int forget_peer_parms_to_skb(struct sk_buff *skb, struct drbd_forget_peer_parms *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_FORGET_PEER_PARMS);
 
@@ -2691,7 +2691,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int peer_device_conf_to_skb(struct sk_buff *skb, struct peer_device_conf *s)
+int peer_device_conf_to_skb(struct sk_buff *skb, struct drbd_peer_device_conf *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_PEER_DEVICE_OPTS);
 
@@ -2726,7 +2726,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int path_parms_to_skb(struct sk_buff *skb, struct path_parms *s)
+int path_parms_to_skb(struct sk_buff *skb, struct drbd_path_parms *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_PATH_PARMS);
 
@@ -2749,7 +2749,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int connect_parms_to_skb(struct sk_buff *skb, struct connect_parms *s)
+int connect_parms_to_skb(struct sk_buff *skb, struct drbd_connect_parms *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_CONNECT_PARMS);
 
@@ -2770,7 +2770,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int drbd_path_info_to_skb(struct sk_buff *skb, struct drbd_path_info *s)
+int drbd_path_info_to_skb(struct sk_buff *skb, struct drbd_nl_path_info *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_PATH_INFO);
 
@@ -2789,7 +2789,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int rename_resource_parms_to_skb(struct sk_buff *skb, struct rename_resource_parms *s)
+int rename_resource_parms_to_skb(struct sk_buff *skb, struct drbd_rename_resource_parms *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_RENAME_RESOURCE_PARMS);
 
@@ -2809,7 +2809,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int rename_resource_info_to_skb(struct sk_buff *skb, struct rename_resource_info *s)
+int rename_resource_info_to_skb(struct sk_buff *skb, struct drbd_rename_resource_info *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_RENAME_RESOURCE_INFO);
 
@@ -2829,7 +2829,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int invalidate_peer_parms_to_skb(struct sk_buff *skb, struct invalidate_peer_parms *s)
+int invalidate_peer_parms_to_skb(struct sk_buff *skb, struct drbd_invalidate_peer_parms *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_INVAL_PEER_PARAMS);
 
@@ -2848,7 +2848,7 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-int suspend_io_parms_to_skb(struct sk_buff *skb, struct suspend_io_parms *s)
+int suspend_io_parms_to_skb(struct sk_buff *skb, struct drbd_suspend_io_parms *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_SUSPEND_IO_PARAMS);
 
@@ -2867,13 +2867,13 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
-void set_drbd_cfg_context_defaults(struct drbd_cfg_context *x)
+void drbd_set_nl_cfg_context_defaults(struct drbd_nl_cfg_context *x)
 {
 	memset(x->ctx_conn_name, 0, sizeof(x->ctx_conn_name));
 	x->ctx_conn_name_len = 0;
 }
 
-void set_disk_conf_defaults(struct disk_conf *x)
+void drbd_set_disk_conf_defaults(struct drbd_disk_conf *x)
 {
 	x->on_io_error = DRBD_ON_IO_ERROR_DEF;
 	x->resync_after = DRBD_MINOR_NUMBER_DEF;
@@ -2892,7 +2892,7 @@ void set_disk_conf_defaults(struct disk_conf *x)
 	x->d_bitmap = DRBD_BITMAP_DEF;
 }
 
-void set_res_opts_defaults(struct res_opts *x)
+void drbd_set_res_opts_defaults(struct drbd_res_opts *x)
 {
 	memset(x->cpu_mask, 0, sizeof(x->cpu_mask));
 	x->cpu_mask_len = 0;
@@ -2912,7 +2912,7 @@ void set_res_opts_defaults(struct res_opts *x)
 	x->explicit_drbd8_compat = DRBD_DRBD8_COMPAT_MODE_DEF;
 }
 
-void set_net_conf_defaults(struct net_conf *x)
+void drbd_set_net_conf_defaults(struct drbd_net_conf *x)
 {
 	memset(x->shared_secret, 0, sizeof(x->shared_secret));
 	x->shared_secret_len = 0;
@@ -2962,18 +2962,18 @@ void set_net_conf_defaults(struct net_conf *x)
 	x->rdma_ctrl_sndbuf_size = DRBD_RDMA_CTRL_SNDBUF_SIZE_DEF;
 }
 
-void set_resize_parms_defaults(struct resize_parms *x)
+void drbd_set_resize_parms_defaults(struct drbd_resize_parms *x)
 {
 	x->al_stripes = DRBD_AL_STRIPES_DEF;
 	x->al_stripe_size = DRBD_AL_STRIPE_SIZE_DEF;
 }
 
-void set_detach_parms_defaults(struct detach_parms *x)
+void drbd_set_detach_parms_defaults(struct drbd_detach_parms *x)
 {
 	x->intentional_diskless_detach = DRBD_DISK_DISKLESS_DEF;
 }
 
-void set_device_conf_defaults(struct device_conf *x)
+void drbd_set_device_conf_defaults(struct drbd_device_conf *x)
 {
 	x->max_bio_size = DRBD_MAX_BIO_SIZE_DEF;
 	x->intentional_diskless = DRBD_DISK_DISKLESS_DEF;
@@ -2981,18 +2981,18 @@ void set_device_conf_defaults(struct device_conf *x)
 	x->discard_granularity = DRBD_DISCARD_GRANULARITY_DEF;
 }
 
-void set_invalidate_parms_defaults(struct invalidate_parms *x)
+void drbd_set_invalidate_parms_defaults(struct drbd_invalidate_parms *x)
 {
 	x->sync_from_peer_node_id = DRBD_SYNC_FROM_NID_DEF;
 	x->reset_bitmap = DRBD_INVALIDATE_RESET_BITMAP_DEF;
 }
 
-void set_forget_peer_parms_defaults(struct forget_peer_parms *x)
+void drbd_set_forget_peer_parms_defaults(struct drbd_forget_peer_parms *x)
 {
 	x->forget_peer_node_id = DRBD_SYNC_FROM_NID_DEF;
 }
 
-void set_peer_device_conf_defaults(struct peer_device_conf *x)
+void drbd_set_peer_device_conf_defaults(struct drbd_peer_device_conf *x)
 {
 	x->resync_rate = DRBD_RESYNC_RATE_DEF;
 	x->c_plan_ahead = DRBD_C_PLAN_AHEAD_DEF;
@@ -3005,18 +3005,18 @@ void set_peer_device_conf_defaults(struct peer_device_conf *x)
 	x->peer_tiebreaker = DRBD_PEER_TIEBREAKER_DEF;
 }
 
-void set_connect_parms_defaults(struct connect_parms *x)
+void drbd_set_connect_parms_defaults(struct drbd_connect_parms *x)
 {
 	x->tentative = 0;
 	x->discard_my_data = 0;
 }
 
-void set_invalidate_peer_parms_defaults(struct invalidate_peer_parms *x)
+void drbd_set_invalidate_peer_parms_defaults(struct drbd_invalidate_peer_parms *x)
 {
 	x->p_reset_bitmap = DRBD_INVALIDATE_RESET_BITMAP_DEF;
 }
 
-void set_suspend_io_parms_defaults(struct suspend_io_parms *x)
+void drbd_set_suspend_io_parms_defaults(struct drbd_suspend_io_parms *x)
 {
 	x->bdev_freeze = DRBD_SUSPEND_IO_BDEV_FREEZE_DEF;
 }

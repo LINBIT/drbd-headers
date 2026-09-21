@@ -137,7 +137,7 @@ struct drbd_transport {
 	struct list_head paths;
 
 	const char *log_prefix;		/* resource name */
-	struct net_conf __rcu *net_conf;	/* content protected by rcu */
+	struct drbd_net_conf __rcu *net_conf;	/* content protected by rcu */
 
 	/* These members are intended to be updated by the transport: */
 	unsigned int ko_count;
@@ -255,7 +255,7 @@ struct drbd_transport_ops {
  *
  * Upon success the function return 0. Upon error the function returns a negative value.
  */
-	int (*net_conf_change)(struct drbd_transport *, struct net_conf *new_net_conf);
+	int (*net_conf_change)(struct drbd_transport *, struct drbd_net_conf *new_net_conf);
 	void (*set_rcvtimeo)(struct drbd_transport *, enum drbd_stream, long timeout);
 	long (*get_rcvtimeo)(struct drbd_transport *, enum drbd_stream);
 	int (*send_page)(struct drbd_transport *, enum drbd_stream, struct page *,

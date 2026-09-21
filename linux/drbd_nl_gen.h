@@ -99,121 +99,121 @@ enum {
 
 #include <linux/drbd_nl_types.h>
 
-int drbd_cfg_reply_to_skb(struct sk_buff *skb, struct drbd_cfg_reply *s);
+int drbd_cfg_reply_to_skb(struct sk_buff *skb, struct drbd_nl_cfg_reply *s);
 
-int drbd_cfg_context_from_attrs(struct drbd_cfg_context *s, struct genl_info *info);
+int drbd_cfg_context_from_attrs(struct drbd_nl_cfg_context *s, struct genl_info *info);
 int drbd_cfg_context_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int drbd_cfg_context_to_skb(struct sk_buff *skb, struct drbd_cfg_context *s);
-void set_drbd_cfg_context_defaults(struct drbd_cfg_context *x);
+int drbd_cfg_context_to_skb(struct sk_buff *skb, struct drbd_nl_cfg_context *s);
+void drbd_set_nl_cfg_context_defaults(struct drbd_nl_cfg_context *x);
 
-int disk_conf_from_attrs(struct disk_conf *s, struct genl_info *info);
+int disk_conf_from_attrs(struct drbd_disk_conf *s, struct genl_info *info);
 int disk_conf_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int disk_conf_to_skb(struct sk_buff *skb, struct disk_conf *s);
-void set_disk_conf_defaults(struct disk_conf *x);
+int disk_conf_to_skb(struct sk_buff *skb, struct drbd_disk_conf *s);
+void drbd_set_disk_conf_defaults(struct drbd_disk_conf *x);
 
-int res_opts_from_attrs(struct res_opts *s, struct genl_info *info);
+int res_opts_from_attrs(struct drbd_res_opts *s, struct genl_info *info);
 int res_opts_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int res_opts_to_skb(struct sk_buff *skb, struct res_opts *s);
-void set_res_opts_defaults(struct res_opts *x);
+int res_opts_to_skb(struct sk_buff *skb, struct drbd_res_opts *s);
+void drbd_set_res_opts_defaults(struct drbd_res_opts *x);
 
-int net_conf_from_attrs(struct net_conf *s, struct genl_info *info);
+int net_conf_from_attrs(struct drbd_net_conf *s, struct genl_info *info);
 int net_conf_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int net_conf_to_skb(struct sk_buff *skb, struct net_conf *s);
-void set_net_conf_defaults(struct net_conf *x);
+int net_conf_to_skb(struct sk_buff *skb, struct drbd_net_conf *s);
+void drbd_set_net_conf_defaults(struct drbd_net_conf *x);
 
-int set_role_parms_from_attrs(struct set_role_parms *s, struct genl_info *info);
+int set_role_parms_from_attrs(struct drbd_set_role_parms *s, struct genl_info *info);
 int set_role_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int set_role_parms_to_skb(struct sk_buff *skb, struct set_role_parms *s);
+int set_role_parms_to_skb(struct sk_buff *skb, struct drbd_set_role_parms *s);
 
-int resize_parms_from_attrs(struct resize_parms *s, struct genl_info *info);
+int resize_parms_from_attrs(struct drbd_resize_parms *s, struct genl_info *info);
 int resize_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int resize_parms_to_skb(struct sk_buff *skb, struct resize_parms *s);
-void set_resize_parms_defaults(struct resize_parms *x);
+int resize_parms_to_skb(struct sk_buff *skb, struct drbd_resize_parms *s);
+void drbd_set_resize_parms_defaults(struct drbd_resize_parms *x);
 
-int start_ov_parms_from_attrs(struct start_ov_parms *s, struct genl_info *info);
+int start_ov_parms_from_attrs(struct drbd_start_ov_parms *s, struct genl_info *info);
 int start_ov_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int start_ov_parms_to_skb(struct sk_buff *skb, struct start_ov_parms *s);
+int start_ov_parms_to_skb(struct sk_buff *skb, struct drbd_start_ov_parms *s);
 
-int new_c_uuid_parms_from_attrs(struct new_c_uuid_parms *s, struct genl_info *info);
+int new_c_uuid_parms_from_attrs(struct drbd_new_c_uuid_parms *s, struct genl_info *info);
 int new_c_uuid_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int new_c_uuid_parms_to_skb(struct sk_buff *skb, struct new_c_uuid_parms *s);
+int new_c_uuid_parms_to_skb(struct sk_buff *skb, struct drbd_new_c_uuid_parms *s);
 
-int timeout_parms_to_skb(struct sk_buff *skb, struct timeout_parms *s);
+int timeout_parms_to_skb(struct sk_buff *skb, struct drbd_timeout_parms *s);
 
-int disconnect_parms_from_attrs(struct disconnect_parms *s, struct genl_info *info);
+int disconnect_parms_from_attrs(struct drbd_disconnect_parms *s, struct genl_info *info);
 int disconnect_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int disconnect_parms_to_skb(struct sk_buff *skb, struct disconnect_parms *s);
+int disconnect_parms_to_skb(struct sk_buff *skb, struct drbd_disconnect_parms *s);
 
-int detach_parms_from_attrs(struct detach_parms *s, struct genl_info *info);
+int detach_parms_from_attrs(struct drbd_detach_parms *s, struct genl_info *info);
 int detach_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int detach_parms_to_skb(struct sk_buff *skb, struct detach_parms *s);
-void set_detach_parms_defaults(struct detach_parms *x);
+int detach_parms_to_skb(struct sk_buff *skb, struct drbd_detach_parms *s);
+void drbd_set_detach_parms_defaults(struct drbd_detach_parms *x);
 
-int device_conf_from_attrs(struct device_conf *s, struct genl_info *info);
+int device_conf_from_attrs(struct drbd_device_conf *s, struct genl_info *info);
 int device_conf_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int device_conf_to_skb(struct sk_buff *skb, struct device_conf *s);
-void set_device_conf_defaults(struct device_conf *x);
+int device_conf_to_skb(struct sk_buff *skb, struct drbd_device_conf *s);
+void drbd_set_device_conf_defaults(struct drbd_device_conf *x);
 
-int resource_info_to_skb(struct sk_buff *skb, struct resource_info *s);
+int resource_info_to_skb(struct sk_buff *skb, struct drbd_resource_info *s);
 
-int device_info_to_skb(struct sk_buff *skb, struct device_info *s);
+int device_info_to_skb(struct sk_buff *skb, struct drbd_device_info *s);
 
-int connection_info_to_skb(struct sk_buff *skb, struct connection_info *s);
+int connection_info_to_skb(struct sk_buff *skb, struct drbd_connection_info *s);
 
-int peer_device_info_to_skb(struct sk_buff *skb, struct peer_device_info *s);
+int peer_device_info_to_skb(struct sk_buff *skb, struct drbd_peer_device_info *s);
 
-int resource_statistics_to_skb(struct sk_buff *skb, struct resource_statistics *s);
+int resource_statistics_to_skb(struct sk_buff *skb, struct drbd_resource_statistics *s);
 
-int device_statistics_to_skb(struct sk_buff *skb, struct device_statistics *s);
+int device_statistics_to_skb(struct sk_buff *skb, struct drbd_device_statistics *s);
 
-int connection_statistics_to_skb(struct sk_buff *skb, struct connection_statistics *s);
+int connection_statistics_to_skb(struct sk_buff *skb, struct drbd_connection_statistics *s);
 
-int peer_device_statistics_to_skb(struct sk_buff *skb, struct peer_device_statistics *s);
+int peer_device_statistics_to_skb(struct sk_buff *skb, struct drbd_peer_device_statistics *s);
 
-int drbd_notification_header_to_skb(struct sk_buff *skb, struct drbd_notification_header *s);
+int drbd_notification_header_to_skb(struct sk_buff *skb, struct drbd_nl_notification_header *s);
 
-int drbd_helper_info_to_skb(struct sk_buff *skb, struct drbd_helper_info *s);
+int drbd_helper_info_to_skb(struct sk_buff *skb, struct drbd_nl_helper_info *s);
 
-int invalidate_parms_from_attrs(struct invalidate_parms *s, struct genl_info *info);
+int invalidate_parms_from_attrs(struct drbd_invalidate_parms *s, struct genl_info *info);
 int invalidate_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int invalidate_parms_to_skb(struct sk_buff *skb, struct invalidate_parms *s);
-void set_invalidate_parms_defaults(struct invalidate_parms *x);
+int invalidate_parms_to_skb(struct sk_buff *skb, struct drbd_invalidate_parms *s);
+void drbd_set_invalidate_parms_defaults(struct drbd_invalidate_parms *x);
 
-int forget_peer_parms_from_attrs(struct forget_peer_parms *s, struct genl_info *info);
+int forget_peer_parms_from_attrs(struct drbd_forget_peer_parms *s, struct genl_info *info);
 int forget_peer_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int forget_peer_parms_to_skb(struct sk_buff *skb, struct forget_peer_parms *s);
-void set_forget_peer_parms_defaults(struct forget_peer_parms *x);
+int forget_peer_parms_to_skb(struct sk_buff *skb, struct drbd_forget_peer_parms *s);
+void drbd_set_forget_peer_parms_defaults(struct drbd_forget_peer_parms *x);
 
-int peer_device_conf_from_attrs(struct peer_device_conf *s, struct genl_info *info);
+int peer_device_conf_from_attrs(struct drbd_peer_device_conf *s, struct genl_info *info);
 int peer_device_conf_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int peer_device_conf_to_skb(struct sk_buff *skb, struct peer_device_conf *s);
-void set_peer_device_conf_defaults(struct peer_device_conf *x);
+int peer_device_conf_to_skb(struct sk_buff *skb, struct drbd_peer_device_conf *s);
+void drbd_set_peer_device_conf_defaults(struct drbd_peer_device_conf *x);
 
-int path_parms_from_attrs(struct path_parms *s, struct genl_info *info);
+int path_parms_from_attrs(struct drbd_path_parms *s, struct genl_info *info);
 int path_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int path_parms_to_skb(struct sk_buff *skb, struct path_parms *s);
+int path_parms_to_skb(struct sk_buff *skb, struct drbd_path_parms *s);
 
-int connect_parms_from_attrs(struct connect_parms *s, struct genl_info *info);
+int connect_parms_from_attrs(struct drbd_connect_parms *s, struct genl_info *info);
 int connect_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int connect_parms_to_skb(struct sk_buff *skb, struct connect_parms *s);
-void set_connect_parms_defaults(struct connect_parms *x);
+int connect_parms_to_skb(struct sk_buff *skb, struct drbd_connect_parms *s);
+void drbd_set_connect_parms_defaults(struct drbd_connect_parms *x);
 
-int drbd_path_info_to_skb(struct sk_buff *skb, struct drbd_path_info *s);
+int drbd_path_info_to_skb(struct sk_buff *skb, struct drbd_nl_path_info *s);
 
-int rename_resource_parms_from_attrs(struct rename_resource_parms *s, struct genl_info *info);
+int rename_resource_parms_from_attrs(struct drbd_rename_resource_parms *s, struct genl_info *info);
 int rename_resource_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int rename_resource_parms_to_skb(struct sk_buff *skb, struct rename_resource_parms *s);
+int rename_resource_parms_to_skb(struct sk_buff *skb, struct drbd_rename_resource_parms *s);
 
-int rename_resource_info_to_skb(struct sk_buff *skb, struct rename_resource_info *s);
+int rename_resource_info_to_skb(struct sk_buff *skb, struct drbd_rename_resource_info *s);
 
-int invalidate_peer_parms_from_attrs(struct invalidate_peer_parms *s, struct genl_info *info);
+int invalidate_peer_parms_from_attrs(struct drbd_invalidate_peer_parms *s, struct genl_info *info);
 int invalidate_peer_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int invalidate_peer_parms_to_skb(struct sk_buff *skb, struct invalidate_peer_parms *s);
-void set_invalidate_peer_parms_defaults(struct invalidate_peer_parms *x);
+int invalidate_peer_parms_to_skb(struct sk_buff *skb, struct drbd_invalidate_peer_parms *s);
+void drbd_set_invalidate_peer_parms_defaults(struct drbd_invalidate_peer_parms *x);
 
-int suspend_io_parms_from_attrs(struct suspend_io_parms *s, struct genl_info *info);
+int suspend_io_parms_from_attrs(struct drbd_suspend_io_parms *s, struct genl_info *info);
 int suspend_io_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
-int suspend_io_parms_to_skb(struct sk_buff *skb, struct suspend_io_parms *s);
-void set_suspend_io_parms_defaults(struct suspend_io_parms *x);
+int suspend_io_parms_to_skb(struct sk_buff *skb, struct drbd_suspend_io_parms *s);
+void drbd_set_suspend_io_parms_defaults(struct drbd_suspend_io_parms *x);
 
 #endif /* _LINUX_DRBD_GEN_H */

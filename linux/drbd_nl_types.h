@@ -15,12 +15,12 @@
 #include <linux/types.h>
 #include <linux/drbd.h>
 
-struct drbd_cfg_reply {
+struct drbd_nl_cfg_reply {
 	char info_text[0];
 	__u32 info_text_len;
 };
 
-struct drbd_cfg_context {
+struct drbd_nl_cfg_context {
 	__u32 ctx_peer_node_id;
 	__u32 ctx_volume;
 	char ctx_resource_name[128];
@@ -33,7 +33,7 @@ struct drbd_cfg_context {
 	__u32 ctx_conn_name_len;
 };
 
-struct disk_conf {
+struct drbd_disk_conf {
 	char backing_dev[128];
 	__u32 backing_dev_len;
 	char meta_dev[128];
@@ -57,7 +57,7 @@ struct disk_conf {
 	unsigned char d_bitmap;
 };
 
-struct res_opts {
+struct drbd_res_opts {
 	char cpu_mask[DRBD_CPU_MASK_SIZE];
 	__u32 cpu_mask_len;
 	__u32 on_no_data;
@@ -77,7 +77,7 @@ struct res_opts {
 	unsigned char explicit_drbd8_compat;
 };
 
-struct net_conf {
+struct drbd_net_conf {
 	char shared_secret[SHARED_SECRET_MAX];
 	__u32 shared_secret_len;
 	char cram_hmac_alg[SHARED_SECRET_MAX];
@@ -126,11 +126,11 @@ struct net_conf {
 	__u32 rdma_ctrl_sndbuf_size;
 };
 
-struct set_role_parms {
+struct drbd_set_role_parms {
 	unsigned char force;
 };
 
-struct resize_parms {
+struct drbd_resize_parms {
 	__u64 resize_size;
 	unsigned char resize_force;
 	unsigned char no_resync;
@@ -138,37 +138,37 @@ struct resize_parms {
 	__u32 al_stripe_size;
 };
 
-struct start_ov_parms {
+struct drbd_start_ov_parms {
 	__u64 ov_start_sector;
 	__u64 ov_stop_sector;
 };
 
-struct new_c_uuid_parms {
+struct drbd_new_c_uuid_parms {
 	unsigned char clear_bm;
 	unsigned char force_resync;
 };
 
-struct timeout_parms {
+struct drbd_timeout_parms {
 	__u32 timeout_type;
 };
 
-struct disconnect_parms {
+struct drbd_disconnect_parms {
 	unsigned char force_disconnect;
 };
 
-struct detach_parms {
+struct drbd_detach_parms {
 	unsigned char force_detach;
 	unsigned char intentional_diskless_detach;
 };
 
-struct device_conf {
+struct drbd_device_conf {
 	__u32 max_bio_size;
 	unsigned char intentional_diskless;
 	__u32 block_size;
 	__u32 discard_granularity;
 };
 
-struct resource_info {
+struct drbd_resource_info {
 	__u32 res_role;
 	unsigned char res_susp;
 	unsigned char res_susp_nod;
@@ -177,7 +177,7 @@ struct resource_info {
 	unsigned char res_fail_io;
 };
 
-struct device_info {
+struct drbd_device_info {
 	__u32 dev_disk_state;
 	unsigned char is_intentional_diskless;
 	unsigned char dev_has_quorum;
@@ -186,12 +186,12 @@ struct device_info {
 	__u32 backing_dev_path_len;
 };
 
-struct connection_info {
+struct drbd_connection_info {
 	__u32 conn_connection_state;
 	__u32 conn_role;
 };
 
-struct peer_device_info {
+struct drbd_peer_device_info {
 	__u32 peer_repl_state;
 	__u32 peer_disk_state;
 	__u32 peer_resync_susp_user;
@@ -201,11 +201,11 @@ struct peer_device_info {
 	__u32 peer_resync_susp_max_parallel;
 };
 
-struct resource_statistics {
+struct drbd_resource_statistics {
 	__u32 res_stat_write_ordering;
 };
 
-struct device_statistics {
+struct drbd_device_statistics {
 	__u64 dev_size;
 	__u64 dev_read;
 	__u64 dev_write;
@@ -223,13 +223,13 @@ struct device_statistics {
 	__u32 history_uuids_len;
 };
 
-struct connection_statistics {
+struct drbd_connection_statistics {
 	unsigned char conn_congested;
 	__u64 ap_in_flight;
 	__u64 rs_in_flight;
 };
 
-struct peer_device_statistics {
+struct drbd_peer_device_statistics {
 	__u64 peer_dev_received;
 	__u64 peer_dev_sent;
 	__u32 peer_dev_pending;
@@ -255,26 +255,26 @@ struct peer_device_statistics {
 	__u64 peer_dev_uuid_flags;
 };
 
-struct drbd_notification_header {
+struct drbd_nl_notification_header {
 	__u32 nh_type;
 };
 
-struct drbd_helper_info {
+struct drbd_nl_helper_info {
 	char helper_name[32];
 	__u32 helper_name_len;
 	__u32 helper_status;
 };
 
-struct invalidate_parms {
+struct drbd_invalidate_parms {
 	__s32 sync_from_peer_node_id;
 	unsigned char reset_bitmap;
 };
 
-struct forget_peer_parms {
+struct drbd_forget_peer_parms {
 	__s32 forget_peer_node_id;
 };
 
-struct peer_device_conf {
+struct drbd_peer_device_conf {
 	__u32 resync_rate;
 	__u32 c_plan_ahead;
 	__u32 c_delay_target;
@@ -286,37 +286,37 @@ struct peer_device_conf {
 	unsigned char peer_tiebreaker;
 };
 
-struct path_parms {
+struct drbd_path_parms {
 	char my_addr[128];
 	__u32 my_addr_len;
 	char peer_addr[128];
 	__u32 peer_addr_len;
 };
 
-struct connect_parms {
+struct drbd_connect_parms {
 	unsigned char tentative;
 	unsigned char discard_my_data;
 };
 
-struct drbd_path_info {
+struct drbd_nl_path_info {
 	unsigned char path_established;
 };
 
-struct rename_resource_parms {
+struct drbd_rename_resource_parms {
 	char new_resource_name[128];
 	__u32 new_resource_name_len;
 };
 
-struct rename_resource_info {
+struct drbd_rename_resource_info {
 	char res_new_name[128];
 	__u32 res_new_name_len;
 };
 
-struct invalidate_peer_parms {
+struct drbd_invalidate_peer_parms {
 	unsigned char p_reset_bitmap;
 };
 
-struct suspend_io_parms {
+struct drbd_suspend_io_parms {
 	unsigned char bdev_freeze;
 };
 

@@ -19,10 +19,12 @@ python3 "$GEN" --mode uapi --header \
 python3 "$GEN" --mode kernel --header \
     --schema "$SCHEMA" --spec "$SPEC" \
     --struct-header linux/drbd_nl_types.h \
+    --struct-prefix drbd_ \
     -o "$SCRIPT_DIR/drbd_nl_gen.h"
 
 python3 "$GEN" --mode kernel --source \
     --schema "$SCHEMA" --spec "$SPEC" \
+    --struct-prefix drbd_ \
     -o "$SCRIPT_DIR/drbd_nl_gen.c"
 
 # Userspace variant for drbd-utils (parsers built on libgenl.h)

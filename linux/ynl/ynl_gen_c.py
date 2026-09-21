@@ -37,6 +37,26 @@ def c_lower(name):
     return name.lower().replace('-', '_')
 
 
+# Kernel mode only: prefix for the emitted struct tags and default setters
+# (--struct-prefix). A set whose name already starts with the prefix gets
+# "<prefix>nl_" instead, so drbd_cfg_context becomes drbd_nl_cfg_context.
+STRUCT_PREFIX = None
+
+
+def struct_name(s_name):
+    if not STRUCT_PREFIX:
+        return s_name
+    if s_name.startswith(STRUCT_PREFIX):
+        return STRUCT_PREFIX + 'nl_' + s_name[len(STRUCT_PREFIX):]
+    return STRUCT_PREFIX + s_name
+
+
+def defaults_fn(s_name):
+    if not STRUCT_PREFIX:
+        return "set_" + s_name + "_defaults"
+    return f"{STRUCT_PREFIX}set_{struct_name(s_name)[len(STRUCT_PREFIX):]}_defaults"
+
+
 def limit_to_number(name):
     """
     Turn a string limit like u32-max or s64-min into its numerical value
@@ -3453,7 +3473,7 @@ def render_struct_decl(family, cw):
     """Generate C struct declarations from nested attribute sets."""
     for set_name, attr_set in _nested_attr_sets(family):
         s_name = c_lower(set_name)
-        cw.p(f"struct {s_name} {{")
+        cw.p(f"struct {struct_name(s_name)} {{")
         for _, attr in attr_set.items():
             c_name = c_lower(attr.name)
             c_type = _struct_c_type(attr['type'])
@@ -3519,7 +3539,7 @@ def render_from_attrs(family, cw, userspace=False):
 
         policy_name = f"{struct.render_name}_nl_policy"
         max_attr = struct.attr_max_val.enum_name
-        cw.p(f"static int __{s_name}_from_attrs(struct {s_name} *s,")
+        cw.p(f"static int __{s_name}_from_attrs(struct {struct_name(s_name)} *s,")
         cw.p(f"\t\tstruct nlattr ***ret_nested_attribute_table,")
         cw.p(f"\t\tstruct genl_info *info)")
         cw.block_start()
@@ -3603,7 +3623,7 @@ def render_from_attrs(family, cw, userspace=False):
         cw.block_end()
         cw.nl()
 
-        cw.p(f"int {s_name}_from_attrs(struct {s_name} *s,")
+        cw.p(f"int {s_name}_from_attrs(struct {struct_name(s_name)} *s,")
         cw.p(f"\t\t\t\tstruct genl_info *info)")
         cw.block_start()
         cw.p(f"return __{s_name}_from_attrs(s, NULL, info);")
@@ -3634,7 +3654,7 @@ def render_to_skb(family, cw):
         if tla_name is None:
             continue
 
-        cw.p(f"int {s_name}_to_skb(struct sk_buff *skb, struct {s_name} *s)")
+        cw.p(f"int {s_name}_to_skb(struct sk_buff *skb, struct {struct_name(s_name)} *s)")
         cw.block_start()
         cw.p(f"struct nlattr *tla = nla_nest_start(skb, {tla_name});")
         cw.nl()
@@ -3679,7 +3699,7 @@ def render_set_defaults(family, cw):
         if not has_defaults:
             continue
 
-        cw.p(f"void set_{s_name}_defaults(struct {s_name} *x)")
+        cw.p(f"void {defaults_fn(s_name)}(struct {struct_name(s_name)} *x)")
         cw.block_start()
         for _, attr in attr_set.items():
             c_name = c_lower(attr.name)
@@ -3764,11 +3784,11 @@ def render_userspace(family, cw, header, hdr_file):
                 if not has_tla:
                     continue
                 if struct:
-                    cw.p(f"int {s_name}_from_attrs(struct {s_name} *s, struct genl_info *info);")
+                    cw.p(f"int {s_name}_from_attrs(struct {struct_name(s_name)} *s, struct genl_info *info);")
                     cw.p(f"int {s_name}_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);")
                 has_defaults = any('default' in a.attr for _, a in attr_set.items())
                 if has_defaults:
-                    cw.p(f"void set_{s_name}_defaults(struct {s_name} *x);")
+                    cw.p(f"void {defaults_fn(s_name)}(struct {struct_name(s_name)} *x);")
                 cw.nl()
 
         if root_set:
@@ -3857,10 +3877,17 @@ def main():
     parser.add_argument('--function-prefix', dest='fn_prefix', type=str)
     parser.add_argument('--struct-header', dest='struct_header', type=str, default=None,
                         help='kernel mode: include this header instead of emitting struct declarations')
+    parser.add_argument('--struct-prefix', dest='struct_prefix', type=str, default=None,
+                        help='kernel mode: prefix for the emitted struct tags and set_*_defaults() names')
     args = parser.parse_args()
 
     if args.header is None:
         parser.error("--header or --source is required")
+    if args.struct_prefix:
+        if args.mode != 'kernel':
+            parser.error("--struct-prefix needs --mode kernel")
+        global STRUCT_PREFIX
+        STRUCT_PREFIX = args.struct_prefix
 
     exclude_ops = [re.compile(expr) for expr in args.exclude_op]
 
@@ -4021,12 +4048,12 @@ def main():
                     if not has_tla:
                         continue
                     if struct and struct.request:
-                        cw.p(f"int {s_name}_from_attrs(struct {s_name} *s, struct genl_info *info);")
+                        cw.p(f"int {s_name}_from_attrs(struct {struct_name(s_name)} *s, struct genl_info *info);")
                         cw.p(f"int {s_name}_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);")
-                    cw.p(f"int {s_name}_to_skb(struct sk_buff *skb, struct {s_name} *s);")
+                    cw.p(f"int {s_name}_to_skb(struct sk_buff *skb, struct {struct_name(s_name)} *s);")
                     has_defaults = any('default' in a.attr for _, a in attr_set.items())
                     if has_defaults:
-                        cw.p(f"void set_{s_name}_defaults(struct {s_name} *x);")
+                        cw.p(f"void {defaults_fn(s_name)}(struct {struct_name(s_name)} *x);")
                     cw.nl()
         else:
             print_kernel_policy_ranges(parsed, cw)
