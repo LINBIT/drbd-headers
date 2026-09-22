@@ -3,6 +3,7 @@
  * Copyright (C) 2014, LINBIT HA-Solutions GmbH.
  */
 
+#include <linux/kernel.h>
 #include <linux/drbd.h>
 #include "drbd_strings.h"
 #include "drbd_protocol.h"

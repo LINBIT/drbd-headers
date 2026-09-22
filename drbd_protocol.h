@@ -11,12 +11,11 @@
 #else
 #include <stdint.h>
 #define u64 uint64_t
-#endif
-#include <linux/drbd.h>
-
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 #endif
+#endif
+#include <linux/drbd.h>
 
 enum drbd_packet {
 	/* receiver (data socket) */
