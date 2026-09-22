@@ -11,15 +11,19 @@
 #include <linux/wait.h>
 #include <linux/socket.h>
 
-/* Whenever touch this file in a non-trivial way, increase the
-   DRBD_TRANSPORT_API_VERSION
-   So that transport compiled against an older version of this
-   header will no longer load in a module that assumes a newer
-   version. */
+/*
+ * Whenever touch this file in a non-trivial way, increase the
+ * DRBD_TRANSPORT_API_VERSION
+ * So that transport compiled against an older version of this
+ * header will no longer load in a module that assumes a newer
+ * version.
+ */
 #define DRBD_TRANSPORT_API_VERSION 23
 
-/* MSG_MSG_DONTROUTE and MSG_PROBE are not used by DRBD. I.e.
-   we can reuse these flags for our purposes */
+/*
+ * MSG_MSG_DONTROUTE and MSG_PROBE are not used by DRBD. I.e.
+ * we can reuse these flags for our purposes
+ */
 #define CALLER_BUFFER  MSG_DONTROUTE
 #define GROW_BUFFER    MSG_PROBE
 
@@ -54,7 +58,7 @@
 #define TR_ASSERT(x, exp)							\
 	do {									\
 		if (!(exp))							\
-			tr_err(x, "ASSERTION %s FAILED in %s\n", 		\
+			tr_err(x, "ASSERTION %s FAILED in %s\n",		\
 				 #exp, __func__);				\
 	} while (0)
 
@@ -97,8 +101,10 @@ enum drbd_tr_path_flag {
 	TR_TRANSPORT_PRIVATE = 32, /* flags starting here are used exclusively by the transport */
 };
 
-/* A transport might wrap its own data structure around this. Having
-   this base class as its first member. */
+/*
+ * A transport might wrap its own data structure around this. Having
+ * this base class as its first member.
+ */
 struct drbd_path {
 	struct sockaddr_storage my_addr;
 	struct sockaddr_storage peer_addr;
@@ -112,15 +118,19 @@ struct drbd_path {
 
 	struct drbd_transport *transport;
 	struct list_head list; /* paths of a connection */
-	struct list_head listener_link; /* paths waiting for an incomming connection,
-					   head is in a drbd_listener */
+	/* paths waiting for an incoming connection,
+	 * head is in a drbd_listener
+	 */
+	struct list_head listener_link;
 	struct drbd_listener *listener;
 
 	struct rcu_head rcu;
 };
 
-/* Each transport implementation should embed a struct drbd_transport
-   into it's instance data structure. */
+/*
+ * Each transport implementation should embed a struct drbd_transport
+ * into its instance data structure.
+ */
 struct drbd_transport {
 	struct drbd_transport_class *class;
 
@@ -249,7 +259,7 @@ struct drbd_transport_ops {
 	void (*set_rcvtimeo)(struct drbd_transport *, enum drbd_stream, long timeout);
 	long (*get_rcvtimeo)(struct drbd_transport *, enum drbd_stream);
 	int (*send_page)(struct drbd_transport *, enum drbd_stream, struct page *,
-			 int offset, size_t size, unsigned msg_flags);
+			 int offset, size_t size, unsigned int msg_flags);
 	int (*send_bio)(struct drbd_transport *, struct bio *bio, unsigned int msg_flags);
 	bool (*stream_ok)(struct drbd_transport *, enum drbd_stream);
 	bool (*hint)(struct drbd_transport *, enum drbd_stream, enum drbd_tr_hints hint);
@@ -312,10 +322,11 @@ struct drbd_transport_class {
 	struct list_head list;
 };
 
-
-/* An "abstract base class" for transport implementations. I.e. it
-   should be embedded into a transport specific representation of a
-   listening "socket" */
+/*
+ * An "abstract base class" for transport implementations. I.e. it
+ * should be embedded into a transport specific representation of a
+ * listening "socket"
+ */
 struct drbd_listener {
 	struct kref kref;
 	struct drbd_resource *resource;
@@ -426,28 +437,29 @@ struct drbd_page_chain {
 static inline void dummy_for_buildbug(void)
 {
 	struct page *dummy;
+
 	BUILD_BUG_ON(sizeof(struct drbd_page_chain) > sizeof(dummy->lru));
 }
 
 #define page_chain_next(page) \
-	(((struct drbd_page_chain*)&(page)->lru)->next)
+	(((struct drbd_page_chain *)&(page)->lru)->next)
 #define page_chain_size(page) \
-	(((struct drbd_page_chain*)&(page)->lru)->size)
+	(((struct drbd_page_chain *)&(page)->lru)->size)
 #define page_chain_offset(page) \
-	(((struct drbd_page_chain*)&(page)->lru)->offset)
+	(((struct drbd_page_chain *)&(page)->lru)->offset)
 #define set_page_chain_next(page, v) \
-	(((struct drbd_page_chain*)&(page)->lru)->next = (v))
+	(((struct drbd_page_chain *)&(page)->lru)->next = (v))
 #define set_page_chain_size(page, v) \
-	(((struct drbd_page_chain*)&(page)->lru)->size = (v))
+	(((struct drbd_page_chain *)&(page)->lru)->size = (v))
 #define set_page_chain_offset(page, v) \
-	(((struct drbd_page_chain*)&(page)->lru)->offset = (v))
-#define set_page_chain_next_offset_size(page, n, o, s)	\
-	*((struct drbd_page_chain*)&(page)->lru) =	\
-	((struct drbd_page_chain) {			\
-		.next = (n),				\
-		.offset = (o),				\
-		.size = (s),				\
-	 })
+	(((struct drbd_page_chain *)&(page)->lru)->offset = (v))
+#define set_page_chain_next_offset_size(page, n, o, s)			\
+	(*((struct drbd_page_chain *)&(page)->lru) =			\
+		((struct drbd_page_chain){				\
+			.next = (n),					\
+			.offset = (o),					\
+			.size = (s),					\
+		}))
 
 #define page_chain_for_each(page) \
 	for (; page && ({ prefetch(page_chain_next(page)); 1; }); \
@@ -456,9 +468,11 @@ static inline void dummy_for_buildbug(void)
 	for (; page && ({ n = page_chain_next(page); 1; }); page = n)
 
 #ifndef SK_CAN_REUSE
-/* This constant was introduced by Pavel Emelyanov <xemul@parallels.com> on
-   Thu Apr 19 03:39:36 2012 +0000. Before the release of linux-3.5
-   commit 4a17fd52 sock: Introduce named constants for sk_reuse */
+/*
+ * This constant was introduced by Pavel Emelyanov <xemul@parallels.com> on
+ * Thu Apr 19 03:39:36 2012 +0000. Before the release of linux-3.5
+ * commit 4a17fd52 sock: Introduce named constants for sk_reuse
+ */
 #define SK_CAN_REUSE   1
 #endif
 

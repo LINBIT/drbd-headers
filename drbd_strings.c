@@ -22,7 +22,7 @@ static const char * const __conn_state_names[] = {
 
 struct state_names drbd_conn_state_names = {
 	.names = __conn_state_names,
-	.size = sizeof __conn_state_names / sizeof __conn_state_names[0],
+	.size = ARRAY_SIZE(__conn_state_names),
 };
 
 static const char * const __repl_state_names[] = {
@@ -45,7 +45,7 @@ static const char * const __repl_state_names[] = {
 
 struct state_names drbd_repl_state_names = {
 	.names = __repl_state_names,
-	.size = sizeof __repl_state_names / sizeof __repl_state_names[0],
+	.size = ARRAY_SIZE(__repl_state_names),
 };
 
 static const char * const __role_state_names[] = {
@@ -56,7 +56,7 @@ static const char * const __role_state_names[] = {
 
 struct state_names drbd_role_state_names = {
 	.names = __role_state_names,
-	.size = sizeof __role_state_names / sizeof __role_state_names[0],
+	.size = ARRAY_SIZE(__role_state_names),
 };
 
 static const char * const __disk_state_names[] = {
@@ -74,7 +74,7 @@ static const char * const __disk_state_names[] = {
 
 struct state_names drbd_disk_state_names = {
 	.names = __disk_state_names,
-	.size = sizeof __disk_state_names / sizeof __disk_state_names[0],
+	.size = ARRAY_SIZE(__disk_state_names),
 };
 
 static const char * const __error_messages[] = {
@@ -109,7 +109,7 @@ static const char * const __error_messages[] = {
 
 struct state_names drbd_error_messages = {
 	.names = __error_messages,
-	.size = sizeof __error_messages / sizeof __error_messages[0],
+	.size = ARRAY_SIZE(__error_messages),
 };
 
 static const char * const __packet_names[] = {
@@ -202,43 +202,43 @@ static const char * const __packet_names[] = {
 };
 
 struct state_names drbd_packet_names = {
-        .names = __packet_names,
-        .size = sizeof __packet_names / sizeof __packet_names[0],
+	.names = __packet_names,
+	.size = ARRAY_SIZE(__packet_names),
 };
 
 const char *drbd_repl_str(enum drbd_repl_state s)
 {
 	return (s < 0 || s >= drbd_repl_state_names.size ||
-	        !drbd_repl_state_names.names[s]) ?
-	       "?" : drbd_repl_state_names.names[s];
+		!drbd_repl_state_names.names[s]) ?
+		       "?" : drbd_repl_state_names.names[s];
 }
 
 const char *drbd_conn_str(enum drbd_conn_state s)
 {
 	return (s < 0 || s >= drbd_conn_state_names.size ||
-	        !drbd_conn_state_names.names[s]) ?
-	       "?" : drbd_conn_state_names.names[s];
+		!drbd_conn_state_names.names[s]) ?
+		       "?" : drbd_conn_state_names.names[s];
 }
 
 const char *drbd_role_str(enum drbd_role s)
 {
 	return (s < 0 || s >= drbd_role_state_names.size ||
-	        !drbd_role_state_names.names[s]) ?
-	       "?" : drbd_role_state_names.names[s];
+		!drbd_role_state_names.names[s]) ?
+		       "?" : drbd_role_state_names.names[s];
 }
 
 const char *drbd_disk_str(enum drbd_disk_state s)
 {
 	return (s < 0 || s >= drbd_disk_state_names.size ||
-	        !drbd_disk_state_names.names[s]) ?
-	       "?" : drbd_disk_state_names.names[s];
+		!drbd_disk_state_names.names[s]) ?
+		       "?" : drbd_disk_state_names.names[s];
 }
 
 const char *drbd_set_st_err_str(enum drbd_state_rv err)
 {
 	return (-err < 0 || -err >= drbd_error_messages.size ||
-	        !drbd_error_messages.names[-err]) ?
-	       "?" : drbd_error_messages.names[-err];
+		!drbd_error_messages.names[-err]) ?
+		       "?" : drbd_error_messages.names[-err];
 }
 
 const char *drbd_packet_name(enum drbd_packet cmd)

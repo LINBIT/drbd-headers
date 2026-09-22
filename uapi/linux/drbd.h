@@ -17,9 +17,10 @@
 #include <limits.h>
 
 /* Although the Linux source code makes a difference between
-   generic endianness and the bitfields' endianness, there is no
-   architecture as of Linux-2.6.24-rc4 where the bitfields' endianness
-   does not match the generic endianness. */
+ * generic endianness and the bitfields' endianness, there is no
+ * architecture as of Linux-2.6.24-rc4 where the bitfields' endianness
+ * does not match the generic endianness.
+ */
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 #define __LITTLE_ENDIAN_BITFIELD
@@ -148,7 +149,7 @@ enum drbd_ret_code {
 	ERR_CSUMS_ALG_ND	= 145, /* DRBD 8.2 only */
 	ERR_VERIFY_ALG		= 146, /* DRBD 8.2 only */
 	ERR_VERIFY_ALG_ND	= 147, /* DRBD 8.2 only */
-	ERR_CSUMS_RESYNC_RUNNING= 148, /* DRBD 8.2 only */
+	ERR_CSUMS_RESYNC_RUNNING = 148, /* DRBD 8.2 only */
 	ERR_VERIFY_RUNNING	= 149, /* DRBD 8.2 only */
 	ERR_DATA_NOT_CURRENT	= 150,
 	ERR_CONNECTED		= 151, /* DRBD 8.3 only */
@@ -174,7 +175,7 @@ enum drbd_ret_code {
 	ERR_INVALID_PEER_NODE_ID = 171,
 	ERR_CREATE_TRANSPORT    = 172,
 	ERR_LOCAL_AND_PEER_ADDR = 173,
-	ERR_ALREADY_EXISTS 	= 174,
+	ERR_ALREADY_EXISTS	= 174,
 	ERR_APV_TOO_LOW         = 175,
 	ERR_PATH_COLLISION      = 176,
 
@@ -206,7 +207,8 @@ enum drbd_conn_state {
 	/* These temporary states are used on the way
 	 * from C_CONNECTED to C_UNCONNECTED.
 	 * The 'disconnect reason' states
-	 * I do not allow to change between them. */
+	 * I do not allow to change between them.
+	 */
 	C_TIMEOUT,
 	C_BROKEN_PIPE,
 	C_NETWORK_FAILURE,
@@ -232,7 +234,8 @@ enum drbd_repl_state {
 	L_WF_SYNC_UUID,
 
 	/* All SyncStates are tested with this comparison
-	 * xx >= L_SYNC_SOURCE && xx <= L_PAUSED_SYNC_T */
+	 * xx >= L_SYNC_SOURCE && xx <= L_PAUSED_SYNC_T
+	 */
 	L_SYNC_SOURCE,
 	L_SYNC_TARGET,
 	L_VERIFY_S,
@@ -271,33 +274,33 @@ union drbd_state {
  */
 	struct {
 #if defined(__LITTLE_ENDIAN_BITFIELD)
-		unsigned role:2 ;   /* 3/4	 primary/secondary/unknown */
-		unsigned peer:2 ;   /* 3/4	 primary/secondary/unknown */
-		unsigned conn:5 ;   /* 17/32	 cstates */
-		unsigned disk:4 ;   /* 8/16	 from D_DISKLESS to D_UP_TO_DATE */
-		unsigned pdsk:4 ;   /* 8/16	 from D_DISKLESS to D_UP_TO_DATE */
-		unsigned susp:1 ;   /* 2/2	 IO suspended no/yes (by user) */
-		unsigned aftr_isp:1 ; /* isp .. imposed sync pause */
-		unsigned peer_isp:1 ;
-		unsigned user_isp:1 ;
-		unsigned susp_nod:1 ; /* IO suspended because no data */
-		unsigned susp_fen:1 ; /* IO suspended because fence peer handler runs*/
+		unsigned role:2;   /* 3/4	 primary/secondary/unknown */
+		unsigned peer:2;   /* 3/4	 primary/secondary/unknown */
+		unsigned conn:5;   /* 17/32	 cstates */
+		unsigned disk:4;   /* 8/16	 from D_DISKLESS to D_UP_TO_DATE */
+		unsigned pdsk:4;   /* 8/16	 from D_DISKLESS to D_UP_TO_DATE */
+		unsigned susp:1;   /* 2/2	 IO suspended no/yes (by user) */
+		unsigned aftr_isp:1; /* isp .. imposed sync pause */
+		unsigned peer_isp:1;
+		unsigned user_isp:1;
+		unsigned susp_nod:1; /* IO suspended because no data */
+		unsigned susp_fen:1; /* IO suspended because fence peer handler runs*/
 		unsigned quorum:1;
 		unsigned _pad:8;   /* 0	 unused */
 #elif defined(__BIG_ENDIAN_BITFIELD)
 		unsigned _pad:8;
 		unsigned quorum:1;
-		unsigned susp_fen:1 ;
-		unsigned susp_nod:1 ;
-		unsigned user_isp:1 ;
-		unsigned peer_isp:1 ;
-		unsigned aftr_isp:1 ; /* isp .. imposed sync pause */
-		unsigned susp:1 ;   /* 2/2	 IO suspended  no/yes */
-		unsigned pdsk:4 ;   /* 8/16	 from D_DISKLESS to D_UP_TO_DATE */
-		unsigned disk:4 ;   /* 8/16	 from D_DISKLESS to D_UP_TO_DATE */
-		unsigned conn:5 ;   /* 17/32	 cstates */
-		unsigned peer:2 ;   /* 3/4	 primary/secondary/unknown */
-		unsigned role:2 ;   /* 3/4	 primary/secondary/unknown */
+		unsigned susp_fen:1;
+		unsigned susp_nod:1;
+		unsigned user_isp:1;
+		unsigned peer_isp:1;
+		unsigned aftr_isp:1; /* isp .. imposed sync pause */
+		unsigned susp:1;   /* 2/2	 IO suspended  no/yes */
+		unsigned pdsk:4;   /* 8/16	 from D_DISKLESS to D_UP_TO_DATE */
+		unsigned disk:4;   /* 8/16	 from D_DISKLESS to D_UP_TO_DATE */
+		unsigned conn:5;   /* 17/32	 cstates */
+		unsigned peer:2;   /* 3/4	 primary/secondary/unknown */
+		unsigned role:2;   /* 3/4	 primary/secondary/unknown */
 #else
 # error "this endianness is not supported"
 #endif

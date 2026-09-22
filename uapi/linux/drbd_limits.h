@@ -51,7 +51,8 @@
 
 /* net { */
   /* timeout, unit centi seconds
-   * more than one minute timeout is not useful */
+   * more than one minute timeout is not useful
+   */
 #define DRBD_TIMEOUT_MIN 1U
 #define DRBD_TIMEOUT_MAX 600U
 #define DRBD_TIMEOUT_DEF 60U       /* 6 seconds */
@@ -110,7 +111,8 @@
 #define DRBD_UNPLUG_WATERMARK_SCALE '1'
 
   /* 0 is disabled.
-   * 200 should be more than enough even for very short timeouts */
+   * 200 should be more than enough even for very short timeouts
+   */
 #define DRBD_KO_COUNT_MIN  0U
 #define DRBD_KO_COUNT_MAX  200U
 #define DRBD_KO_COUNT_DEF  7U
@@ -131,7 +133,8 @@
 #define DRBD_AL_EXTENTS_MIN  67U
   /* we use u16 as "slot number", (u16)~0 is "FREE".
    * If you use >= 292 kB on-disk ring buffer,
-   * this is the maximum you can use: */
+   * this is the maximum you can use:
+   */
 #define DRBD_AL_EXTENTS_MAX  0xfffeU
 #define DRBD_AL_EXTENTS_DEF  1237U
 #define DRBD_AL_EXTENTS_SCALE '1'
@@ -146,7 +149,8 @@
 /* drbdsetup XY resize -d Z
  * you are free to reduce the device size to nothing, if you want to.
  * the upper limit with 64bit kernel, enough ram and flexible meta data
- * is 1 PiB, currently. */
+ * is 1 PiB, currently.
+ */
 /* DRBD_MAX_SECTORS */
 #define DRBD_DISK_SIZE_MIN  0LLU
 #define DRBD_DISK_SIZE_MAX  (1LLU * (2LLU << 40))
@@ -217,12 +221,14 @@
  * To not change established (and expected) behaviour,
  * by default assume that, for discard_zeroes_data=0,
  * we can make that an effective discard_zeroes_data=1,
- * if we only explicitly zero-out unaligned partial chunks. */
+ * if we only explicitly zero-out unaligned partial chunks.
+ */
 #define DRBD_DISCARD_ZEROES_IF_ALIGNED_DEF 1U
 
 /* Some backends pretend to support WRITE SAME,
  * but fail such requests when they are actually submitted.
- * This is to tell DRBD to not even try. */
+ * This is to tell DRBD to not even try.
+ */
 #define DRBD_DISABLE_WRITE_SAME_DEF 0U
 
 #define DRBD_ALLOW_TWO_PRIMARIES_DEF	0U

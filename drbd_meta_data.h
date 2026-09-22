@@ -15,7 +15,8 @@
 #endif
 
 /* how I came up with this magic?
- * base64 decode "actlog==" ;) */
+ * base64 decode "actlog==" ;)
+ */
 #define DRBD_AL_MAGIC 0x69cb65a2
 
 #define BM_BLOCK_SHIFT_4k	12			 /* 4k per bit */
@@ -36,7 +37,7 @@ struct peer_dev_md_on_disk_9 {
 struct meta_data_on_disk_9 {
 	be_u64 effective_size;    /* last agreed size */
 	be_u64 current_uuid;
-	be_u64 members;	  	  /* only if MDF_HAVE_MEMBERS_MASK is in the flags */
+	be_u64 members;		/* only if MDF_HAVE_MEMBERS_MASK is in the flags */
 	/* Feature flags. Values prefixed with "DRBD_MDFF".
 	 * Separate from "flags": Unknown features bits are cleared; unknown flags bits are kept.
 	 */
@@ -81,7 +82,8 @@ struct __packed al_transaction_on_disk {
 	be_u32	magic;
 
 	/* to identify the most recent transaction block
-	 * in the on disk ring buffer */
+	 * in the on disk ring buffer
+	 */
 	be_u32	tr_number;
 
 	/* checksum on the full 4k block, with this field set to 0. */
@@ -89,18 +91,21 @@ struct __packed al_transaction_on_disk {
 
 	/* type of transaction, special transaction types like:
 	 * purge-all, set-all-idle, set-all-active, ... to-be-defined
-	 * see also enum al_transaction_types */
+	 * see also enum al_transaction_types
+	 */
 	be_u16	transaction_type;
 
 	/* we currently allow only a few thousand extents,
-	 * so 16bit will be enough for the slot number. */
+	 * so 16bit will be enough for the slot number.
+	 */
 
 	/* how many updates in this transaction */
 	be_u16	n_updates;
 
 	/* maximum slot number, "al-extents" in drbd.conf speak.
 	 * Having this in each transaction should make reconfiguration
-	 * of that parameter easier. */
+	 * of that parameter easier.
+	 */
 	be_u16	context_size;
 
 	/* slot number the context starts with */
@@ -108,7 +113,8 @@ struct __packed al_transaction_on_disk {
 
 	/* Some reserved bytes.  Expected usage is a 64bit counter of
 	 * sectors-written since device creation, and other data generation tag
-	 * supporting usage */
+	 * supporting usage
+	 */
 	be_u32	__reserved[4];
 
 	/* --- 36 byte used --- */
@@ -123,7 +129,8 @@ struct __packed al_transaction_on_disk {
 	be_u16	update_slot_nr[AL_UPDATES_PER_TRANSACTION];
 
 	/* but the extent number is 32bit, which at an extent size of 4 MiB
-	 * allows to cover device sizes of up to 2**54 Byte (16 PiB) */
+	 * allows to cover device sizes of up to 2**54 Byte (16 PiB)
+	 */
 	be_u32	update_extent_nr[AL_UPDATES_PER_TRANSACTION];
 
 	/* --- 420 bytes used (36 + 64*6) --- */

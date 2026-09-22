@@ -79,23 +79,29 @@ enum drbd_packet {
 
 	P_DAGTAG	      = 0x30, /* data sock: set the current dagtag */
 
-	/* REQ_DISCARD. We used "discard" in different contexts before,
-	 * which is why I chose TRIM here, to disambiguate. */
+	/*
+	 * REQ_DISCARD. We used "discard" in different contexts before,
+	 * which is why I chose TRIM here, to disambiguate.
+	 */
 	P_TRIM                = 0x31,
 
 	/* Only use these two if both support FF_THIN_RESYNC */
 	P_RS_THIN_REQ         = 0x32, /* Request a block for resync or reply P_RS_DEALLOCATED */
 	P_RS_DEALLOCATED      = 0x33, /* Protocol < 122 version of P_RS_DEALLOCATED_ID */
 
-	/* REQ_WRITE_SAME.
+	/*
+	 * REQ_WRITE_SAME.
 	 * On a receiving side without REQ_WRITE_SAME,
-	 * we may fall back to an opencoded loop instead. */
+	 * we may fall back to an opencoded loop instead.
+	 */
 	P_WSAME               = 0x34,
 	P_TWOPC_PREP_RSZ      = 0x35, /* PREPARE a 2PC resize operation*/
 	P_ZEROES              = 0x36, /* data sock: zero-out, WRITE_ZEROES */
 
-	/* place new packets for both 8.4 and 9 here,
-	 * place new packets for 9-only in the next gap. */
+	/*
+	 * place new packets for both 8.4 and 9 here,
+	 * place new packets for 9-only in the next gap.
+	 */
 
 	P_PEER_ACK            = 0x40, /* meta sock: tell which nodes have acked a request */
 	P_PEERS_IN_SYNC       = 0x41, /* data sock: Mark area as in sync */
@@ -110,9 +116,11 @@ enum drbd_packet {
 	P_TWOPC_RETRY         = 0x48, /* meta sock: retry two-phase commit */
 
 	P_CONFIRM_STABLE      = 0x49, /* meta sock: similar to an unsolicited partial barrier ack */
-	P_RS_CANCEL_AHEAD     = 0x4a, /* protocol version 115,
-		 * meta: cancel RS_DATA_REQUEST packet if already Ahead again,
-		 *       tell peer to stop sending resync requests... */
+	/* protocol version 115,
+	 * meta: cancel RS_DATA_REQUEST packet if already Ahead again,
+	 *       tell peer to stop sending resync requests...
+	 */
+	P_RS_CANCEL_AHEAD     = 0x4a,
 	P_DISCONNECT          = 0x4b, /* data sock: Disconnect and stop connection attempts */
 
 	P_RS_DAGTAG_REQ       = 0x4c, /* data sock: Request a block for resync, with dagtag dependency */
@@ -307,8 +315,10 @@ struct p_rs_req {
 /* supports TRIM/DISCARD on the "wire" protocol */
 #define DRBD_FF_TRIM 1
 
-/* Detect all-zeros during resync, and rather TRIM/UNMAP/DISCARD those blocks
- * instead of fully allocate a supposedly thin volume on initial resync */
+/*
+ * Detect all-zeros during resync, and rather TRIM/UNMAP/DISCARD those blocks
+ * instead of fully allocate a supposedly thin volume on initial resync
+ */
 #define DRBD_FF_THIN_RESYNC 2
 
 /* supports REQ_WRITE_SAME on the "wire" protocol.
@@ -455,7 +465,7 @@ struct p_rs_param {
 
 struct p_rs_param_89 {
 	uint32_t resync_rate;
-        /* protocol version 89: */
+	/* protocol version 89: */
 	char verify_alg[SHARED_SECRET_MAX];
 	char csums_alg[SHARED_SECRET_MAX];
 } __packed;
@@ -483,7 +493,7 @@ struct p_protocol {
 	uint32_t conn_flags;
 	uint32_t two_primaries;
 
-              /* Since protocol version 87 and higher. */
+	/* Since protocol version 87 and higher. */
 	char integrity_alg[];
 
 } __packed;
@@ -525,13 +535,17 @@ struct p_uuids110 {
 	uint64_t current_uuid;
 	uint64_t dirty_bits;
 	uint64_t uuid_flags;
-	uint64_t node_mask; /* weak_nodes when UUID_FLAG_NEW_DATAGEN is set ;
-			       authoritative nodes when UUID_FLAG_STABLE not set */
+	uint64_t node_mask;
+	/* weak_nodes when UUID_FLAG_NEW_DATAGEN is set;
+	 * authoritative nodes when UUID_FLAG_STABLE not set
+	 */
 
 	uint64_t bitmap_uuids_mask; /* non zero bitmap UUIDS for these nodes */
-	uint64_t other_uuids[]; /* the first hweight(bitmap_uuids_mask) slots carry bitmap uuids.
-				    The node with the lowest node_id first.
-				    The remaining slots carry history uuids */
+	uint64_t other_uuids[];
+	/* the first hweight(bitmap_uuids_mask) slots carry bitmap uuids.
+	 * The node with the lowest node_id first.
+	 * The remaining slots carry history uuids
+	 */
 } __packed;
 
 struct p_current_uuid {
@@ -543,14 +557,18 @@ struct p_uuid {
 	uint64_t uuid;
 } __packed;
 
-/* optional queue_limits if (agreed_features & DRBD_FF_WSAME)
- * see also struct queue_limits, as of late 2015 */
+/*
+ * optional queue_limits if (agreed_features & DRBD_FF_WSAME)
+ * see also struct queue_limits, as of late 2015
+ */
 struct o_qlim {
 	/* we don't need it yet, but we may as well communicate it now */
 	uint32_t physical_block_size;
 
-	/* so the original in struct queue_limits is unsigned short,
-	 * but I'd have to put in padding anyways. */
+	/*
+	 * so the original in struct queue_limits is unsigned short,
+	 * but I'd have to put in padding anyways.
+	 */
 	uint32_t logical_block_size;
 
 	/* One incoming bio becomes one DRBD request,
@@ -563,10 +581,13 @@ struct o_qlim {
 	uint32_t io_min;
 	uint32_t io_opt;
 
-	/* We may need to communicate integrity stuff at some point,
-	 * but let's not get ahead of ourselves. */
+	/*
+	 * We may need to communicate integrity stuff at some point,
+	 * but let's not get ahead of ourselves.
+	 */
 
-	/* Backend discard capabilities.
+	/*
+	 * Backend discard capabilities.
 	 * Receiving side uses "blkdev_issue_discard()", no need to communicate
 	 * more specifics.  If the backend cannot do discards, the DRBD peer
 	 * may fall back to blkdev_issue_zeroout().
@@ -686,17 +707,22 @@ struct p_block_desc {
 	uint32_t pad;	/* to multiple of 8 Byte */
 } __packed;
 
-/* Valid values for the encoding field.
- * Bump proto version when changing this. */
+/*
+ * Valid values for the encoding field.
+ * Bump proto version when changing this.
+ */
 enum drbd_bitmap_code {
-	/* RLE_VLI_Bytes = 0,
+	/*
+	 * RLE_VLI_Bytes = 0,
 	 * and other bit variants had been defined during
-	 * algorithm evaluation. */
+	 * algorithm evaluation.
+	 */
 	RLE_VLI_Bits = 2,
 };
 
 struct p_compressed_bm {
-	/* (encoding & 0x0f): actual encoding, see enum drbd_bitmap_code
+	/*
+	 * (encoding & 0x0f): actual encoding, see enum drbd_bitmap_code
 	 * (encoding & 0x80): polarity (set/unset) of first runlength
 	 * ((encoding >> 4) & 0x07): pad_bits, number of trailing zero bits
 	 * used to pad up to head.length bytes
@@ -747,9 +773,9 @@ struct p_flush_ack {
 } __packed;
 
 struct p_enable_replication {
-       uint8_t enable;
-       uint8_t _pad1;
-       uint16_t _pad2;
+	uint8_t enable;
+	uint8_t _pad1;
+	uint16_t _pad2;
 } __packed;
 
 /*
