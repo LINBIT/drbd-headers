@@ -381,6 +381,7 @@ void drbd_transport_unlock(struct drbd_transport *transport);
 
 /* drbd_receiver.c*/
 struct page *drbd_alloc_pages(struct drbd_transport *transport, gfp_t gfp_mask, unsigned int size);
+struct page *drbd_alloc_pages_split(struct drbd_transport *transport, gfp_t gfp_mask, int *order);
 void drbd_free_page(struct drbd_transport *transport, struct page *page);
 void drbd_get_page(struct drbd_transport *transport, struct page *page);
 void drbd_control_data_ready(struct drbd_transport *transport,
