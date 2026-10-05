@@ -1,0 +1,345 @@
+// SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause)
+/* Do not edit directly, auto-generated from: */
+/*	drbd2.yaml */
+/* YNL-GEN userspace source */
+/* To regenerate run: tools/net/ynl/ynl-regen.sh */
+
+#include "drbd2_genl_userspace.h"
+#include "libgenl.h"
+#include <string.h>
+#include <stdio.h>
+#include <errno.h>
+
+/* Nested type policies */
+const struct nla_policy drbd2_address_nl_policy[DRBD2_A_ADDRESS_IPV6 + 1] = {
+	[DRBD2_A_ADDRESS_FAMILY] = { .type = NLA_U16, },
+	[DRBD2_A_ADDRESS_PORT] = { .type = NLA_BE16, },
+	[DRBD2_A_ADDRESS_IPV4] = { .type = NLA_BE32, },
+	[DRBD2_A_ADDRESS_IPV6] = NLA_POLICY_EXACT_LEN(16),
+};
+
+const struct nla_policy drbd2_connect_parms_nl_policy[DRBD2_A_CONNECT_PARMS_DISCARD_MY_DATA + 1] = {
+	[DRBD2_A_CONNECT_PARMS_TENTATIVE] = { .type = NLA_FLAG, },
+	[DRBD2_A_CONNECT_PARMS_DISCARD_MY_DATA] = { .type = NLA_FLAG, },
+};
+
+const struct nla_policy drbd2_connection_nl_policy[DRBD2_A_CONNECTION_PATH + 1] = {
+	[DRBD2_A_CONNECTION_CONTEXT] = NLA_POLICY_NESTED(drbd2_context_nl_policy),
+	[DRBD2_A_CONNECTION_INFO] = NLA_POLICY_NESTED(drbd2_connection_info_nl_policy),
+	[DRBD2_A_CONNECTION_STATISTICS] = NLA_POLICY_NESTED(drbd2_connection_statistics_nl_policy),
+	[DRBD2_A_CONNECTION_NET_CONF] = NLA_POLICY_NESTED(drbd2_net_conf_nl_policy),
+	[DRBD2_A_CONNECTION_PATH] = NLA_POLICY_NESTED(drbd2_path_nl_policy),
+};
+
+const struct nla_policy drbd2_connection_info_nl_policy[DRBD2_A_CONNECTION_INFO_ROLE + 1] = {
+	[DRBD2_A_CONNECTION_INFO_CONNECTION_STATE] = NLA_POLICY_MAX(NLA_U32, 9),
+	[DRBD2_A_CONNECTION_INFO_ROLE] = NLA_POLICY_MAX(NLA_U32, 2),
+};
+
+const struct nla_policy drbd2_connection_statistics_nl_policy[DRBD2_A_CONNECTION_STATISTICS_RS_IN_FLIGHT + 1] = {
+	[DRBD2_A_CONNECTION_STATISTICS_CONGESTED] = { .type = NLA_U8, },
+	[DRBD2_A_CONNECTION_STATISTICS_AP_IN_FLIGHT] = { .type = NLA_U64, },
+	[DRBD2_A_CONNECTION_STATISTICS_RS_IN_FLIGHT] = { .type = NLA_U64, },
+};
+
+const struct nla_policy drbd2_context_nl_policy[DRBD2_A_CONTEXT_PEER_ADDRESS + 1] = {
+	[DRBD2_A_CONTEXT_RESOURCE_NAME] = { .type = NLA_NUL_STRING, .len = DRBD2_RESOURCE_NAME_MAX, },
+	[DRBD2_A_CONTEXT_VOLUME] = { .type = NLA_U32, },
+	[DRBD2_A_CONTEXT_MINOR] = { .type = NLA_U32, },
+	[DRBD2_A_CONTEXT_PEER_NODE_ID] = { .type = NLA_U32, },
+	[DRBD2_A_CONTEXT_CONNECTION_NAME] = { .type = NLA_NUL_STRING, .len = DRBD2_CONNECTION_NAME_MAX, },
+	[DRBD2_A_CONTEXT_MY_ADDRESS] = NLA_POLICY_NESTED(drbd2_address_nl_policy),
+	[DRBD2_A_CONTEXT_PEER_ADDRESS] = NLA_POLICY_NESTED(drbd2_address_nl_policy),
+};
+
+const struct nla_policy drbd2_detach_parms_nl_policy[DRBD2_A_DETACH_PARMS_INTENTIONAL_DISKLESS_DETACH + 1] = {
+	[DRBD2_A_DETACH_PARMS_FORCE] = { .type = NLA_FLAG, },
+	[DRBD2_A_DETACH_PARMS_INTENTIONAL_DISKLESS_DETACH] = { .type = NLA_FLAG, },
+};
+
+const struct nla_policy drbd2_device_nl_policy[DRBD2_A_DEVICE_DEVICE_CONF + 1] = {
+	[DRBD2_A_DEVICE_CONTEXT] = NLA_POLICY_NESTED(drbd2_context_nl_policy),
+	[DRBD2_A_DEVICE_INFO] = NLA_POLICY_NESTED(drbd2_device_info_nl_policy),
+	[DRBD2_A_DEVICE_STATISTICS] = NLA_POLICY_NESTED(drbd2_device_statistics_nl_policy),
+	[DRBD2_A_DEVICE_DISK_CONF] = NLA_POLICY_NESTED(drbd2_disk_conf_nl_policy),
+	[DRBD2_A_DEVICE_DEVICE_CONF] = NLA_POLICY_NESTED(drbd2_device_conf_nl_policy),
+};
+
+const struct nla_policy drbd2_device_conf_nl_policy[DRBD2_A_DEVICE_CONF_DISCARD_GRANULARITY + 1] = {
+	[DRBD2_A_DEVICE_CONF_MAX_BIO_SIZE] = { .type = NLA_U32, },
+	[DRBD2_A_DEVICE_CONF_INTENTIONAL_DISKLESS] = { .type = NLA_U8, },
+	[DRBD2_A_DEVICE_CONF_BLOCK_SIZE] = { .type = NLA_U32, },
+	[DRBD2_A_DEVICE_CONF_DISCARD_GRANULARITY] = { .type = NLA_U32, },
+};
+
+const struct nla_policy drbd2_device_info_nl_policy[DRBD2_A_DEVICE_INFO_BACKING_DEV_PATH + 1] = {
+	[DRBD2_A_DEVICE_INFO_DISK_STATE] = NLA_POLICY_MAX(NLA_U32, 9),
+	[DRBD2_A_DEVICE_INFO_IS_INTENTIONAL_DISKLESS] = { .type = NLA_U8, },
+	[DRBD2_A_DEVICE_INFO_HAS_QUORUM] = { .type = NLA_U8, },
+	[DRBD2_A_DEVICE_INFO_IS_OPEN] = { .type = NLA_U8, },
+	[DRBD2_A_DEVICE_INFO_BACKING_DEV_PATH] = { .type = NLA_NUL_STRING, .len = DRBD2_DEVICE_PATH_MAX, },
+};
+
+const struct nla_policy drbd2_device_statistics_nl_policy[DRBD2_A_DEVICE_STATISTICS_HISTORY_UUIDS + 1] = {
+	[DRBD2_A_DEVICE_STATISTICS_SIZE] = { .type = NLA_U64, },
+	[DRBD2_A_DEVICE_STATISTICS_READ] = { .type = NLA_U64, },
+	[DRBD2_A_DEVICE_STATISTICS_WRITE] = { .type = NLA_U64, },
+	[DRBD2_A_DEVICE_STATISTICS_AL_WRITES] = { .type = NLA_U64, },
+	[DRBD2_A_DEVICE_STATISTICS_BM_WRITES] = { .type = NLA_U64, },
+	[DRBD2_A_DEVICE_STATISTICS_UPPER_PENDING] = { .type = NLA_U32, },
+	[DRBD2_A_DEVICE_STATISTICS_LOWER_PENDING] = { .type = NLA_U32, },
+	[DRBD2_A_DEVICE_STATISTICS_UPPER_BLOCKED] = { .type = NLA_U8, },
+	[DRBD2_A_DEVICE_STATISTICS_LOWER_BLOCKED] = { .type = NLA_U8, },
+	[DRBD2_A_DEVICE_STATISTICS_AL_SUSPENDED] = { .type = NLA_U8, },
+	[DRBD2_A_DEVICE_STATISTICS_EXPOSED_DATA_UUID] = { .type = NLA_U64, },
+	[DRBD2_A_DEVICE_STATISTICS_CURRENT_UUID] = { .type = NLA_U64, },
+	[DRBD2_A_DEVICE_STATISTICS_DISK_FLAGS] = { .type = NLA_U32, },
+	[DRBD2_A_DEVICE_STATISTICS_HISTORY_UUIDS] = NLA_POLICY_MAX_LEN(DRBD2_HISTORY_UUIDS_SIZE),
+};
+
+const struct nla_policy drbd2_disconnect_parms_nl_policy[DRBD2_A_DISCONNECT_PARMS_FORCE + 1] = {
+	[DRBD2_A_DISCONNECT_PARMS_FORCE] = { .type = NLA_FLAG, },
+};
+
+const struct nla_policy drbd2_disk_conf_nl_policy[DRBD2_A_DISK_CONF_BITMAP + 1] = {
+	[DRBD2_A_DISK_CONF_BACKING_DEV] = { .type = NLA_NUL_STRING, .len = DRBD2_DEVICE_PATH_MAX, },
+	[DRBD2_A_DISK_CONF_META_DEV] = { .type = NLA_NUL_STRING, .len = DRBD2_DEVICE_PATH_MAX, },
+	[DRBD2_A_DISK_CONF_META_DEV_IDX] = { .type = NLA_S32, },
+	[DRBD2_A_DISK_CONF_SIZE] = { .type = NLA_U64, },
+	[DRBD2_A_DISK_CONF_ON_IO_ERROR] = NLA_POLICY_MAX(NLA_U32, 2),
+	[DRBD2_A_DISK_CONF_RESYNC_AFTER] = { .type = NLA_S32, },
+	[DRBD2_A_DISK_CONF_AL_EXTENTS] = { .type = NLA_U32, },
+	[DRBD2_A_DISK_CONF_DISK_BARRIER] = { .type = NLA_U8, },
+	[DRBD2_A_DISK_CONF_DISK_FLUSHES] = { .type = NLA_U8, },
+	[DRBD2_A_DISK_CONF_DISK_DRAIN] = { .type = NLA_U8, },
+	[DRBD2_A_DISK_CONF_MD_FLUSHES] = { .type = NLA_U8, },
+	[DRBD2_A_DISK_CONF_DISK_TIMEOUT] = { .type = NLA_U32, },
+	[DRBD2_A_DISK_CONF_READ_BALANCING] = NLA_POLICY_MAX(NLA_U32, 10),
+	[DRBD2_A_DISK_CONF_UNPLUG_WATERMARK] = { .type = NLA_U32, },
+	[DRBD2_A_DISK_CONF_RS_DISCARD_GRANULARITY] = { .type = NLA_U32, },
+	[DRBD2_A_DISK_CONF_AL_UPDATES] = { .type = NLA_U8, },
+	[DRBD2_A_DISK_CONF_DISCARD_ZEROES_IF_ALIGNED] = { .type = NLA_U8, },
+	[DRBD2_A_DISK_CONF_DISABLE_WRITE_SAME] = { .type = NLA_U8, },
+	[DRBD2_A_DISK_CONF_BITMAP] = { .type = NLA_U8, },
+};
+
+const struct nla_policy drbd2_helper_info_nl_policy[DRBD2_A_HELPER_INFO_PHASE + 1] = {
+	[DRBD2_A_HELPER_INFO_NAME] = { .type = NLA_NUL_STRING, .len = DRBD2_HELPER_NAME_MAX, },
+	[DRBD2_A_HELPER_INFO_STATUS] = { .type = NLA_U32, },
+	[DRBD2_A_HELPER_INFO_PHASE] = NLA_POLICY_MAX(NLA_U32, 1),
+};
+
+const struct nla_policy drbd2_invalidate_parms_nl_policy[DRBD2_A_INVALIDATE_PARMS_RESET_BITMAP + 1] = {
+	[DRBD2_A_INVALIDATE_PARMS_SYNC_FROM_PEER_NODE_ID] = { .type = NLA_U32, },
+	[DRBD2_A_INVALIDATE_PARMS_RESET_BITMAP] = { .type = NLA_U8, },
+};
+
+const struct nla_policy drbd2_invalidate_peer_parms_nl_policy[DRBD2_A_INVALIDATE_PEER_PARMS_RESET_BITMAP + 1] = {
+	[DRBD2_A_INVALIDATE_PEER_PARMS_RESET_BITMAP] = { .type = NLA_U8, },
+};
+
+const struct nla_policy drbd2_net_conf_nl_policy[DRBD2_A_NET_CONF_RDMA_CTRL_SNDBUF_SIZE + 1] = {
+	[DRBD2_A_NET_CONF_SHARED_SECRET] = { .type = NLA_NUL_STRING, .len = DRBD2_SHARED_SECRET_MAX, },
+	[DRBD2_A_NET_CONF_CRAM_HMAC_ALG] = { .type = NLA_NUL_STRING, .len = DRBD2_ALG_NAME_MAX, },
+	[DRBD2_A_NET_CONF_INTEGRITY_ALG] = { .type = NLA_NUL_STRING, .len = DRBD2_ALG_NAME_MAX, },
+	[DRBD2_A_NET_CONF_VERIFY_ALG] = { .type = NLA_NUL_STRING, .len = DRBD2_ALG_NAME_MAX, },
+	[DRBD2_A_NET_CONF_CSUMS_ALG] = { .type = NLA_NUL_STRING, .len = DRBD2_ALG_NAME_MAX, },
+	[DRBD2_A_NET_CONF_PROTOCOL] = NLA_POLICY_RANGE(NLA_U32, 1, 3),
+	[DRBD2_A_NET_CONF_CONNECT_INT] = { .type = NLA_U32, },
+	[DRBD2_A_NET_CONF_TIMEOUT] = { .type = NLA_U32, },
+	[DRBD2_A_NET_CONF_PING_INT] = { .type = NLA_U32, },
+	[DRBD2_A_NET_CONF_PING_TIMEO] = { .type = NLA_U32, },
+	[DRBD2_A_NET_CONF_SNDBUF_SIZE] = { .type = NLA_U32, },
+	[DRBD2_A_NET_CONF_RCVBUF_SIZE] = { .type = NLA_U32, },
+	[DRBD2_A_NET_CONF_KO_COUNT] = { .type = NLA_U32, },
+	[DRBD2_A_NET_CONF_MAX_EPOCH_SIZE] = { .type = NLA_U32, },
+	[DRBD2_A_NET_CONF_AFTER_SB_0PRI] = NLA_POLICY_MAX(NLA_U32, 12),
+	[DRBD2_A_NET_CONF_AFTER_SB_1PRI] = NLA_POLICY_MAX(NLA_U32, 12),
+	[DRBD2_A_NET_CONF_AFTER_SB_2PRI] = NLA_POLICY_MAX(NLA_U32, 12),
+	[DRBD2_A_NET_CONF_RR_CONFLICT] = NLA_POLICY_MAX(NLA_U32, 12),
+	[DRBD2_A_NET_CONF_ON_CONGESTION] = NLA_POLICY_MAX(NLA_U32, 2),
+	[DRBD2_A_NET_CONF_CONG_FILL] = { .type = NLA_U32, },
+	[DRBD2_A_NET_CONF_CONG_EXTENTS] = { .type = NLA_U32, },
+	[DRBD2_A_NET_CONF_TWO_PRIMARIES] = { .type = NLA_U8, },
+	[DRBD2_A_NET_CONF_TCP_CORK] = { .type = NLA_U8, },
+	[DRBD2_A_NET_CONF_ALWAYS_ASBP] = { .type = NLA_U8, },
+	[DRBD2_A_NET_CONF_USE_RLE] = { .type = NLA_U8, },
+	[DRBD2_A_NET_CONF_FENCING] = NLA_POLICY_MAX(NLA_U32, 2),
+	[DRBD2_A_NET_CONF_CONNECTION_NAME] = { .type = NLA_NUL_STRING, .len = DRBD2_CONNECTION_NAME_MAX, },
+	[DRBD2_A_NET_CONF_CSUMS_AFTER_CRASH_ONLY] = { .type = NLA_U8, },
+	[DRBD2_A_NET_CONF_SOCK_CHECK_TIMEO] = { .type = NLA_U32, },
+	[DRBD2_A_NET_CONF_TRANSPORT_NAME] = { .type = NLA_NUL_STRING, .len = DRBD2_TRANSPORT_NAME_MAX, },
+	[DRBD2_A_NET_CONF_MAX_BUFFERS] = { .type = NLA_U32, },
+	[DRBD2_A_NET_CONF_ALLOW_REMOTE_READ] = { .type = NLA_U8, },
+	[DRBD2_A_NET_CONF_TLS] = { .type = NLA_U8, },
+	[DRBD2_A_NET_CONF_TLS_PRIVKEY] = { .type = NLA_S32, },
+	[DRBD2_A_NET_CONF_TLS_CERTIFICATE] = { .type = NLA_S32, },
+	[DRBD2_A_NET_CONF_TLS_KEYRING] = { .type = NLA_S32, },
+	[DRBD2_A_NET_CONF_LOAD_BALANCE_PATHS] = { .type = NLA_U8, },
+	[DRBD2_A_NET_CONF_RDMA_CTRL_RCVBUF_SIZE] = { .type = NLA_U32, },
+	[DRBD2_A_NET_CONF_RDMA_CTRL_SNDBUF_SIZE] = { .type = NLA_U32, },
+};
+
+const struct nla_policy drbd2_new_current_uuid_parms_nl_policy[DRBD2_A_NEW_CURRENT_UUID_PARMS_FORCE_RESYNC + 1] = {
+	[DRBD2_A_NEW_CURRENT_UUID_PARMS_CLEAR_BM] = { .type = NLA_FLAG, },
+	[DRBD2_A_NEW_CURRENT_UUID_PARMS_FORCE_RESYNC] = { .type = NLA_FLAG, },
+};
+
+const struct nla_policy drbd2_path_nl_policy[DRBD2_A_PATH_INFO + 1] = {
+	[DRBD2_A_PATH_CONTEXT] = NLA_POLICY_NESTED(drbd2_context_nl_policy),
+	[DRBD2_A_PATH_INFO] = NLA_POLICY_NESTED(drbd2_path_info_nl_policy),
+};
+
+const struct nla_policy drbd2_path_info_nl_policy[DRBD2_A_PATH_INFO_ESTABLISHED + 1] = {
+	[DRBD2_A_PATH_INFO_ESTABLISHED] = { .type = NLA_U8, },
+};
+
+const struct nla_policy drbd2_peer_device_nl_policy[DRBD2_A_PEER_DEVICE_PEER_DEVICE_CONF + 1] = {
+	[DRBD2_A_PEER_DEVICE_CONTEXT] = NLA_POLICY_NESTED(drbd2_context_nl_policy),
+	[DRBD2_A_PEER_DEVICE_INFO] = NLA_POLICY_NESTED(drbd2_peer_device_info_nl_policy),
+	[DRBD2_A_PEER_DEVICE_STATISTICS] = NLA_POLICY_NESTED(drbd2_peer_device_statistics_nl_policy),
+	[DRBD2_A_PEER_DEVICE_PEER_DEVICE_CONF] = NLA_POLICY_NESTED(drbd2_peer_device_conf_nl_policy),
+};
+
+const struct nla_policy drbd2_peer_device_conf_nl_policy[DRBD2_A_PEER_DEVICE_CONF_PEER_TIEBREAKER + 1] = {
+	[DRBD2_A_PEER_DEVICE_CONF_RESYNC_RATE] = { .type = NLA_U32, },
+	[DRBD2_A_PEER_DEVICE_CONF_C_PLAN_AHEAD] = { .type = NLA_U32, },
+	[DRBD2_A_PEER_DEVICE_CONF_C_DELAY_TARGET] = { .type = NLA_U32, },
+	[DRBD2_A_PEER_DEVICE_CONF_C_FILL_TARGET] = { .type = NLA_U32, },
+	[DRBD2_A_PEER_DEVICE_CONF_C_MAX_RATE] = { .type = NLA_U32, },
+	[DRBD2_A_PEER_DEVICE_CONF_C_MIN_RATE] = { .type = NLA_U32, },
+	[DRBD2_A_PEER_DEVICE_CONF_BITMAP] = { .type = NLA_U8, },
+	[DRBD2_A_PEER_DEVICE_CONF_RESYNC_WITHOUT_REPLICATION] = { .type = NLA_U8, },
+	[DRBD2_A_PEER_DEVICE_CONF_PEER_TIEBREAKER] = { .type = NLA_U8, },
+};
+
+const struct nla_policy drbd2_peer_device_info_nl_policy[DRBD2_A_PEER_DEVICE_INFO_RESYNC_SUSP_MAX_PARALLEL + 1] = {
+	[DRBD2_A_PEER_DEVICE_INFO_REPL_STATE] = NLA_POLICY_RANGE(NLA_U32, 9, 23),
+	[DRBD2_A_PEER_DEVICE_INFO_DISK_STATE] = NLA_POLICY_MAX(NLA_U32, 9),
+	[DRBD2_A_PEER_DEVICE_INFO_RESYNC_SUSP_USER] = { .type = NLA_U8, },
+	[DRBD2_A_PEER_DEVICE_INFO_RESYNC_SUSP_PEER] = { .type = NLA_U8, },
+	[DRBD2_A_PEER_DEVICE_INFO_RESYNC_SUSP_DEPENDENCY] = { .type = NLA_U8, },
+	[DRBD2_A_PEER_DEVICE_INFO_IS_INTENTIONAL_DISKLESS] = { .type = NLA_U8, },
+	[DRBD2_A_PEER_DEVICE_INFO_RESYNC_SUSP_MAX_PARALLEL] = { .type = NLA_U8, },
+};
+
+const struct nla_policy drbd2_peer_device_statistics_nl_policy[DRBD2_A_PEER_DEVICE_STATISTICS_UUID_FLAGS + 1] = {
+	[DRBD2_A_PEER_DEVICE_STATISTICS_RECEIVED] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_SENT] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_PENDING] = { .type = NLA_U32, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_UNACKED] = { .type = NLA_U32, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_OUT_OF_SYNC] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_RESYNC_FAILED] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_BITMAP_UUID] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_FLAGS] = { .type = NLA_U32, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_RS_TOTAL] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_OV_START_SECTOR] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_OV_STOP_SECTOR] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_OV_POSITION] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_OV_LEFT] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_OV_SKIPPED] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_RS_SAME_CSUM] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_RS_DT_START_MS] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_RS_PAUSED_MS] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_RS_DT0_MS] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_RS_DB0_SECTORS] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_RS_DT1_MS] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_RS_DB1_SECTORS] = { .type = NLA_U64, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_RS_C_SYNC_RATE] = { .type = NLA_U32, },
+	[DRBD2_A_PEER_DEVICE_STATISTICS_UUID_FLAGS] = { .type = NLA_U64, },
+};
+
+const struct nla_policy drbd2_rename_parms_nl_policy[DRBD2_A_RENAME_PARMS_NEW_NAME + 1] = {
+	[DRBD2_A_RENAME_PARMS_NEW_NAME] = { .type = NLA_NUL_STRING, .len = DRBD2_RESOURCE_NAME_MAX, },
+};
+
+const struct nla_policy drbd2_resize_parms_nl_policy[DRBD2_A_RESIZE_PARMS_AL_STRIPE_SIZE + 1] = {
+	[DRBD2_A_RESIZE_PARMS_SIZE] = { .type = NLA_U64, },
+	[DRBD2_A_RESIZE_PARMS_ASSUME_PEER_HAS_SPACE] = { .type = NLA_FLAG, },
+	[DRBD2_A_RESIZE_PARMS_ASSUME_CLEAN] = { .type = NLA_FLAG, },
+	[DRBD2_A_RESIZE_PARMS_AL_STRIPES] = { .type = NLA_U32, },
+	[DRBD2_A_RESIZE_PARMS_AL_STRIPE_SIZE] = { .type = NLA_U32, },
+};
+
+const struct nla_policy drbd2_resource_nl_policy[DRBD2_A_RESOURCE_RESOURCE_OPTS + 1] = {
+	[DRBD2_A_RESOURCE_CONTEXT] = NLA_POLICY_NESTED(drbd2_context_nl_policy),
+	[DRBD2_A_RESOURCE_INFO] = NLA_POLICY_NESTED(drbd2_resource_info_nl_policy),
+	[DRBD2_A_RESOURCE_STATISTICS] = NLA_POLICY_NESTED(drbd2_resource_statistics_nl_policy),
+	[DRBD2_A_RESOURCE_NEW_NAME] = { .type = NLA_NUL_STRING, .len = DRBD2_RESOURCE_NAME_MAX, },
+	[DRBD2_A_RESOURCE_RESOURCE_OPTS] = NLA_POLICY_NESTED(drbd2_resource_opts_nl_policy),
+};
+
+const struct nla_policy drbd2_resource_info_nl_policy[DRBD2_A_RESOURCE_INFO_FAIL_IO + 1] = {
+	[DRBD2_A_RESOURCE_INFO_ROLE] = NLA_POLICY_MAX(NLA_U32, 2),
+	[DRBD2_A_RESOURCE_INFO_SUSP] = { .type = NLA_U8, },
+	[DRBD2_A_RESOURCE_INFO_SUSP_NOD] = { .type = NLA_U8, },
+	[DRBD2_A_RESOURCE_INFO_SUSP_FEN] = { .type = NLA_U8, },
+	[DRBD2_A_RESOURCE_INFO_SUSP_QUORUM] = { .type = NLA_U8, },
+	[DRBD2_A_RESOURCE_INFO_FAIL_IO] = { .type = NLA_U8, },
+};
+
+const struct nla_policy drbd2_resource_opts_nl_policy[DRBD2_A_RESOURCE_OPTS_EXPLICIT_DRBD8_COMPAT + 1] = {
+	[DRBD2_A_RESOURCE_OPTS_CPU_MASK] = { .type = NLA_NUL_STRING, .len = DRBD2_CPU_MASK_SIZE, },
+	[DRBD2_A_RESOURCE_OPTS_ON_NO_DATA_ACCESSIBLE] = NLA_POLICY_MAX(NLA_U32, 1),
+	[DRBD2_A_RESOURCE_OPTS_AUTO_PROMOTE] = { .type = NLA_U8, },
+	[DRBD2_A_RESOURCE_OPTS_NODE_ID] = { .type = NLA_U32, },
+	[DRBD2_A_RESOURCE_OPTS_PEER_ACK_WINDOW] = { .type = NLA_U32, },
+	[DRBD2_A_RESOURCE_OPTS_TWOPC_TIMEOUT] = { .type = NLA_U32, },
+	[DRBD2_A_RESOURCE_OPTS_TWOPC_RETRY_TIMEOUT] = { .type = NLA_U32, },
+	[DRBD2_A_RESOURCE_OPTS_PEER_ACK_DELAY] = { .type = NLA_U32, },
+	[DRBD2_A_RESOURCE_OPTS_AUTO_PROMOTE_TIMEOUT] = { .type = NLA_U32, },
+	[DRBD2_A_RESOURCE_OPTS_MAX_IO_DEPTH] = { .type = NLA_U32, },
+	[DRBD2_A_RESOURCE_OPTS_QUORUM] = { .type = NLA_S32, },
+	[DRBD2_A_RESOURCE_OPTS_ON_NO_QUORUM] = NLA_POLICY_MAX(NLA_U32, 1),
+	[DRBD2_A_RESOURCE_OPTS_QUORUM_MIN_REDUNDANCY] = { .type = NLA_S32, },
+	[DRBD2_A_RESOURCE_OPTS_ON_SUSPENDED_PRIMARY_OUTDATED] = NLA_POLICY_MAX(NLA_U32, 1),
+	[DRBD2_A_RESOURCE_OPTS_DRBD8_COMPAT_MODE] = { .type = NLA_U8, },
+	[DRBD2_A_RESOURCE_OPTS_EXPLICIT_DRBD8_COMPAT] = { .type = NLA_U8, },
+};
+
+const struct nla_policy drbd2_resource_statistics_nl_policy[DRBD2_A_RESOURCE_STATISTICS_WRITE_ORDERING + 1] = {
+	[DRBD2_A_RESOURCE_STATISTICS_WRITE_ORDERING] = NLA_POLICY_MAX(NLA_U32, 3),
+};
+
+const struct nla_policy drbd2_set_role_parms_nl_policy[DRBD2_A_SET_ROLE_PARMS_FORCE + 1] = {
+	[DRBD2_A_SET_ROLE_PARMS_FORCE] = { .type = NLA_FLAG, },
+};
+
+const struct nla_policy drbd2_start_ov_parms_nl_policy[DRBD2_A_START_OV_PARMS_STOP_SECTOR + 1] = {
+	[DRBD2_A_START_OV_PARMS_START_SECTOR] = { .type = NLA_U64, },
+	[DRBD2_A_START_OV_PARMS_STOP_SECTOR] = { .type = NLA_U64, },
+};
+
+const struct nla_policy drbd2_suspend_io_parms_nl_policy[DRBD2_A_SUSPEND_IO_PARMS_BDEV_FREEZE + 1] = {
+	[DRBD2_A_SUSPEND_IO_PARMS_BDEV_FREEZE] = { .type = NLA_U8, },
+};
+
+const struct nla_policy drbd2_tla_nl_policy[DRBD2_TLA_NL_POLICY_LEN] = {
+	[DRBD2_A_CONTEXT] = { .type = NLA_NESTED },
+	[DRBD2_A_SET_DEFAULTS] = { .type = NLA_NESTED },
+	[DRBD2_A_STATE_RESULT] = { .type = NLA_NESTED },
+	[DRBD2_A_MESSAGE] = { .type = NLA_NESTED },
+	[DRBD2_A_TIMEOUT_TYPE] = { .type = NLA_NESTED },
+	[DRBD2_A_DISK_CONF] = { .type = NLA_NESTED },
+	[DRBD2_A_RESOURCE_OPTS] = { .type = NLA_NESTED },
+	[DRBD2_A_NET_CONF] = { .type = NLA_NESTED },
+	[DRBD2_A_SET_ROLE_PARMS] = { .type = NLA_NESTED },
+	[DRBD2_A_RESIZE_PARMS] = { .type = NLA_NESTED },
+	[DRBD2_A_START_OV_PARMS] = { .type = NLA_NESTED },
+	[DRBD2_A_NEW_CURRENT_UUID_PARMS] = { .type = NLA_NESTED },
+	[DRBD2_A_DISCONNECT_PARMS] = { .type = NLA_NESTED },
+	[DRBD2_A_DETACH_PARMS] = { .type = NLA_NESTED },
+	[DRBD2_A_DEVICE_CONF] = { .type = NLA_NESTED },
+	[DRBD2_A_HELPER] = { .type = NLA_NESTED },
+	[DRBD2_A_INVALIDATE_PARMS] = { .type = NLA_NESTED },
+	[DRBD2_A_PEER_DEVICE_CONF] = { .type = NLA_NESTED },
+	[DRBD2_A_CONNECT_PARMS] = { .type = NLA_NESTED },
+	[DRBD2_A_RENAME_PARMS] = { .type = NLA_NESTED },
+	[DRBD2_A_INVALIDATE_PEER_PARMS] = { .type = NLA_NESTED },
+	[DRBD2_A_SUSPEND_IO_PARMS] = { .type = NLA_NESTED },
+	[DRBD2_A_RESOURCE] = { .type = NLA_NESTED },
+	[DRBD2_A_DEVICE] = { .type = NLA_NESTED },
+	[DRBD2_A_CONNECTION] = { .type = NLA_NESTED },
+	[DRBD2_A_PEER_DEVICE] = { .type = NLA_NESTED },
+	[DRBD2_A_PATH] = { .type = NLA_NESTED },
+};

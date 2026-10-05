@@ -46,6 +46,16 @@ python3 "$GEN" --mode userspace --source \
     --schema "$SCHEMA" --spec "$SPEC" \
     -o "$SCRIPT_DIR/drbd_genl_userspace.c"
 
+# drbd2 policies for drbd-utils. The modern spec needs the modern schema;
+# the vendored generator handles it unchanged, no kernel tree required.
+python3 "$GEN" --mode userspace --header \
+    --schema "$SCRIPT_DIR/genetlink.yaml" --spec "$SCRIPT_DIR/drbd2.yaml" \
+    -o "$SCRIPT_DIR/drbd2_genl_userspace.h"
+
+python3 "$GEN" --mode userspace --source \
+    --schema "$SCRIPT_DIR/genetlink.yaml" --spec "$SCRIPT_DIR/drbd2.yaml" \
+    -o "$SCRIPT_DIR/drbd2_genl_userspace.c"
+
 # drbd2 (modern genetlink family): generated with the unmodified YNL tooling
 # of a kernel source tree, which kernel-devel packages do not carry; skip
 # without KDIR (CI has none), see generate-drbd2.sh.
