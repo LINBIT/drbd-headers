@@ -11,6 +11,10 @@
 #include <errno.h>
 
 /* Nested type policies */
+const struct nla_policy drbd_attach_parms_nl_policy[DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA + 1] = {
+	[DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA] = { .type = NLA_U8, },
+};
+
 const struct nla_policy drbd_connect_parms_nl_policy[DRBD_A_CONNECT_PARMS_DISCARD_MY_DATA + 1] = {
 	[DRBD_A_CONNECT_PARMS_TENTATIVE] = { .type = NLA_U8, },
 	[DRBD_A_CONNECT_PARMS_DISCARD_MY_DATA] = { .type = NLA_U8, },
@@ -329,6 +333,7 @@ const struct nla_policy drbd_tla_nl_policy[DRBD_TLA_NL_POLICY_LEN] = {
 	[DRBD_NLA_RENAME_RESOURCE_INFO] = { .type = NLA_NESTED },
 	[DRBD_NLA_INVAL_PEER_PARAMS] = { .type = NLA_NESTED },
 	[DRBD_NLA_SUSPEND_IO_PARAMS] = { .type = NLA_NESTED },
+	[DRBD_NLA_ATTACH_PARMS] = { .type = NLA_NESTED },
 };
 
 static int __drbd_cfg_reply_from_attrs(struct drbd_cfg_reply *s,
@@ -2282,6 +2287,46 @@ int suspend_io_parms_ntb_from_attrs(
 			struct genl_info *info)
 {
 	return __suspend_io_parms_from_attrs(NULL, ret_nested_attribute_table, info);
+}
+
+static int __attach_parms_from_attrs(struct attach_parms *s,
+		struct nlattr ***ret_nested_attribute_table,
+		struct genl_info *info)
+{
+	const int maxtype = DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA;
+	struct nlattr *tla = info->attrs[DRBD_NLA_ATTACH_PARMS];
+	struct nlattr *ntb[DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA + 1];
+	struct nlattr *nla;
+	int err = 0;
+
+	if (ret_nested_attribute_table)
+		*ret_nested_attribute_table = NULL;
+	if (!tla)
+		return -ENOMSG;
+	err = nla_parse_nested(ntb, maxtype, tla, drbd_attach_parms_nl_policy);
+	if (err)
+		return err;
+
+	nla = ntb[DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA];
+	if (nla && s)
+		s->attach_discard_my_data = nla_get_u8(nla);
+
+	if (ret_nested_attribute_table && (!err || err == -ENOMSG))
+		memcpy(ret_nested_attribute_table, ntb, sizeof(ntb));
+	return err;
+}
+
+int attach_parms_from_attrs(struct attach_parms *s,
+				struct genl_info *info)
+{
+	return __attach_parms_from_attrs(s, NULL, info);
+}
+
+int attach_parms_ntb_from_attrs(
+			struct nlattr ***ret_nested_attribute_table,
+			struct genl_info *info)
+{
+	return __attach_parms_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
 void set_drbd_cfg_context_defaults(struct drbd_cfg_context *x)

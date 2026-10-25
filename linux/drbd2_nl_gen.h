@@ -14,6 +14,7 @@
 
 /* Common nested types */
 extern const struct nla_policy drbd2_address_nl_policy[DRBD2_A_ADDRESS_IPV6 + 1];
+extern const struct nla_policy drbd2_attach_parms_nl_policy[DRBD2_A_ATTACH_PARMS_DISCARD_MY_DATA + 1];
 extern const struct nla_policy drbd2_cbt_start_parms_nl_policy[DRBD2_A_CBT_START_PARMS_BOOKMARK_ID + 1];
 extern const struct nla_policy drbd2_connect_parms_nl_policy[DRBD2_A_CONNECT_PARMS_DISCARD_MY_DATA + 1];
 extern const struct nla_policy drbd2_context_nl_policy[DRBD2_A_CONTEXT_PEER_ADDRESS + 1];

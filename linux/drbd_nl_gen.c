@@ -17,6 +17,10 @@
 #include <linux/drbd_limits.h>
 
 /* Common nested types */
+const struct nla_policy drbd_attach_parms_nl_policy[DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA + 1] = {
+	[DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA] = { .type = NLA_U8, },
+};
+
 const struct nla_policy drbd_connect_parms_nl_policy[DRBD_A_CONNECT_PARMS_DISCARD_MY_DATA + 1] = {
 	[DRBD_A_CONNECT_PARMS_TENTATIVE] = { .type = NLA_U8, },
 	[DRBD_A_CONNECT_PARMS_DISCARD_MY_DATA] = { .type = NLA_U8, },
@@ -232,9 +236,10 @@ static const struct nla_policy drbd_disconnect_nl_policy[DRBD_NLA_DISCONNECT_PAR
 };
 
 /* DRBD_ADM_ATTACH - do */
-static const struct nla_policy drbd_attach_nl_policy[DRBD_NLA_DISK_CONF + 1] = {
+static const struct nla_policy drbd_attach_nl_policy[DRBD_NLA_ATTACH_PARMS + 1] = {
 	[DRBD_NLA_CFG_CONTEXT] = NLA_POLICY_NESTED(drbd_drbd_cfg_context_nl_policy),
 	[DRBD_NLA_DISK_CONF] = NLA_POLICY_NESTED(drbd_disk_conf_nl_policy),
+	[DRBD_NLA_ATTACH_PARMS] = NLA_POLICY_NESTED(drbd_attach_parms_nl_policy),
 };
 
 /* DRBD_ADM_RESIZE - do */
@@ -430,7 +435,7 @@ const struct genl_ops drbd_nl_ops[38] = {
 		.cmd		= DRBD_ADM_ATTACH,
 		.doit		= drbd_nl_attach_doit,
 		.policy		= drbd_attach_nl_policy,
-		.maxattr	= DRBD_NLA_DISK_CONF,
+		.maxattr	= DRBD_NLA_ATTACH_PARMS,
 		.flags		= GENL_ADMIN_PERM,
 	},
 	{
@@ -1922,6 +1927,52 @@ int suspend_io_parms_ntb_from_attrs(
 	return __suspend_io_parms_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
+static int __attach_parms_from_attrs(struct drbd_attach_parms *s,
+		struct nlattr ***ret_nested_attribute_table,
+		struct genl_info *info)
+{
+	const int maxtype = DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA;
+	struct nlattr *tla = info->attrs[DRBD_NLA_ATTACH_PARMS];
+	struct nlattr **ntb;
+	struct nlattr *nla;
+	int err = 0;
+
+	if (ret_nested_attribute_table)
+		*ret_nested_attribute_table = NULL;
+	if (!tla)
+		return -ENOMSG;
+	ntb = kcalloc(DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA + 1, sizeof(*ntb), GFP_KERNEL);
+	if (!ntb)
+		return -ENOMEM;
+	err = nla_parse_nested_deprecated(ntb, maxtype, tla, drbd_attach_parms_nl_policy, NULL);
+	if (err)
+		goto out;
+
+	nla = ntb[DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA];
+	if (nla && s)
+		s->attach_discard_my_data = nla_get_u8(nla);
+
+out:
+	if (ret_nested_attribute_table && (!err || err == -ENOMSG))
+		*ret_nested_attribute_table = ntb;
+	else
+		kfree(ntb);
+	return err;
+}
+
+int attach_parms_from_attrs(struct drbd_attach_parms *s,
+				struct genl_info *info)
+{
+	return __attach_parms_from_attrs(s, NULL, info);
+}
+
+int attach_parms_ntb_from_attrs(
+			struct nlattr ***ret_nested_attribute_table,
+			struct genl_info *info)
+{
+	return __attach_parms_from_attrs(NULL, ret_nested_attribute_table, info);
+}
+
 int drbd_cfg_reply_to_skb(struct sk_buff *skb, struct drbd_nl_cfg_reply *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_CFG_REPLY);
@@ -2864,6 +2915,25 @@ int suspend_io_parms_to_skb(struct sk_buff *skb, struct drbd_suspend_io_parms *s
 	if (nla_put_u8(skb, DRBD_A_SUSPEND_IO_PARMS_BDEV_FREEZE, s->bdev_freeze))
 		goto nla_put_failure;
 	if (nla_put_u8(skb, DRBD_A_SUSPEND_IO_PARMS_FLUSH_TO_PEERS, s->flush_to_peers))
+		goto nla_put_failure;
+
+	nla_nest_end(skb, tla);
+	return 0;
+
+nla_put_failure:
+	if (tla)
+		nla_nest_cancel(skb, tla);
+	return -EMSGSIZE;
+}
+
+int attach_parms_to_skb(struct sk_buff *skb, struct drbd_attach_parms *s)
+{
+	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_ATTACH_PARMS);
+
+	if (!tla)
+		goto nla_put_failure;
+
+	if (nla_put_u8(skb, DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA, s->attach_discard_my_data))
 		goto nla_put_failure;
 
 	nla_nest_end(skb, tla);

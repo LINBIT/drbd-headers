@@ -365,6 +365,10 @@ struct drbd_suspend_io_parms {
 	unsigned char flush_to_peers;
 };
 
+struct drbd_attach_parms {
+	unsigned char attach_discard_my_data;
+};
+
 struct drbd_cbt_start_parms {
 	__u64 cbt_id;
 };

@@ -14,6 +14,7 @@
 
 /* Nested type policies */
 extern const struct nla_policy drbd2_address_nl_policy[DRBD2_A_ADDRESS_IPV6 + 1];
+extern const struct nla_policy drbd2_attach_parms_nl_policy[DRBD2_A_ATTACH_PARMS_DISCARD_MY_DATA + 1];
 extern const struct nla_policy drbd2_cbt_info_nl_policy[DRBD2_A_CBT_INFO_BITMAP_DAGTAG + 1];
 extern const struct nla_policy drbd2_cbt_start_parms_nl_policy[DRBD2_A_CBT_START_PARMS_BOOKMARK_ID + 1];
 extern const struct nla_policy drbd2_connect_parms_nl_policy[DRBD2_A_CONNECT_PARMS_DISCARD_MY_DATA + 1];
@@ -49,7 +50,7 @@ extern const struct nla_policy drbd2_set_role_parms_nl_policy[DRBD2_A_SET_ROLE_P
 extern const struct nla_policy drbd2_start_ov_parms_nl_policy[DRBD2_A_START_OV_PARMS_STOP_SECTOR + 1];
 extern const struct nla_policy drbd2_suspend_io_parms_nl_policy[DRBD2_A_SUSPEND_IO_PARMS_FLUSH_TO_PEERS + 1];
 
-#define DRBD2_TLA_NL_POLICY_LEN (DRBD2_A_CBT_INFO + 1)
+#define DRBD2_TLA_NL_POLICY_LEN (DRBD2_A_ATTACH_PARMS + 1)
 extern const struct nla_policy drbd2_tla_nl_policy[DRBD2_TLA_NL_POLICY_LEN];
 
 #endif /* _LINUX_DRBD2_GEN_USERSPACE_H */

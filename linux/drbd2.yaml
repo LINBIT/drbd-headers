@@ -1047,6 +1047,15 @@ attribute-sets:
         doc: Request that the device be marked permanently, intentionally diskless instead of temporarily diskless (drbdsetup detach option diskless).
 
   -
+    name: attach-parms
+    doc: Parameters of the attach request.
+    attributes:
+      -
+        name: discard-my-data
+        type: flag
+        doc: Request that, should the handshake with a peer find a split brain, the local data be discarded and resynchronized from that peer (drbdsetup attach option discard-my-data).
+
+  -
     name: device-conf
     doc: Options of a device, set when the device is created (drbdsetup new-minor).
     attributes:
@@ -1812,6 +1821,11 @@ attribute-sets:
         type: nest
         nested-attributes: cbt-info
         doc: Reply of device-cbt-status.
+      -
+        name: attach-parms
+        type: nest
+        nested-attributes: attach-parms
+        doc: Parameters of device-attach.
 
   -
     name: state-change
@@ -2063,6 +2077,7 @@ operations:
           attributes:
             - context
             - disk-conf
+            - attach-parms
         reply:
           attributes:
             - state-result

@@ -15,6 +15,7 @@
 #include <linux/drbd_limits.h>
 
 /* Common nested types */
+extern const struct nla_policy drbd_attach_parms_nl_policy[DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA + 1];
 extern const struct nla_policy drbd_connect_parms_nl_policy[DRBD_A_CONNECT_PARMS_DISCARD_MY_DATA + 1];
 extern const struct nla_policy drbd_detach_parms_nl_policy[DRBD_A_DETACH_PARMS_INTENTIONAL_DISKLESS_DETACH + 1];
 extern const struct nla_policy drbd_device_conf_nl_policy[DRBD_A_DEVICE_CONF_DISCARD_GRANULARITY + 1];
@@ -215,5 +216,9 @@ int suspend_io_parms_from_attrs(struct drbd_suspend_io_parms *s, struct genl_inf
 int suspend_io_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
 int suspend_io_parms_to_skb(struct sk_buff *skb, struct drbd_suspend_io_parms *s);
 void drbd_set_suspend_io_parms_defaults(struct drbd_suspend_io_parms *x);
+
+int attach_parms_from_attrs(struct drbd_attach_parms *s, struct genl_info *info);
+int attach_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
+int attach_parms_to_skb(struct sk_buff *skb, struct drbd_attach_parms *s);
 
 #endif /* _LINUX_DRBD_GEN_H */

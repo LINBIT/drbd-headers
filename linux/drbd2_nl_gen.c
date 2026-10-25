@@ -19,6 +19,10 @@ const struct nla_policy drbd2_address_nl_policy[DRBD2_A_ADDRESS_IPV6 + 1] = {
 	[DRBD2_A_ADDRESS_IPV6] = NLA_POLICY_EXACT_LEN(16),
 };
 
+const struct nla_policy drbd2_attach_parms_nl_policy[DRBD2_A_ATTACH_PARMS_DISCARD_MY_DATA + 1] = {
+	[DRBD2_A_ATTACH_PARMS_DISCARD_MY_DATA] = { .type = NLA_FLAG, },
+};
+
 const struct nla_policy drbd2_cbt_start_parms_nl_policy[DRBD2_A_CBT_START_PARMS_BOOKMARK_ID + 1] = {
 	[DRBD2_A_CBT_START_PARMS_BOOKMARK_ID] = { .type = NLA_U64, },
 };
@@ -253,9 +257,10 @@ static const struct nla_policy drbd2_device_del_nl_policy[DRBD2_A_CONTEXT + 1] =
 };
 
 /* DRBD2_CMD_DEVICE_ATTACH - do */
-static const struct nla_policy drbd2_device_attach_nl_policy[DRBD2_A_DISK_CONF + 1] = {
+static const struct nla_policy drbd2_device_attach_nl_policy[DRBD2_A_ATTACH_PARMS + 1] = {
 	[DRBD2_A_CONTEXT] = NLA_POLICY_NESTED(drbd2_context_nl_policy),
 	[DRBD2_A_DISK_CONF] = NLA_POLICY_NESTED(drbd2_disk_conf_nl_policy),
+	[DRBD2_A_ATTACH_PARMS] = NLA_POLICY_NESTED(drbd2_attach_parms_nl_policy),
 };
 
 /* DRBD2_CMD_DEVICE_DETACH - do */
@@ -527,7 +532,7 @@ static const struct genl_split_ops drbd2_nl_ops[] = {
 		.doit		= drbd2_nl_device_attach_doit,
 		.post_doit	= drbd2_post_doit,
 		.policy		= drbd2_device_attach_nl_policy,
-		.maxattr	= DRBD2_A_DISK_CONF,
+		.maxattr	= DRBD2_A_ATTACH_PARMS,
 		.flags		= GENL_ADMIN_PERM | GENL_CMD_CAP_DO,
 	},
 	{

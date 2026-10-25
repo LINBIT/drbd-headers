@@ -817,6 +817,11 @@ attribute-sets:
     type: u8
     value: 2
     default: DRBD_SUSPEND_IO_FLUSH_TO_PEERS_DEF
+- name: attach-parms
+  attributes:
+  - name: attach-discard-my-data
+    type: u8
+    value: 1
 - name: drbd
   name-prefix: drbd-nla-
   attributes:
@@ -952,6 +957,10 @@ attribute-sets:
     type: nest
     value: 34
     nested-attributes: suspend-io-parms
+  - name: attach-parms
+    type: nest
+    value: 35
+    nested-attributes: attach-parms
 operations:
   name-prefix: drbd-adm-
   async-prefix: drbd-
@@ -1059,6 +1068,7 @@ operations:
         attributes:
         - cfg-context
         - disk-conf
+        - attach-parms
   - name: resize
     doc: Resize the DRBD device.
     value: 13
