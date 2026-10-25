@@ -423,6 +423,13 @@ struct p_rs_req {
  */
 #define DRBD_FF_WRITE_POSTPONE 1024
 
+/* A split brain detected while a node attaches its disk is handled like one
+ * detected on connect: by the after-sb-* policies, or by the attaching node's
+ * discard-my-data.  Without this, the attach fails.  Both nodes must agree on
+ * it, as only one of them would otherwise commit to a resync direction.
+ */
+#define DRBD_FF_ATTACH_SPLIT_BRAIN 2048
+
 struct p_connection_features {
 	uint32_t protocol_min;
 	uint32_t feature_flags;
