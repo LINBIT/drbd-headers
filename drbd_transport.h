@@ -54,6 +54,13 @@
 	tr_printk(KERN_NOTICE, transport, fmt, ## args)
 #define tr_info(transport, fmt, args...) \
 	tr_printk(KERN_INFO, transport, fmt, ## args)
+#define tr_dbg(transport, fmt, args...) ({				\
+	rcu_read_lock();						\
+	pr_debug("drbd %s %s:%s: " fmt, (transport)->log_prefix,	\
+		 (transport)->class->name,				\
+		 rcu_dereference((transport)->net_conf)->name, ## args); \
+	rcu_read_unlock();						\
+	})
 
 #define TR_ASSERT(x, exp)							\
 	do {									\
