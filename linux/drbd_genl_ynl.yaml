@@ -822,6 +822,32 @@ attribute-sets:
   - name: attach-discard-my-data
     type: u8
     value: 1
+- name: cbt-start-parms
+  attributes:
+  - name: cbt-id
+    type: u64
+    value: 1
+    required: true
+- name: cbt-info
+  attributes:
+  - name: cbt-active
+    type: u8
+    value: 1
+  - name: cbt-valid
+    type: u8
+    value: 2
+  - name: cbt-bookmark-id
+    type: u64
+    value: 3
+  - name: cbt-since
+    type: u64
+    value: 4
+  - name: cbt-bitmap-uuid
+    type: u64
+    value: 5
+  - name: cbt-bitmap-dagtag
+    type: u64
+    value: 6
 - name: drbd
   name-prefix: drbd-nla-
   attributes:
@@ -961,6 +987,14 @@ attribute-sets:
     type: nest
     value: 35
     nested-attributes: attach-parms
+  - name: cbt-start-parms
+    type: nest
+    value: 36
+    nested-attributes: cbt-start-parms
+  - name: cbt-info
+    type: nest
+    value: 37
+    nested-attributes: cbt-info
 operations:
   name-prefix: drbd-adm-
   async-prefix: drbd-
@@ -1508,6 +1542,59 @@ operations:
         - cfg-context
         - path-info
       post: drbd_nl_get_paths_done
+  - name: cbt-flush
+    doc: Write the bitmaps and the superblock to the meta data device, so that
+      a snapshot of the meta data taken while I/O stays suspended carries every
+      changed block.
+    value: 51
+    attribute-set: drbd
+    flags:
+    - admin-perm
+    do:
+      pre: drbd-pre-doit
+      post: drbd-post-doit
+      request:
+        attributes:
+        - cfg-context
+  - name: cbt-start
+    doc: Clear the changed block tracking bitmap and start a new tracking
+      interval at a bookmark.
+    value: 52
+    attribute-set: drbd
+    flags:
+    - admin-perm
+    do:
+      pre: drbd-pre-doit
+      post: drbd-post-doit
+      request:
+        attributes:
+        - cfg-context
+        - cbt-start-parms
+  - name: cbt-stop
+    doc: Stop changed block tracking and free its bitmap slot.
+    value: 53
+    attribute-set: drbd
+    flags:
+    - admin-perm
+    do:
+      pre: drbd-pre-doit
+      post: drbd-post-doit
+      request:
+        attributes:
+        - cfg-context
+  - name: cbt-status
+    doc: Get the changed block tracking state of a device.
+    value: 54
+    attribute-set: drbd
+    do:
+      pre: drbd-pre-doit
+      post: drbd-post-doit
+      request:
+        attributes:
+        - cfg-context
+      reply:
+        attributes:
+        - cbt-info
 mcast-groups:
   list:
   - name: events

@@ -21,6 +21,10 @@ const struct nla_policy drbd_attach_parms_nl_policy[DRBD_A_ATTACH_PARMS_ATTACH_D
 	[DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA] = { .type = NLA_U8, },
 };
 
+const struct nla_policy drbd_cbt_start_parms_nl_policy[DRBD_A_CBT_START_PARMS_CBT_ID + 1] = {
+	[DRBD_A_CBT_START_PARMS_CBT_ID] = { .type = NLA_U64, },
+};
+
 const struct nla_policy drbd_connect_parms_nl_policy[DRBD_A_CONNECT_PARMS_DISCARD_MY_DATA + 1] = {
 	[DRBD_A_CONNECT_PARMS_TENTATIVE] = { .type = NLA_U8, },
 	[DRBD_A_CONNECT_PARMS_DISCARD_MY_DATA] = { .type = NLA_U8, },
@@ -380,8 +384,29 @@ static const struct nla_policy drbd_rename_resource_nl_policy[DRBD_NLA_RENAME_RE
 	[DRBD_NLA_RENAME_RESOURCE_PARMS] = NLA_POLICY_NESTED(drbd_rename_resource_parms_nl_policy),
 };
 
+/* DRBD_ADM_CBT_FLUSH - do */
+static const struct nla_policy drbd_cbt_flush_nl_policy[DRBD_NLA_CFG_CONTEXT + 1] = {
+	[DRBD_NLA_CFG_CONTEXT] = NLA_POLICY_NESTED(drbd_drbd_cfg_context_nl_policy),
+};
+
+/* DRBD_ADM_CBT_START - do */
+static const struct nla_policy drbd_cbt_start_nl_policy[DRBD_NLA_CBT_START_PARMS + 1] = {
+	[DRBD_NLA_CFG_CONTEXT] = NLA_POLICY_NESTED(drbd_drbd_cfg_context_nl_policy),
+	[DRBD_NLA_CBT_START_PARMS] = NLA_POLICY_NESTED(drbd_cbt_start_parms_nl_policy),
+};
+
+/* DRBD_ADM_CBT_STOP - do */
+static const struct nla_policy drbd_cbt_stop_nl_policy[DRBD_NLA_CFG_CONTEXT + 1] = {
+	[DRBD_NLA_CFG_CONTEXT] = NLA_POLICY_NESTED(drbd_drbd_cfg_context_nl_policy),
+};
+
+/* DRBD_ADM_CBT_STATUS - do */
+static const struct nla_policy drbd_cbt_status_nl_policy[DRBD_NLA_CFG_CONTEXT + 1] = {
+	[DRBD_NLA_CFG_CONTEXT] = NLA_POLICY_NESTED(drbd_drbd_cfg_context_nl_policy),
+};
+
 /* Ops table for drbd */
-const struct genl_ops drbd_nl_ops[38] = {
+const struct genl_ops drbd_nl_ops[42] = {
 	{
 		.cmd		= DRBD_ADM_NEW_MINOR,
 		.doit		= drbd_nl_new_minor_doit,
@@ -634,6 +659,33 @@ const struct genl_ops drbd_nl_ops[38] = {
 		.cmd	= DRBD_ADM_GET_PATHS,
 		.dumpit	= drbd_nl_get_paths_dumpit,
 		.done	= drbd_nl_get_paths_done,
+	},
+	{
+		.cmd		= DRBD_ADM_CBT_FLUSH,
+		.doit		= drbd_nl_cbt_flush_doit,
+		.policy		= drbd_cbt_flush_nl_policy,
+		.maxattr	= DRBD_NLA_CFG_CONTEXT,
+		.flags		= GENL_ADMIN_PERM,
+	},
+	{
+		.cmd		= DRBD_ADM_CBT_START,
+		.doit		= drbd_nl_cbt_start_doit,
+		.policy		= drbd_cbt_start_nl_policy,
+		.maxattr	= DRBD_NLA_CBT_START_PARMS,
+		.flags		= GENL_ADMIN_PERM,
+	},
+	{
+		.cmd		= DRBD_ADM_CBT_STOP,
+		.doit		= drbd_nl_cbt_stop_doit,
+		.policy		= drbd_cbt_stop_nl_policy,
+		.maxattr	= DRBD_NLA_CFG_CONTEXT,
+		.flags		= GENL_ADMIN_PERM,
+	},
+	{
+		.cmd		= DRBD_ADM_CBT_STATUS,
+		.doit		= drbd_nl_cbt_status_doit,
+		.policy		= drbd_cbt_status_nl_policy,
+		.maxattr	= DRBD_NLA_CFG_CONTEXT,
 	},
 };
 
@@ -1973,6 +2025,57 @@ int attach_parms_ntb_from_attrs(
 	return __attach_parms_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
+static int __cbt_start_parms_from_attrs(struct drbd_cbt_start_parms *s,
+		struct nlattr ***ret_nested_attribute_table,
+		struct genl_info *info)
+{
+	const int maxtype = DRBD_A_CBT_START_PARMS_CBT_ID;
+	struct nlattr *tla = info->attrs[DRBD_NLA_CBT_START_PARMS];
+	struct nlattr **ntb;
+	struct nlattr *nla;
+	int err = 0;
+
+	if (ret_nested_attribute_table)
+		*ret_nested_attribute_table = NULL;
+	if (!tla)
+		return -ENOMSG;
+	ntb = kcalloc(DRBD_A_CBT_START_PARMS_CBT_ID + 1, sizeof(*ntb), GFP_KERNEL);
+	if (!ntb)
+		return -ENOMEM;
+	err = nla_parse_nested_deprecated(ntb, maxtype, tla, drbd_cbt_start_parms_nl_policy, NULL);
+	if (err)
+		goto out;
+
+	nla = ntb[DRBD_A_CBT_START_PARMS_CBT_ID];
+	if (nla) {
+		if (s)
+			s->cbt_id = nla_get_u64(nla);
+	} else {
+		pr_debug("<< missing required attr: cbt_id\n");
+		err = -ENOMSG;
+	}
+
+out:
+	if (ret_nested_attribute_table && (!err || err == -ENOMSG))
+		*ret_nested_attribute_table = ntb;
+	else
+		kfree(ntb);
+	return err;
+}
+
+int cbt_start_parms_from_attrs(struct drbd_cbt_start_parms *s,
+				struct genl_info *info)
+{
+	return __cbt_start_parms_from_attrs(s, NULL, info);
+}
+
+int cbt_start_parms_ntb_from_attrs(
+			struct nlattr ***ret_nested_attribute_table,
+			struct genl_info *info)
+{
+	return __cbt_start_parms_from_attrs(NULL, ret_nested_attribute_table, info);
+}
+
 int drbd_cfg_reply_to_skb(struct sk_buff *skb, struct drbd_nl_cfg_reply *s)
 {
 	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_CFG_REPLY);
@@ -2934,6 +3037,54 @@ int attach_parms_to_skb(struct sk_buff *skb, struct drbd_attach_parms *s)
 		goto nla_put_failure;
 
 	if (nla_put_u8(skb, DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA, s->attach_discard_my_data))
+		goto nla_put_failure;
+
+	nla_nest_end(skb, tla);
+	return 0;
+
+nla_put_failure:
+	if (tla)
+		nla_nest_cancel(skb, tla);
+	return -EMSGSIZE;
+}
+
+int cbt_start_parms_to_skb(struct sk_buff *skb, struct drbd_cbt_start_parms *s)
+{
+	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_CBT_START_PARMS);
+
+	if (!tla)
+		goto nla_put_failure;
+
+	if (nla_put_u64_64bit(skb, DRBD_A_CBT_START_PARMS_CBT_ID, s->cbt_id, 0))
+		goto nla_put_failure;
+
+	nla_nest_end(skb, tla);
+	return 0;
+
+nla_put_failure:
+	if (tla)
+		nla_nest_cancel(skb, tla);
+	return -EMSGSIZE;
+}
+
+int cbt_info_to_skb(struct sk_buff *skb, struct drbd_cbt_info *s)
+{
+	struct nlattr *tla = nla_nest_start(skb, DRBD_NLA_CBT_INFO);
+
+	if (!tla)
+		goto nla_put_failure;
+
+	if (nla_put_u8(skb, DRBD_A_CBT_INFO_CBT_ACTIVE, s->cbt_active))
+		goto nla_put_failure;
+	if (nla_put_u8(skb, DRBD_A_CBT_INFO_CBT_VALID, s->cbt_valid))
+		goto nla_put_failure;
+	if (nla_put_u64_64bit(skb, DRBD_A_CBT_INFO_CBT_BOOKMARK_ID, s->cbt_bookmark_id, 0))
+		goto nla_put_failure;
+	if (nla_put_u64_64bit(skb, DRBD_A_CBT_INFO_CBT_SINCE, s->cbt_since, 0))
+		goto nla_put_failure;
+	if (nla_put_u64_64bit(skb, DRBD_A_CBT_INFO_CBT_BITMAP_UUID, s->cbt_bitmap_uuid, 0))
+		goto nla_put_failure;
+	if (nla_put_u64_64bit(skb, DRBD_A_CBT_INFO_CBT_BITMAP_DAGTAG, s->cbt_bitmap_dagtag, 0))
 		goto nla_put_failure;
 
 	nla_nest_end(skb, tla);

@@ -16,6 +16,8 @@
 
 /* Nested type policies */
 extern const struct nla_policy drbd_attach_parms_nl_policy[DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA + 1];
+extern const struct nla_policy drbd_cbt_info_nl_policy[DRBD_A_CBT_INFO_CBT_BITMAP_DAGTAG + 1];
+extern const struct nla_policy drbd_cbt_start_parms_nl_policy[DRBD_A_CBT_START_PARMS_CBT_ID + 1];
 extern const struct nla_policy drbd_connect_parms_nl_policy[DRBD_A_CONNECT_PARMS_DISCARD_MY_DATA + 1];
 extern const struct nla_policy drbd_connection_info_nl_policy[DRBD_A_CONNECTION_INFO_CONN_ROLE + 1];
 extern const struct nla_policy drbd_connection_statistics_nl_policy[DRBD_A_CONNECTION_STATISTICS_RS_IN_FLIGHT + 1];
@@ -360,6 +362,19 @@ struct attach_parms {
 	unsigned char attach_discard_my_data;
 };
 
+struct cbt_start_parms {
+	__u64 cbt_id;
+};
+
+struct cbt_info {
+	unsigned char cbt_active;
+	unsigned char cbt_valid;
+	__u64 cbt_bookmark_id;
+	__u64 cbt_since;
+	__u64 cbt_bitmap_uuid;
+	__u64 cbt_bitmap_dagtag;
+};
+
 /* IS_SIGNED helpers for config_flags */
 #define F_info_text_IS_SIGNED 0
 #define F_ctx_volume_IS_SIGNED 0
@@ -547,6 +562,13 @@ struct attach_parms {
 #define F_bdev_freeze_IS_SIGNED 0
 #define F_flush_to_peers_IS_SIGNED 0
 #define F_attach_discard_my_data_IS_SIGNED 0
+#define F_cbt_id_IS_SIGNED 0
+#define F_cbt_active_IS_SIGNED 0
+#define F_cbt_valid_IS_SIGNED 0
+#define F_cbt_bookmark_id_IS_SIGNED 0
+#define F_cbt_since_IS_SIGNED 0
+#define F_cbt_bitmap_uuid_IS_SIGNED 0
+#define F_cbt_bitmap_dagtag_IS_SIGNED 0
 
 int drbd_cfg_reply_from_attrs(struct drbd_cfg_reply *s, struct genl_info *info);
 int drbd_cfg_reply_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
@@ -663,7 +685,13 @@ void set_suspend_io_parms_defaults(struct suspend_io_parms *x);
 int attach_parms_from_attrs(struct attach_parms *s, struct genl_info *info);
 int attach_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
 
-#define DRBD_TLA_NL_POLICY_LEN (DRBD_NLA_ATTACH_PARMS + 1)
+int cbt_start_parms_from_attrs(struct cbt_start_parms *s, struct genl_info *info);
+int cbt_start_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
+
+int cbt_info_from_attrs(struct cbt_info *s, struct genl_info *info);
+int cbt_info_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
+
+#define DRBD_TLA_NL_POLICY_LEN (DRBD_NLA_CBT_INFO + 1)
 extern const struct nla_policy drbd_tla_nl_policy[DRBD_TLA_NL_POLICY_LEN];
 
 #endif /* _LINUX_DRBD_GEN_USERSPACE_H */

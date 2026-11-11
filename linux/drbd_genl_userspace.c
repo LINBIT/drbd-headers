@@ -15,6 +15,19 @@ const struct nla_policy drbd_attach_parms_nl_policy[DRBD_A_ATTACH_PARMS_ATTACH_D
 	[DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA] = { .type = NLA_U8, },
 };
 
+const struct nla_policy drbd_cbt_info_nl_policy[DRBD_A_CBT_INFO_CBT_BITMAP_DAGTAG + 1] = {
+	[DRBD_A_CBT_INFO_CBT_ACTIVE] = { .type = NLA_U8, },
+	[DRBD_A_CBT_INFO_CBT_VALID] = { .type = NLA_U8, },
+	[DRBD_A_CBT_INFO_CBT_BOOKMARK_ID] = { .type = NLA_U64, },
+	[DRBD_A_CBT_INFO_CBT_SINCE] = { .type = NLA_U64, },
+	[DRBD_A_CBT_INFO_CBT_BITMAP_UUID] = { .type = NLA_U64, },
+	[DRBD_A_CBT_INFO_CBT_BITMAP_DAGTAG] = { .type = NLA_U64, },
+};
+
+const struct nla_policy drbd_cbt_start_parms_nl_policy[DRBD_A_CBT_START_PARMS_CBT_ID + 1] = {
+	[DRBD_A_CBT_START_PARMS_CBT_ID] = { .type = NLA_U64, },
+};
+
 const struct nla_policy drbd_connect_parms_nl_policy[DRBD_A_CONNECT_PARMS_DISCARD_MY_DATA + 1] = {
 	[DRBD_A_CONNECT_PARMS_TENTATIVE] = { .type = NLA_U8, },
 	[DRBD_A_CONNECT_PARMS_DISCARD_MY_DATA] = { .type = NLA_U8, },
@@ -334,6 +347,8 @@ const struct nla_policy drbd_tla_nl_policy[DRBD_TLA_NL_POLICY_LEN] = {
 	[DRBD_NLA_INVAL_PEER_PARAMS] = { .type = NLA_NESTED },
 	[DRBD_NLA_SUSPEND_IO_PARAMS] = { .type = NLA_NESTED },
 	[DRBD_NLA_ATTACH_PARMS] = { .type = NLA_NESTED },
+	[DRBD_NLA_CBT_START_PARMS] = { .type = NLA_NESTED },
+	[DRBD_NLA_CBT_INFO] = { .type = NLA_NESTED },
 };
 
 static int __drbd_cfg_reply_from_attrs(struct drbd_cfg_reply *s,
@@ -2327,6 +2342,111 @@ int attach_parms_ntb_from_attrs(
 			struct genl_info *info)
 {
 	return __attach_parms_from_attrs(NULL, ret_nested_attribute_table, info);
+}
+
+static int __cbt_start_parms_from_attrs(struct cbt_start_parms *s,
+		struct nlattr ***ret_nested_attribute_table,
+		struct genl_info *info)
+{
+	const int maxtype = DRBD_A_CBT_START_PARMS_CBT_ID;
+	struct nlattr *tla = info->attrs[DRBD_NLA_CBT_START_PARMS];
+	struct nlattr *ntb[DRBD_A_CBT_START_PARMS_CBT_ID + 1];
+	struct nlattr *nla;
+	int err = 0;
+
+	if (ret_nested_attribute_table)
+		*ret_nested_attribute_table = NULL;
+	if (!tla)
+		return -ENOMSG;
+	err = nla_parse_nested(ntb, maxtype, tla, drbd_cbt_start_parms_nl_policy);
+	if (err)
+		return err;
+
+	nla = ntb[DRBD_A_CBT_START_PARMS_CBT_ID];
+	if (nla) {
+		if (s)
+			s->cbt_id = nla_get_u64(nla);
+	} else {
+		fprintf(stderr, "<< missing required attr: cbt_id\n");
+		err = -ENOMSG;
+	}
+
+	if (ret_nested_attribute_table && (!err || err == -ENOMSG))
+		memcpy(ret_nested_attribute_table, ntb, sizeof(ntb));
+	return err;
+}
+
+int cbt_start_parms_from_attrs(struct cbt_start_parms *s,
+				struct genl_info *info)
+{
+	return __cbt_start_parms_from_attrs(s, NULL, info);
+}
+
+int cbt_start_parms_ntb_from_attrs(
+			struct nlattr ***ret_nested_attribute_table,
+			struct genl_info *info)
+{
+	return __cbt_start_parms_from_attrs(NULL, ret_nested_attribute_table, info);
+}
+
+static int __cbt_info_from_attrs(struct cbt_info *s,
+		struct nlattr ***ret_nested_attribute_table,
+		struct genl_info *info)
+{
+	const int maxtype = DRBD_A_CBT_INFO_CBT_BITMAP_DAGTAG;
+	struct nlattr *tla = info->attrs[DRBD_NLA_CBT_INFO];
+	struct nlattr *ntb[DRBD_A_CBT_INFO_CBT_BITMAP_DAGTAG + 1];
+	struct nlattr *nla;
+	int err = 0;
+
+	if (ret_nested_attribute_table)
+		*ret_nested_attribute_table = NULL;
+	if (!tla)
+		return -ENOMSG;
+	err = nla_parse_nested(ntb, maxtype, tla, drbd_cbt_info_nl_policy);
+	if (err)
+		return err;
+
+	nla = ntb[DRBD_A_CBT_INFO_CBT_ACTIVE];
+	if (nla && s)
+		s->cbt_active = nla_get_u8(nla);
+
+	nla = ntb[DRBD_A_CBT_INFO_CBT_VALID];
+	if (nla && s)
+		s->cbt_valid = nla_get_u8(nla);
+
+	nla = ntb[DRBD_A_CBT_INFO_CBT_BOOKMARK_ID];
+	if (nla && s)
+		s->cbt_bookmark_id = nla_get_u64(nla);
+
+	nla = ntb[DRBD_A_CBT_INFO_CBT_SINCE];
+	if (nla && s)
+		s->cbt_since = nla_get_u64(nla);
+
+	nla = ntb[DRBD_A_CBT_INFO_CBT_BITMAP_UUID];
+	if (nla && s)
+		s->cbt_bitmap_uuid = nla_get_u64(nla);
+
+	nla = ntb[DRBD_A_CBT_INFO_CBT_BITMAP_DAGTAG];
+	if (nla && s)
+		s->cbt_bitmap_dagtag = nla_get_u64(nla);
+
+	if (ret_nested_attribute_table && (!err || err == -ENOMSG))
+		memcpy(ret_nested_attribute_table, ntb, sizeof(ntb));
+	return err;
+}
+
+int cbt_info_from_attrs(struct cbt_info *s,
+				struct genl_info *info)
+{
+	return __cbt_info_from_attrs(s, NULL, info);
+}
+
+int cbt_info_ntb_from_attrs(
+			struct nlattr ***ret_nested_attribute_table,
+			struct genl_info *info)
+{
+	return __cbt_info_from_attrs(NULL, ret_nested_attribute_table, info);
 }
 
 void set_drbd_cfg_context_defaults(struct drbd_cfg_context *x)

@@ -16,6 +16,7 @@
 
 /* Common nested types */
 extern const struct nla_policy drbd_attach_parms_nl_policy[DRBD_A_ATTACH_PARMS_ATTACH_DISCARD_MY_DATA + 1];
+extern const struct nla_policy drbd_cbt_start_parms_nl_policy[DRBD_A_CBT_START_PARMS_CBT_ID + 1];
 extern const struct nla_policy drbd_connect_parms_nl_policy[DRBD_A_CONNECT_PARMS_DISCARD_MY_DATA + 1];
 extern const struct nla_policy drbd_detach_parms_nl_policy[DRBD_A_DETACH_PARMS_INTENTIONAL_DISKLESS_DETACH + 1];
 extern const struct nla_policy drbd_device_conf_nl_policy[DRBD_A_DEVICE_CONF_DISCARD_GRANULARITY + 1];
@@ -37,7 +38,7 @@ extern const struct nla_policy drbd_start_ov_parms_nl_policy[DRBD_A_START_OV_PAR
 extern const struct nla_policy drbd_suspend_io_parms_nl_policy[DRBD_A_SUSPEND_IO_PARMS_FLUSH_TO_PEERS + 1];
 
 /* Ops table for drbd */
-extern const struct genl_ops drbd_nl_ops[38];
+extern const struct genl_ops drbd_nl_ops[42];
 
 int drbd_pre_doit(const struct genl_split_ops *ops, struct sk_buff *skb,
 		  struct genl_info *info);
@@ -93,6 +94,10 @@ int drbd_nl_del_peer_doit(struct sk_buff *skb, struct genl_info *info);
 int drbd_nl_del_path_doit(struct sk_buff *skb, struct genl_info *info);
 int drbd_nl_rename_resource_doit(struct sk_buff *skb, struct genl_info *info);
 int drbd_nl_get_paths_dumpit(struct sk_buff *skb, struct netlink_callback *cb);
+int drbd_nl_cbt_flush_doit(struct sk_buff *skb, struct genl_info *info);
+int drbd_nl_cbt_start_doit(struct sk_buff *skb, struct genl_info *info);
+int drbd_nl_cbt_stop_doit(struct sk_buff *skb, struct genl_info *info);
+int drbd_nl_cbt_status_doit(struct sk_buff *skb, struct genl_info *info);
 
 enum {
 	DRBD_NLGRP_EVENTS,
@@ -220,5 +225,11 @@ void drbd_set_suspend_io_parms_defaults(struct drbd_suspend_io_parms *x);
 int attach_parms_from_attrs(struct drbd_attach_parms *s, struct genl_info *info);
 int attach_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
 int attach_parms_to_skb(struct sk_buff *skb, struct drbd_attach_parms *s);
+
+int cbt_start_parms_from_attrs(struct drbd_cbt_start_parms *s, struct genl_info *info);
+int cbt_start_parms_ntb_from_attrs(struct nlattr ***ret_nested_attribute_table, struct genl_info *info);
+int cbt_start_parms_to_skb(struct sk_buff *skb, struct drbd_cbt_start_parms *s);
+
+int cbt_info_to_skb(struct sk_buff *skb, struct drbd_cbt_info *s);
 
 #endif /* _LINUX_DRBD_GEN_H */
