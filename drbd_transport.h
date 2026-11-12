@@ -165,6 +165,25 @@ struct drbd_const_buffer {
 
 /**
  * struct drbd_transport_ops - Operations implemented by the transport.
+ * @init: Initialize a newly allocated transport instance.
+ * @free: Close the connection; with DESTROY_TRANSPORT also free the resources
+ *	allocated by init().
+ * @init_listener: Initialize a listener for a local address in a network
+ *	namespace.
+ * @release_listener: Release a listener set up by init_listener().
+ * @prepare_connect: Prepare a connection attempt, e.g. get the listeners.
+ * @connect: Establish the connection; return 0 or a negative error code.
+ * @finish_connect: Clean up after a connection attempt, successful or not.
+ * @stats: Report buffer usage of the DATA_STREAM.
+ * @set_rcvtimeo: Set the receive timeout of a stream, in jiffies.
+ * @get_rcvtimeo: Return the receive timeout of a stream, in jiffies.
+ * @send_page: Send part of a page on a stream; return 0 or a negative error
+ *	code.
+ * @send_bio: Send the data of a bio on the DATA_STREAM; return 0 or a
+ *	negative error code.
+ * @stream_ok: Return true if the stream is connected.
+ * @hint: Pass a &enum drbd_tr_hints hint for a stream to the transport.
+ * @debugfs_show: Print transport specific state to a debugfs file.
  *
  * The user of this API guarantees that all of the following will be exclusive
  * with respect to each other for a given transport instance:
@@ -190,78 +209,87 @@ struct drbd_transport_ops {
 	int (*connect)(struct drbd_transport *);
 	void (*finish_connect)(struct drbd_transport *);
 
-/**
- * recv() - Receive data via the transport
- * @transport:	The transport to use
- * @stream:	The stream within the transport to use. Ether DATA_STREAM or CONTROL_STREAM
- * @buf:	The function will place here the pointer to the data area
- * @size:	Number of byte to receive
- * @msg_flags:	Bitmask of CALLER_BUFFER, GROW_BUFFER and MSG_DONTWAIT
- *
- * recv() returns the requests data in a buffer (owned by the transport).
- * You may pass MSG_DONTWAIT as flags.  Usually with the next call to recv()
- * or recv_pages() on the same stream, the buffer may no longer be accessed
- * by the caller. I.e. it is reclaimed by the transport.
- *
- * If the transport was not capable of fulfilling the complete "wish" of the
- * caller (that means it returned a smaller size that size), the caller may
- * call recv() again with the flag GROW_BUFFER, and *buf as returned by the
- * previous call.
- * Note1: This can happen if MSG_DONTWAIT was used, or if a receive timeout
- *	was we with set_rcvtimeo().
- * Note2: recv() is free to re-locate the buffer in such a call. I.e. to
- *	modify *buf. Then it copies the content received so far to the new
- *	memory location.
- *
- * Last not least the caller may also pass an arbitrary pointer in *buf with
- * the CALLER_BUFFER flag. This is expected to be used for small amounts
- * of data only
- *
- * Upon success the function returns the bytes read. Upon error the return
- * code is negative. A 0 indicates that the socket was closed by the remote
- * side.
- */
+	/**
+	 * @recv: Receive data via the transport.
+	 *
+	 * Arguments:
+	 *
+	 * - transport: The transport to use
+	 * - stream: The stream within the transport to use. Either DATA_STREAM
+	 *   or CONTROL_STREAM
+	 * - buf: The function will place here the pointer to the data area
+	 * - size: Number of bytes to receive
+	 * - flags: Bitmask of CALLER_BUFFER, GROW_BUFFER and MSG_DONTWAIT
+	 *
+	 * recv() returns the requested data in a buffer (owned by the transport).
+	 * You may pass MSG_DONTWAIT as flags.  Usually with the next call to recv()
+	 * or recv_pages() on the same stream, the buffer may no longer be accessed
+	 * by the caller. I.e. it is reclaimed by the transport.
+	 *
+	 * If the transport was not capable of fulfilling the complete "wish" of the
+	 * caller (that means it returned a smaller size than size), the caller may
+	 * call recv() again with the flag GROW_BUFFER, and *buf as returned by the
+	 * previous call. This can happen if MSG_DONTWAIT was used, or if a
+	 * receive timeout was set with set_rcvtimeo(). recv() is free to
+	 * re-locate the buffer in such a call. I.e. to modify *buf. Then it
+	 * copies the content received so far to the new memory location.
+	 *
+	 * Last not least the caller may also pass an arbitrary pointer in *buf with
+	 * the CALLER_BUFFER flag. This is expected to be used for small amounts
+	 * of data only
+	 *
+	 * Upon success the function returns the bytes read. Upon error the return
+	 * code is negative. A 0 indicates that the socket was closed by the remote
+	 * side.
+	 */
 	int (*recv)(struct drbd_transport *, enum drbd_stream, void **buf, size_t size, int flags);
 
-/**
- * recv_bio() - Receive bulk data via the transport's DATA_STREAM into bios
- * @peer_device: Identify the transport and the device
- * @bios:	the bio_list to add received data to
- * @size:	Number of bytes to receive
- * @misalign_bits: Out: the bitwise OR of the offset of every bvec added to
- *		@bios, and of the length of every bvec but the last
- *
- * recv_bio() receives the requested amount of data from DATA_STREAM. It
- * allocates pages by using drbd_alloc_pages() and adds them to bios in the
- * bio_list.
- *
- * The core submits the bvecs to a backing device whose queue dma_alignment
- * constrains their offset and length. Reporting @misalign_bits lets it test
- * the payload with a single mask, and copy it into aligned pages when it has
- * to. The length of the last bvec is the payload size the core asked for; no
- * copy can change it, so it stays out of @misalign_bits.
- *
- * Upon success the function returns the bytes read. Upon error the return
- * code is negative. A 0 indicates that the socket was closed by the remote
- * side.
- */
+	/**
+	 * @recv_bio: Receive bulk data via the transport's DATA_STREAM into bios.
+	 *
+	 * Arguments:
+	 *
+	 * - transport: The transport to use
+	 * - bios: the bio_list to add received data to
+	 * - size: Number of bytes to receive
+	 * - misalign_bits: Out: the bitwise OR of the offset of every bvec added
+	 *   to bios, and of the length of every bvec but the last
+	 *
+	 * recv_bio() receives the requested amount of data from DATA_STREAM. It
+	 * allocates pages by using drbd_alloc_pages() and adds them to bios in the
+	 * bio_list.
+	 *
+	 * The core submits the bvecs to a backing device whose queue dma_alignment
+	 * constrains their offset and length. Reporting misalign_bits lets it test
+	 * the payload with a single mask, and copy it into aligned pages when it has
+	 * to. The length of the last bvec is the payload size the core asked for; no
+	 * copy can change it, so it stays out of misalign_bits.
+	 *
+	 * Upon success the function returns the bytes read. Upon error the return
+	 * code is negative. A 0 indicates that the socket was closed by the remote
+	 * side.
+	 */
 	int (*recv_bio)(struct drbd_transport *, struct bio_list *bios, size_t size,
 			unsigned int *misalign_bits);
 
 	void (*stats)(struct drbd_transport *, struct drbd_transport_stats *stats);
-/**
- * net_conf_change() - Notify about changed network configuration on the transport.
- * @new_net_conf: The new network configuration that should be applied.
- *
- * net_conf_change() is called in the context of either the initial creation of the connection,
- * or when the net_conf is changed via netlink. Note that assignment of the net_conf to the
- * transport object happens after this function is called.
- *
- * On a negative (error) return value, it is expected that any changes are reverted and
- * the old net_conf (if any) is still in effect.
- *
- * Upon success the function return 0. Upon error the function returns a negative value.
- */
+
+	/**
+	 * @net_conf_change: Notify about changed network configuration on the
+	 * transport. The new_net_conf argument is the new network configuration
+	 * that should be applied.
+	 *
+	 * net_conf_change() is called in the context of either the initial
+	 * creation of the connection, or when the net_conf is changed via
+	 * netlink. Note that assignment of the net_conf to the transport object
+	 * happens after this function is called.
+	 *
+	 * On a negative (error) return value, it is expected that any changes
+	 * are reverted and the old net_conf (if any) is still in effect.
+	 *
+	 * Upon success the function returns 0. Upon error the function returns
+	 * a negative value.
+	 */
 	int (*net_conf_change)(struct drbd_transport *, struct drbd_net_conf *new_net_conf);
 	void (*set_rcvtimeo)(struct drbd_transport *, enum drbd_stream, long timeout);
 	long (*get_rcvtimeo)(struct drbd_transport *, enum drbd_stream);
@@ -272,48 +300,44 @@ struct drbd_transport_ops {
 	bool (*hint)(struct drbd_transport *, enum drbd_stream, enum drbd_tr_hints hint);
 	void (*debugfs_show)(struct drbd_transport *, struct seq_file *m);
 
-/**
- * set_rx_alignment() - Tell the transport the alignment received payload needs
- * @bytes:	Alignment in bytes (a power of two, at most PAGE_SIZE), or 0 if
- *		no backing device is attached.
- *
- * The DRBD core submits pages received via recv_bio() to its backing devices,
- * whose queue dma_alignment constrains the offset and length of every bvec. A
- * transport that places received payload at sub-page offsets uses this to
- * align it accordingly. Purely a performance hint: the core copies misaligned
- * payload into aligned pages itself. Called whenever the set of attached
- * backing devices changes. Optional; must not sleep.
- */
+	/**
+	 * @set_rx_alignment: Tell the transport the alignment received payload
+	 * needs. The bytes argument is the alignment in bytes (a power of two,
+	 * at most PAGE_SIZE), or 0 if no backing device is attached.
+	 *
+	 * The DRBD core submits pages received via recv_bio() to its backing devices,
+	 * whose queue dma_alignment constrains the offset and length of every bvec. A
+	 * transport that places received payload at sub-page offsets uses this to
+	 * align it accordingly. Purely a performance hint: the core copies misaligned
+	 * payload into aligned pages itself. Called whenever the set of attached
+	 * backing devices changes. Optional; must not sleep.
+	 */
 	void (*set_rx_alignment)(struct drbd_transport *, unsigned int bytes);
 
-/**
- * add_path() - Prepare path to be added
- * @path: The path that is being added
- *
- * Called before the path is added to the paths list.
- *
- * Return: 0 if path may be added, error code otherwise.
- */
+	/**
+	 * @add_path: Prepare the path that is being added. Called before the
+	 * path is added to the paths list.
+	 *
+	 * Returns 0 if the path may be added, an error code otherwise.
+	 */
 	int (*add_path)(struct drbd_path *path);
 
-/**
- * may_remove_path() - Query whether path may currently be removed
- * @path: The path to be removed
- *
- * Return: true is path may be removed, false otherwise.
- */
+	/**
+	 * @may_remove_path: Query whether the path may currently be removed.
+	 *
+	 * Returns true if the path may be removed, false otherwise.
+	 */
 	bool (*may_remove_path)(struct drbd_path *path);
 
-/**
- * remove_path() - Tear down a path that is being removed
- * @path: The path that is being removed
- *
- * Clean up a path that is being removed. Called with the path still on the
- * transport's paths list and with references still held, under the same
- * exclusivity guarantee as may_remove_path(). The transport may sleep here,
- * e.g. to gracefully shut down an established connection, before the caller
- * removes the path from the list and drops the remaining references.
- */
+	/**
+	 * @remove_path: Tear down a path that is being removed.
+	 *
+	 * Clean up a path that is being removed. Called with the path still on the
+	 * transport's paths list and with references still held, under the same
+	 * exclusivity guarantee as may_remove_path(). The transport may sleep here,
+	 * e.g. to gracefully shut down an established connection, before the caller
+	 * removes the path from the list and drops the remaining references.
+	 */
 	void (*remove_path)(struct drbd_path *path);
 };
 
