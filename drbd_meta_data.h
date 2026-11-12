@@ -163,6 +163,7 @@ struct __packed al_on_pmem {
 };
 
 #undef be_u64
+#undef be_s64
 #undef be_u32
 #undef be_s32
 #undef be_u16
