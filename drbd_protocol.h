@@ -406,6 +406,15 @@ struct p_rs_req {
  */
 #define DRBD_FF_WRITE_POSTPONE (1 << 10)
 
+/* Bit 11 (DRBD_FF_ATTACH_SPLIT_BRAIN) is in use on the drbd-9.3 line. */
+
+/* An equal-UUID reconciliation resync between a Primary and a Secondary is
+ * sourced from the Primary when the Primary is UpToDate, whichever side holds
+ * the out-of-sync bits. Both sides must apply that rule, or both may choose
+ * SyncSource.
+ */
+#define DRBD_FF_RECONCILE_PRIMARY (1 << 12)
+
 struct p_connection_features {
 	uint32_t protocol_min;
 	uint32_t feature_flags;
