@@ -301,11 +301,11 @@ struct p_rs_req {
 } __packed;
 
 /* supports TRIM/DISCARD on the "wire" protocol */
-#define DRBD_FF_TRIM 1
+#define DRBD_FF_TRIM (1 << 0)
 
 /* Detect all-zeros during resync, and rather TRIM/UNMAP/DISCARD those blocks
  * instead of fully allocate a supposedly thin volume on initial resync */
-#define DRBD_FF_THIN_RESYNC 2
+#define DRBD_FF_THIN_RESYNC (1 << 1)
 
 /* supports REQ_WRITE_SAME on the "wire" protocol.
  * Note: this flag is overloaded,
@@ -316,7 +316,7 @@ struct p_rs_req {
  *   - indicates that we exchange additional settings in p_sizes
  *     drbd_send_sizes()/receive_sizes()
  */
-#define DRBD_FF_WSAME 4
+#define DRBD_FF_WSAME (1 << 2)
 
 /* supports REQ_OP_WRITE_ZEROES on the "wire" protocol.
  *
@@ -351,13 +351,13 @@ struct p_rs_req {
  * avoid "false positives" in an online-verify later, hoping that someone
  * set skip_block_zeroing=false.
  */
-#define DRBD_FF_WZEROES 8
+#define DRBD_FF_WZEROES (1 << 3)
 
 /* Supports synchronization of application and resync IO using data generation
  * tags (dagtags). See Documentation/application-resync-synchronization.rst for
  * details.
  */
-#define DRBD_FF_RESYNC_DAGTAG 16
+#define DRBD_FF_RESYNC_DAGTAG (1 << 4)
 
 /* V2 of p_twopc_request has a 32 bit flag field and the two fields for node
  * Ids are reduced to 8 bit instead of 32 bits.
@@ -369,7 +369,7 @@ struct p_rs_req {
  * phase 2 (P_TWOPC_COMMIT), where mask and val are the same values as
  * in phase 1 (P_TWOPC_PREPARE).
  */
-#define DRBD_FF_2PC_V2 32
+#define DRBD_FF_2PC_V2 (1 << 5)
 
 /* Starting with drbd-9.1.15, a node with a backing disk sends the new
  * current-uuid also to diskless nodes when the initial resync is
@@ -379,17 +379,17 @@ struct p_rs_req {
  * strictness regarding downgrading its view of the partner's disk
  * state.
  */
-#define DRBD_FF_RS_SKIP_UUID 64
+#define DRBD_FF_RS_SKIP_UUID (1 << 6)
 
 /* Support for resync_without_replication.
  */
-#define DRBD_FF_RESYNC_WITHOUT_REPLICATION 128
+#define DRBD_FF_RESYNC_WITHOUT_REPLICATION (1 << 7)
 
-/* Bit 256 (DRBD_FF_BM_BLOCK_SHIFT) is in use on the drbd-9.3 line. */
+/* Bit 8 (DRBD_FF_BM_BLOCK_SHIFT) is in use on the drbd-9.3 line. */
 
 /* Starting with drbd-9.2.19 a new kind of reconciliation resync
  */
-#define DRBD_FF_RECONCILE_RECONNECT 512
+#define DRBD_FF_RECONCILE_RECONNECT (1 << 9)
 
 /* A sync target that received a write in a range the sync source is still to
  * resync does not acknowledge it before the source holds that write too: it
@@ -404,7 +404,7 @@ struct p_rs_req {
  * to a target that secures its writes, sends the postpone answer, and retries
  * a postponed write.
  */
-#define DRBD_FF_WRITE_POSTPONE 1024
+#define DRBD_FF_WRITE_POSTPONE (1 << 10)
 
 struct p_connection_features {
 	uint32_t protocol_min;
